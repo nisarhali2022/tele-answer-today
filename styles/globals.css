@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    color: #0f172a;
+    background-color: #ffffff;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-dark text-white font-semibold px-5 py-2.5 rounded transition-colors duration-200 inline-block;
+  }
+
+  .btn-outline {
+    @apply border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-5 py-2.5 rounded transition-colors duration-200 inline-block;
+  }
+
+  .card {
+    @apply bg-white border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  .category-badge {
+    @apply text-xs font-bold uppercase tracking-wide text-white px-2.5 py-1 rounded;
+  }
+
+  .section-title {
+    @apply text-xl font-heading font-bold text-text-primary border-l-4 border-accent pl-3 mb-5;
+  }
+
+  .widget-box {
+    @apply bg-white border border-border rounded-lg p-5;
+  }
+
+  .render-deferred {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1800px;
+  }
+
+  .article-content {
+    font-size: 15px !important;
+  }
+
+  .prose {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    color: #0f172a;
+    line-height: 1.75;
+  }
+
+  .prose > * + * {
+    margin-top: 1em;
+  }
+
+  .prose p,
+  .prose ul,
+  .prose ol,
+  .prose blockquote,
+  .prose table {
+    margin-bottom: 1em;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    color: #0f172a;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 1.6em;
+    margin-bottom: 0.7em;
+  }
+
+  .prose h1 {
+    font-size: 1.875rem;
+  }
+
+  .prose h2 {
+    font-size: 1.5rem;
+  }
+
+  .prose h3 {
+    font-size: 1.25rem;
+  }
+
+  .prose h4 {
+    font-size: 1.125rem;
+  }
+
+  .prose a {
+    color: #c2410c;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .prose a:hover {
+    color: #9a3412;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.5rem;
+  }
+
+  .prose ul {
+    list-style-type: disc;
+  }
+
+  .prose ol {
+    list-style-type: decimal;
+  }
+
+  .prose li + li {
+    margin-top: 0.35em;
+  }
+
+  .prose img {
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+    height: auto;
+  }
+
+  .prose blockquote {
+    border-left: 4px solid #c2410c;
+    color: #64748b;
+    padding-left: 1rem;
+    font-style: italic;
+  }
+
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .prose th,
+  .prose td {
+    border: 1px solid #e2e8f0;
+    padding: 0.65rem;
+    text-align: left;
+  }
+
+  .prose th {
+    background: #f8fafc;
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  /* Prevent WordPress inline fonts and unify all rendered body content to Inter */
+  .prose * {
+    font-family: var(--font-inter), system-ui, sans-serif !important;
+  }
+}

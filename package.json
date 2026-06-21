@@ -1,0 +1,35 @@
+{
+  "name": "tele-answer-today",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test": "tsx --test",
+    "wp:h1:dry-run": "node scripts/wordpress-h1-cleanup.mjs",
+    "wp:h1:apply": "node scripts/wordpress-h1-cleanup.mjs --apply",
+    "wp:h1:show-titles": "node scripts/wordpress-show-titles.mjs"
+  },
+  "browserslist": [
+    "Chrome >= 111",
+    "Edge >= 111",
+    "Firefox >= 111",
+    "Safari >= 16.4",
+    "iOS >= 16.4"
+  ],
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^15.5.19",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "tsx": "^4.22.4"
+  }
+}
