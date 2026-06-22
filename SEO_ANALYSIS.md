@@ -26,6 +26,8 @@ are therefore labeled as:
 
 ## 2. Executive Summary
 
+Latest update: June 22, 2026.
+
 The project has a useful SEO foundation:
 
 - Canonical routes exist for posts and categories.
@@ -41,6 +43,17 @@ The project has a useful SEO foundation:
 - Fixed logo/favicon/homepage instructional images are local public assets.
 - The WordPress backend/API URL is environment-only and not hardcoded in
   tracked source.
+- WordPress body content is passed through `prepareWordPressContent()`, which
+  removes embedded content H1 blocks before rendering. Templates keep exactly
+  one visible page-level H1.
+- The main header is fixed, responsive, and includes live-site matching
+  submenus for Telenor Packages and Telenor Codes.
+- Metadata title/description generation now sanitizes WordPress/backend and
+  legacy public-domain references before producing canonical, Open Graph, and
+  Twitter metadata.
+- WordPress list queries now fetch compact list fields instead of full post
+  bodies, reducing hidden server-rendered payload size and preventing stale
+  body links from appearing in archive/sidebar payloads.
 
 However, several issues can prevent correct indexing or weaken search
 performance.
@@ -51,7 +64,7 @@ performance.
 | --- | ---: | --- |
 | Critical | 3 | Can remove or consolidate important URLs from search |
 | High | 8 | Strong indexing, metadata, or page-quality impact |
-| Medium | 15 | Material optimization and crawl-quality opportunity |
+| Medium | 13 | Material optimization and crawl-quality opportunity |
 | Low | 8 | Cleanup and consistency improvements |
 
 ## 3. Critical Issues
@@ -244,6 +257,54 @@ resolved WordPress pages.
 
 **Implemented result:** The dynamic WordPress-page branch now renders the
 plain-text WordPress page title as one H1 before page metadata and content.
+
+### SEO-06A: WordPress page content can create duplicate H1 tags
+
+**Source:** Code
+
+**Status:** Resolved on June 22, 2026.
+
+Some WordPress-backed pages, including Privacy Policy, can store an H1 inside
+`page.content.rendered`. The Next.js page template also renders the WordPress
+title as the visible page-level H1. This produced two H1 tags on affected
+pages:
+
+```text
+<h1>Privacy Policy</h1>
+<h1>Privacy Policy</h1>
+```
+
+**Impact:**
+
+- Heading-outline tools report duplicate H1s.
+- Search engines and assistive technology receive a weaker page hierarchy.
+- The page title appears twice visually or semantically when WordPress content
+  includes a manual H1.
+
+**Implemented result:** `lib/utils.js` now exposes
+`prepareWordPressContent()`, which removes WordPress body H1 blocks before
+link rewriting and image optimization. These routes use the helper:
+
+```text
+app/privacy-policy/page.jsx
+app/about-us/page.jsx
+app/[slug]/page.jsx
+app/[slug]/[post_slug]/page.jsx
+```
+
+Rendered verification on June 22, 2026 confirmed one H1 on:
+
+```text
+/
+/privacy-policy
+/about-us
+/contact-us
+/blog
+/telecom
+/tech
+/global
+/telenor/telenor-packages
+```
 
 ### SEO-07: Repository routes conflict with existing WordPress page slugs
 
@@ -954,6 +1015,8 @@ SEO-32 was completed with the complex metadata/schema work on June 15, 2026.
    or remove icons until profile URLs are available.
 4. Measure field Core Web Vitals after deployment; build bundle sizes alone
    do not confirm real-user LCP, INP, or CLS.
+5. Re-run a production heading audit after deployment and confirm every
+   indexable page reports exactly one H1.
 
 ## 10. Validation Checklist
 
@@ -962,6 +1025,8 @@ After fixes:
 - Every important URL returns its intended content.
 - Valid categories and posts do not redirect to `/blog/`.
 - Every indexable page has one visible H1.
+- WordPress body content does not render stored H1 blocks below the template
+  H1.
 - Titles contain the site name no more than once.
 - Canonicals match the exact preferred URL.
 - Page 2+ archives self-canonicalize.
@@ -984,9 +1049,9 @@ After fixes:
 
 ## 11. Current Verification Limitations
 
-- The June 19, 2026 production build compiled, type-checked, and generated all
-  28 routes successfully using an isolated output directory.
-- `npm.cmd run test` passed 15 tests, `npm.cmd run lint` passed, and a
+- The June 22, 2026 production build compiled, type-checked, and generated all
+  29 routes successfully.
+- `npm.cmd run test` passed 22 tests, `npm.cmd run lint` passed, and a
   tracked-source scan found no backend WordPress URL, WordPress API path, old
   main-domain upload path, or hardcoded secret/password matches.
 - Local browser and HTTP checks verified site, Article, Person, breadcrumb,

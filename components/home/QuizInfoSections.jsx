@@ -197,7 +197,7 @@ export default function QuizInfoSections() {
             href="https://apps.apple.com/pk/app/my-telenor/id1087721779"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-[#2a5298] transition-colors"
+            className="px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors"
           >
             🍎 Download for iOS
           </a>

@@ -1,4 +1,4 @@
-# Tele Answer Today Remaining Migration Plan
+# Tele Answer Today Migration Status And Remaining Plan
 
 ## Current Status
 
@@ -14,12 +14,14 @@ The first-priority foundation migration has been completed:
 - Public contact/domain references were updated to Tele Answer Today.
 - Docs were updated for the new public and WordPress domains.
 
-The remaining work is intentionally deferred because it changes homepage data flow,
-quiz parsing, and admin save behavior.
+The homepage source, quiz parsing, admin save behavior, local Tele Answer
+assets, responsive header, live-style submenus, and duplicate-H1 SEO fixes
+have now been implemented. This file remains as a status record plus the
+remaining production-deployment checklist.
 
-## Goal
+## Completed Goal
 
-Move the daily quiz homepage and admin workflow from the old WordPress post slug
+Moved the daily quiz homepage and admin workflow from the old WordPress post slug
 `daily-quiz` to the WordPress page slug `telenor-answer-today`, while keeping the
 existing Next.js layout, SEO system, ads, and WordPress REST architecture.
 
@@ -47,27 +49,27 @@ Expected REST lookup:
 GET https://wp.teleanswertoday.pk/wp-json/wp/v2/pages?slug=telenor-answer-today
 ```
 
-Required implementation behavior:
+Implemented behavior:
 
-- Add a dedicated helper such as `getHomepageQuizPage()`.
-- Fetch the page with embedded author and featured media.
-- Cache it with the same `quiz` cache tag used by the current homepage.
-- Keep `getDailyQuizPost()` only if compatibility is useful, but avoid making
+- `getHomepageQuizPage()` fetches the page with embedded author and featured
+  media.
+- The page is cached with the `quiz` cache tag.
+- `getDailyQuizPost()` remains only as a compatibility alias; avoid making
   new homepage code read like it still depends on the old post.
-- Exclude `telenor-answer-today` from public page sitemap output so it does not
+- `telenor-answer-today` is excluded from public page sitemap output so it does not
   appear as `/telenor-answer-today`.
-- Continue excluding `daily-quiz` from normal post lists during transition.
+- `daily-quiz` remains excluded from normal post lists as a legacy slug.
 
 ## Homepage Rendering
 
-Update the homepage to load:
+The homepage loads:
 
 ```text
 getHomepageQuizPage()
-getPosts({ page: 1, perPage: 12, excludeSlugs: ["daily-quiz"], tag: "news" })
+getPosts({ page: 1, perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
 ```
 
-The homepage should use the WordPress page content for:
+The homepage uses the WordPress page content for:
 
 - Quiz questions.
 - Answers.
@@ -215,7 +217,7 @@ Requirements:
 - Do not create a new post if the page lookup fails because WordPress is
   unavailable.
 
-## SEO And Sitemaps
+## SEO, H1, Header, And Sitemaps
 
 Keep all public SEO output on:
 
@@ -232,12 +234,32 @@ https://wp.teleanswertoday.pk
 Required behavior:
 
 - Canonicals use the public root domain.
+- WordPress body content is prepared with `prepareWordPressContent()` before
+  rendering so stored content H1 tags are removed.
+- Templates render exactly one visible page-level H1.
+- The global header is fixed and responsive.
+- Telenor Packages and Telenor Codes include live-site matching submenus on
+  desktop and nested submenu links on mobile.
 - `robots.txt` points to `https://teleanswertoday.pk/sitemap_index.xml`.
 - Sitemaps keep the homepage as `/`, not `/telenor-answer-today`.
 - Article URLs remain `/<category>/<post>`.
 - Category URLs remain `/<category>`.
 - Author URLs remain `/author/<slug>`.
 - Metadata and JSON-LD text must be sanitized.
+
+## Remaining Production Work
+
+- Deploy the current repository to Vercel.
+- Confirm Vercel environment variables are set for WordPress, admin secrets,
+  AdSense, Analytics, Search Console, revalidation, and cron.
+- Verify production URLs:
+  `/`, `/privacy-policy`, `/about-us`, `/contact-us`, `/blog`, `/telecom`,
+  `/tech`, `/global`, representative articles, `/robots.txt`, and
+  `/sitemap_index.xml`.
+- Run a live heading audit and confirm every indexable page has exactly one
+  H1.
+- Validate Schema.org, Google Rich Results, Search Console URL inspection,
+  mobile responsiveness, and PageSpeed/Core Web Vitals.
 
 ## Documentation Updates
 

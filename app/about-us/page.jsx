@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getPageBySlug } from '@/lib/wordpress'
 import {
-  normalizeWordPressContentLinks,
-  optimizeContentImages,
+  prepareWordPressContent,
   toPlainText,
   truncateText,
 } from '@/lib/utils'
@@ -46,9 +45,7 @@ export default async function AboutPage() {
         <div
           className="prose prose-lg max-w-none px-5 py-6 sm:px-8 prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:text-text-secondary"
           dangerouslySetInnerHTML={{
-            __html: optimizeContentImages(
-              normalizeWordPressContentLinks(page.content?.rendered || '')
-            ),
+            __html: prepareWordPressContent(page.content?.rendered),
           }}
         />
       </article>

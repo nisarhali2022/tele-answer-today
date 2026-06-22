@@ -36,6 +36,8 @@ tele-answer-today/
 | `/about` | `app/about/page.jsx` | None | Permanent redirect to `/about-us` |
 | `/contact` | `app/contact/page.jsx` | None | Permanent redirect to `/contact-us` |
 | `/privacy-policy` | `app/privacy-policy/page.jsx` | WP page API | Privacy policy |
+| `/editorial-policy` | `app/editorial-policy/page.jsx` | `getPageBySlug('editorial-policy')` | Editorial policy |
+| `/corrections-policy` | `app/corrections-policy/page.jsx` | `getPageBySlug('corrections-policy')` | Corrections policy |
 | `/admin/quiz` | `app/admin/quiz/page.jsx` | `GET/POST /api/quiz` | Quiz editor |
 | `/api/admin/session` | `app/api/admin/session/route.js` | Signed cookie auth | Login/session/logout |
 | `/api/quiz` | `app/api/quiz/route.js` | WordPress pages API | Read/write daily quiz |
@@ -51,9 +53,11 @@ tele-answer-today/
 `app/layout.jsx` wraps every route with `Header`, `Footer`, one self-hosted
 Inter font, global CSS, metadata defaults, and the conditional AdSense script.
 
-`Header` is server-rendered. Search uses a native GET form, and search/mobile
-navigation toggles use native HTML/CSS controls, so the global header adds no
-hydration, pathname subscription, or scroll listener.
+`Header` is server-rendered and fixed at the top of the viewport. It renders
+desktop dropdowns from `NAV_LINKS.children`. `HeaderControls` is the small
+client component that handles search expansion and mobile menu open/close
+state. Mobile navigation renders nested submenu links for the same `children`
+data and closes after a link selection.
 
 ## 3. Library Modules
 
@@ -61,8 +65,10 @@ hydration, pathname subscription, or scroll listener.
 
 Central configuration consumed by the layout, navigation, SEO, WordPress
 client-adjacent helpers, ads, and components. It intentionally stores the
-public site URL, public asset paths, navigation, ad slots, colors, and cache
-duration. It no longer stores a WordPress API URL.
+public site URL, public asset paths, navigation, ad slots, Google Analytics,
+Google AdSense, Search Console verification, colors, and cache duration. These
+integration values are static and should not be managed through WordPress. It
+no longer stores a WordPress API URL.
 
 Exports:
 
@@ -107,6 +113,12 @@ Presentation helpers for dates, reading time, plain text, excerpts, category
 colors, media, authors, categories, HTML ad-marker insertion, and responsive
 WordPress body images.
 
+`prepareWordPressContent()` is the standard rendering pipeline for WordPress
+body HTML. It removes embedded H1 blocks, rewrites public backend links from
+`wp.teleanswertoday.pk` to the public root where appropriate, and optimizes
+WordPress images. Use this helper before rendering `page.content.rendered` or
+`post.content.rendered` with `dangerouslySetInnerHTML`.
+
 Main callers: post cards, post pages, metadata functions, widgets, homepage,
 footer, and breadcrumbs.
 
@@ -146,7 +158,7 @@ form.
 | File | Type | Calls/uses |
 | --- | --- | --- |
 | `components/layout/Header.jsx` | Server | navigation, logo, `HeaderControls` |
-| `components/layout/HeaderControls.jsx` | Server | native search and CSS-only mobile navigation |
+| `components/layout/HeaderControls.jsx` | Client | search toggle and mobile navigation state |
 | `components/layout/Footer.jsx` | Server | static four-column footer and social icon row |
 | `components/layout/FooterRecentPosts.jsx` | Async Server | Legacy/unused recent-post footer helper |
 | `components/layout/Sidebar.jsx` | Server | recent, popular, and category widgets |

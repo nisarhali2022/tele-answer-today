@@ -81,7 +81,7 @@ export default function LatestNewsGrid({ posts, limit = 6 }) {
       <div className="mt-6 text-center">
         <Link
           href="/blog"
-          className="inline-block px-6 py-2.5 bg-primary text-white text-sm font-semibold rounded hover:bg-[#2a5298] transition-colors"
+          className="inline-block px-6 py-2.5 bg-primary text-white text-sm font-semibold rounded hover:bg-primary-dark transition-colors"
         >
           👉 Explore Today Top News &amp; Blog – Click Here
         </Link>

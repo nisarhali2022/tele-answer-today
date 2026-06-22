@@ -2,15 +2,15 @@
 
 ## 1. Review Result
 
-Review date: June 19, 2026.
+Review date: June 22, 2026.
 
 Commands checked:
 
 | Check | Result |
 | --- | --- |
-| `npm.cmd run build` | Passed; all 28 routes generated on June 19, 2026 |
+| `npm.cmd run build` | Passed; all 29 routes generated on June 22, 2026 |
 | `npm.cmd run lint` | Passed with no warnings or errors |
-| `npm.cmd run test` | Passed: 15 tests |
+| `npm.cmd run test` | Passed: 23 tests |
 | Hardcoded backend/API secret scan | Passed: no tracked-source backend URL or secret matches |
 | `.env.local` tracking check | Passed: ignored by Git and not tracked |
 
@@ -20,6 +20,107 @@ following register records behavioral, security, data-integrity, SEO,
 performance, UI, and maintainability findings.
 
 ## 2. Critical and High-Priority Issues
+
+### BF-00A: WordPress-backed pages can render duplicate H1 tags
+
+**Severity:** High
+
+**Status:** Resolved on June 22, 2026.
+
+**Files:** `lib/utils.js`, `app/privacy-policy/page.jsx`,
+`app/about-us/page.jsx`, `app/[slug]/page.jsx`,
+`app/[slug]/[post_slug]/page.jsx`
+
+**Problem:** WordPress page/post content can include an H1 inside
+`content.rendered`. The Next.js templates also render the title as the
+page-level H1. A heading audit showed Privacy Policy with two H1 tags.
+
+**Impact:** Duplicate H1 tags weaken the document outline for users, screen
+readers, and SEO tools.
+
+**Implemented result:** `prepareWordPressContent()` now removes embedded H1
+blocks before WordPress body HTML is rendered. Static WordPress-backed pages,
+dynamic pages, and posts all use this helper. A regression test confirms that
+prepared content does not include H1 tags.
+
+**Verification:** Rendered local checks confirmed one H1 on `/`,
+`/privacy-policy`, `/about-us`, `/contact-us`, `/blog`, `/telecom`, `/tech`,
+`/global`, and `/telenor/telenor-packages`.
+
+### BF-00B: Header was not reliably fixed and live-site submenus were missing
+
+**Severity:** Medium
+
+**Status:** Resolved on June 22, 2026.
+
+**Files:** `components/layout/Header.jsx`,
+`components/layout/HeaderControls.jsx`, `lib/constants.js`
+
+**Problem:** The header used sticky positioning and could move out of place
+because of page overflow behavior. The local navigation also lacked the live
+site submenus under Telenor Packages and Telenor Codes.
+
+**Impact:** Mobile and tablet navigation did not match the live site, and the
+header could fail responsive/sticky checks.
+
+**Implemented result:** The header is now fixed with a responsive spacer.
+Desktop navigation renders dropdowns from `NAV_LINKS.children`; mobile renders
+nested submenu links and closes after link selection.
+
+**Verification:** Browser checks covered desktop `1366x768`, tablet
+`1024x768`, and mobile `390x844`, with no horizontal overflow.
+
+### BF-00C: SEO descriptions could expose backend WordPress URLs
+
+**Severity:** Medium
+
+**Status:** Resolved on June 22, 2026.
+
+**Files:** `lib/seo.js`, `lib/utils.js`, `test/utils.test.js`
+
+**Problem:** Metadata descriptions used WordPress excerpts directly after
+plain-text conversion. If a WordPress excerpt contained
+`wp.teleanswertoday.pk` or legacy public-domain links, the backend or old
+domain could appear in meta descriptions, Open Graph descriptions, or Twitter
+descriptions.
+
+**Impact:** Search snippets and shared cards could show backend URLs or stale
+domain references.
+
+**Implemented result:** Metadata text now passes through the same public
+content rewriting used for rendered WordPress content before HTML stripping.
+Legacy `telenorquiztoday.com.pk` public links are rewritten to
+`https://teleanswertoday.pk`, backend contact text is rewritten, and WordPress
+system/media paths remain available for technical media use.
+
+**Verification:** Generated metadata for `/privacy-policy`, `/about-us`, and
+`/contact-us` was checked for backend or legacy domain leakage. Regression
+tests cover backend link rewriting, legacy public link rewriting, and backend
+contact text rewriting.
+
+### BF-00D: WordPress list queries fetched full post bodies unnecessarily
+
+**Severity:** Medium
+
+**Status:** Resolved on June 22, 2026.
+
+**Files:** `lib/wordpress.js`
+
+**Problem:** Archive, latest-post, related-post, and sidebar queries requested
+full `content.rendered` even when only titles, excerpts, featured images,
+authors, categories, and links were needed.
+
+**Impact:** The app downloaded and serialized larger WordPress payloads than
+necessary. Old links inside hidden post bodies could also leak into the
+server-rendered payload even when not visible to users.
+
+**Implemented result:** WordPress calls now use separate field sets for list
+queries and detail queries. List views fetch compact post data; detail views
+and pages still fetch full content when rendering an article/page body.
+
+**Verification:** Build output no longer contains
+`telenorquiztoday.com.pk` in checked generated pages. Tests, lint, and
+production build passed.
 
 ### BF-01: Homepage does not explicitly fetch the daily quiz
 
@@ -55,13 +156,14 @@ Add cache-tag support to `getPostBySlug`, or create a dedicated
 still display the daily quiz.
 
 **Implemented result:** The homepage and homepage metadata now call
-`getDailyQuizPost()`. This helper explicitly requests
-`/posts?_embed&slug=daily-quiz`, caches the response with the `quiz` tag, and
-returns only that fixed post. Saving through the quiz API calls
-`revalidateTag('quiz')`, so publishing a newer normal article cannot replace
-the homepage quiz. The admin lookup also distinguishes a successful empty
-WordPress result from an unavailable API: transient failures retry once and
-then stop the save with HTTP `503`, preventing an accidental create request.
+`getHomepageQuizPage()`. This helper explicitly requests the WordPress page
+slug `telenor-answer-today`, caches the response with the `quiz` tag, and
+returns only that fixed page. Saving through the quiz API updates the same
+WordPress page and calls `revalidateTag('quiz')`, so publishing a newer normal
+article cannot replace the homepage quiz. The admin lookup also distinguishes
+a successful empty WordPress result from an unavailable API: transient
+failures retry once and then stop the save with HTTP `503`, preventing an
+accidental create request.
 
 ### BF-02: Sitemap generates invalid category and post URLs
 

@@ -9,8 +9,11 @@ The application uses:
 
 - WordPress REST API for posts, pages, categories, tags, media, authors, and
   the `telenor-answer-today` homepage source page.
-- Static React content for quiz guidance, participation steps, navigation,
-  local public assets, fallback FAQs, and site settings.
+- WordPress-managed body content for public pages, policies, articles,
+  archives, categories, tags, media, authors, quiz tables, and homepage FAQs.
+- Static React configuration for permanent site integrations such as Google
+  Analytics, Google AdSense, Google Search Console verification, navigation,
+  local public assets, and site settings.
 - A protected browser admin page for updating the five daily quiz questions.
 
 WordPress is the production data store. The Next.js application has no
@@ -58,6 +61,15 @@ separate application database.
 Most public content uses one-hour ISR caching. WordPress requests retry once
 for network failures, HTTP 429/5xx responses, and invalid JSON.
 
+Public content should be dynamic by default. New pages, policy text, article
+body copy, FAQs, category content, and media should come from WordPress unless
+there is a clear application-level reason to keep the behavior in code. The
+homepage intro, explanatory SEO sections, and participation steps are currently
+app-owned React content. Google Analytics, Google AdSense, and Google Search
+Console verification are intentionally static in `lib/constants.js` and
+`app/layout.jsx` so tracking, ads, and verification remain consistent across
+all future CMS updates.
+
 ## 5. Core Flows
 
 ### Homepage
@@ -74,8 +86,8 @@ getPosts({ perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
 article cannot replace the homepage quiz.
 
 The page parses quiz tables and FAQs, calculates the current
-`Asia/Karachi` date, and renders quiz answers, latest news, information
-sections, participation steps, ads, FAQs, and the sidebar.
+`Asia/Karachi` date, and renders quiz answers, latest news, static
+informational sections, participation steps, ads, FAQs, and the sidebar.
 
 Homepage Latest News cards intentionally do not display publication dates.
 
@@ -137,6 +149,11 @@ homepage with the new date even when quiz answers were not edited.
 
 ## 6. Current UI Behavior
 
+- The global header is fixed at the top with a responsive spacer so content
+  does not slide underneath it. Desktop navigation appears at `xl` widths;
+  tablet and mobile widths use the mobile menu.
+- Navigation matches the live Tele Answer Today intent, including dropdown or
+  nested submenu links for Telenor Packages and Telenor Codes.
 - Article breadcrumbs allow substantially more title text before truncating:
   up to `70vw`, `420px` on small screens, and `560px` on large screens.
 - Sidebar cards have a consistent `24px` vertical gap.
@@ -147,8 +164,10 @@ homepage with the new date even when quiz answers were not edited.
   Disclaimer content plus social links. It no longer fetches WordPress posts.
 - Article pages display an author box with name, optional description, and
   avatar or initial fallback.
-- Article and dynamic WordPress page templates render one visible page-title
-  H1.
+- Article, static WordPress-backed pages, and dynamic WordPress page templates
+  render one visible page-title H1. WordPress body content is passed through
+  `prepareWordPressContent()` so any stored content H1 blocks are removed
+  before rendering.
 - Visible publish dates are hidden from articles, related cards, blog cards,
   category cards, and homepage Latest News cards.
 - The root document uses `lang="en-PK"`, footer social icons use configured
@@ -181,6 +200,10 @@ homepage with the new date even when quiz answers were not edited.
 Site constants, route sizes, AdSense slots, navigation, colors, local image
 paths, and the one-hour revalidation duration are defined in
 `lib/constants.js`.
+
+Current local admin defaults for development live in `.env.local`. Production
+must set its own `ADMIN_SECRET`, `REVALIDATE_SECRET`, `CRON_SECRET`,
+`WP_ADMIN_USER`, and `WP_ADMIN_PASS` in Vercel.
 
 `WORDPRESS_API_URL` must be configured in Vercel, for example:
 

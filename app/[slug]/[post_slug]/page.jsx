@@ -9,9 +9,7 @@ import {
   getAuthorPath,
   getFeaturedImageUrl,
   getPostAuthor,
-  normalizeWordPressContentLinks,
-  optimizeContentImages,
-  removeContentH1Blocks,
+  prepareWordPressContent,
   toPlainText,
 } from '@/lib/utils';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
@@ -72,11 +70,8 @@ export default async function PostPage({ params }) {
 
   const postUrl = `${SITE_CONFIG.siteUrl}/${categorySlug}/${post_slug}`;
 
-  const contentHtml = normalizeWordPressContentLinks(
-    removeContentH1Blocks(post.content?.rendered || '')
-  );
-  const optimizedHtml = optimizeContentImages(contentHtml);
-  const { modifiedHtml, toc } = generateTocAndInjectIds(optimizedHtml);
+  const preparedHtml = prepareWordPressContent(post.content?.rendered);
+  const { modifiedHtml, toc } = generateTocAndInjectIds(preparedHtml);
   const titleText = toPlainText(post.title?.rendered);
   const tocWithTitle = [{ id: 'article-title', text: titleText, level: 1 }, ...toc];
   const adMarker = '<!--AD_IN_ARTICLE-->';

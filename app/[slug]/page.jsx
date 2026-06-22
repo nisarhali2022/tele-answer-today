@@ -22,9 +22,7 @@ import AdInArticle from '@/components/ads/AdInArticle';
 import ShareButtons from '@/components/ui/ShareButtons';
 import {
   injectAdAfterFirstParagraph,
-  normalizeWordPressContentLinks,
-  optimizeContentImages,
-  removeContentH1Blocks,
+  prepareWordPressContent,
   toPlainText,
   truncateText,
 } from '@/lib/utils';
@@ -146,11 +144,8 @@ export default async function SlugPage({ params, searchParams }) {
   // 2. Check if Page
   const page = await getPageBySlug(slug);
   if (page) {
-    const contentHtml = normalizeWordPressContentLinks(
-      removeContentH1Blocks(page.content?.rendered || '')
-    );
-    const optimizedHtml = optimizeContentImages(contentHtml);
-    const { modifiedHtml, toc } = generateTocAndInjectIds(optimizedHtml);
+    const preparedHtml = prepareWordPressContent(page.content?.rendered);
+    const { modifiedHtml, toc } = generateTocAndInjectIds(preparedHtml);
     const titleText = toPlainText(page.title?.rendered);
     const tocWithTitle = [{ id: 'article-title', text: titleText, level: 1 }, ...toc];
     const adMarker = '<!--AD_IN_ARTICLE-->';

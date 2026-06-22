@@ -3,10 +3,11 @@ import assert from 'node:assert/strict'
 import {
   normalizeWordPressContentLinks,
   optimizeContentImages,
+  prepareWordPressContent,
   removeContentH1Blocks,
 } from '../lib/utils.js'
 
-test('body images preserve supplied responsive markup', () => {
+test('body images replace supplied responsive markup with optimizer markup', () => {
   const html =
     '<img src="https://example.com/photo.jpg" width="900" height="600" ' +
     'srcset="photo-450.jpg 450w, photo-900.jpg 900w" sizes="50vw">'
@@ -16,6 +17,9 @@ test('body images preserve supplied responsive markup', () => {
   assert.match(result, /decoding="async"/)
   assert.match(result, /width="900"/)
   assert.match(result, /height="600"/)
+  assert.match(result, /\bsrc="\/_next\/image\?url=/)
+  assert.match(result, /\bsrcset="\/_next\/image\?url=/)
+  assert.doesNotMatch(result, /photo-450\.jpg/)
   assert.equal((result.match(/\bsrcset=/g) || []).length, 1)
   assert.equal((result.match(/\bsizes=/g) || []).length, 1)
 })
@@ -74,6 +78,30 @@ test('wordpress backend content links are rewritten to the public site', () => {
     result,
     /href="https:\/\/teleanswertoday\.pk\/telecom\/example-post\/"/
   )
+})
+
+test('legacy public content links are rewritten to the current public site', () => {
+  const result = normalizeWordPressContentLinks(
+    '<p>Also Read: <a href="https://telenorquiztoday.com.pk/telecom/example-post/">Example</a></p>'
+  )
+
+  assert.match(
+    result,
+    /href="https:\/\/teleanswertoday\.pk\/telecom\/example-post\/"/
+  )
+  assert.doesNotMatch(result, /telenorquiztoday\.com\.pk/)
+})
+
+test('prepared wordpress content removes h1 before rendering', () => {
+  process.env.WORDPRESS_API_URL =
+    'https://wp.teleanswertoday.pk/wp-json/wp/v2'
+
+  const result = prepareWordPressContent(
+    '<h1>Privacy Policy</h1><p><a href="https://wp.teleanswertoday.pk/about-us/">About</a></p>'
+  )
+
+  assert.doesNotMatch(result, /<h1\b/i)
+  assert.match(result, /href="https:\/\/teleanswertoday\.pk\/about-us\/"/)
 })
 
 test('wordpress system links are not rewritten', () => {

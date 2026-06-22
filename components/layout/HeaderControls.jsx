@@ -41,7 +41,7 @@ export default function HeaderControls() {
         </div>
       </details>
 
-      <div className="lg:hidden">
+      <div className="xl:hidden">
         <button
           type="button"
           className="flex cursor-pointer rounded-full p-2 transition-colors hover:bg-surface"
@@ -62,20 +62,46 @@ export default function HeaderControls() {
         </button>
         <div
           id="mobile-menu"
-          className={`absolute left-0 right-0 top-full border-t border-border bg-white shadow-lg ${
+          className={`absolute left-0 right-0 top-full max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-border bg-white shadow-lg ${
             isMenuOpen ? 'block' : 'hidden'
           }`}
         >
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
             {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-lg px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface"
-                onClick={closeMenu}
-              >
-                {link.label}
-              </Link>
+              <div key={link.href}>
+                <Link
+                  href={link.href}
+                  className="flex items-center justify-between rounded-lg px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface"
+                  onClick={closeMenu}
+                >
+                  <span>{link.label}</span>
+                  {link.children?.length ? (
+                    <svg
+                      className="h-4 w-4 text-accent"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  ) : null}
+                </Link>
+                {link.children?.length ? (
+                  <div className="ml-4 border-l border-border pl-3">
+                    {link.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className="block rounded-lg px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-surface hover:text-primary"
+                        onClick={closeMenu}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             ))}
             <div className="mt-2 border-t border-border pt-2">
               <Link

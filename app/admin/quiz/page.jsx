@@ -195,7 +195,7 @@ export default function AdminQuizPage() {
             <button
               type="submit"
               disabled={authLoading}
-              className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-[#2a5298] transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {authLoading ? 'Checking...' : 'Login →'}
             </button>
@@ -212,13 +212,13 @@ export default function AdminQuizPage() {
       <div className="bg-primary text-white px-6 py-4 flex items-center justify-between shadow">
         <div>
           <h1 className="font-heading font-bold text-lg">Quiz Admin Panel</h1>
-          <p className="text-blue-200 text-xs mt-0.5">
+          <p className="text-primary-light text-xs mt-0.5">
             Karachi date: {getKarachiDateLabel()}
           </p>
         </div>
         <button
           onClick={handleLogout}
-          className="text-xs text-blue-200 hover:text-white transition-colors border border-blue-300 px-3 py-1.5 rounded"
+          className="text-xs text-primary-light hover:text-white transition-colors border border-primary-light px-3 py-1.5 rounded"
         >
           Logout
         </button>

@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation';
 import { getPageBySlug } from '@/lib/wordpress';
 import { SITE_CONFIG } from '@/lib/constants';
 import {
-  normalizeWordPressContentLinks,
-  optimizeContentImages,
+  prepareWordPressContent,
   toPlainText,
   truncateText,
 } from '@/lib/utils';
@@ -58,9 +57,7 @@ export default async function PrivacyPolicyPage() {
             prose-th:bg-surface prose-th:text-text-primary
             prose-td:border-border"
           dangerouslySetInnerHTML={{
-            __html: optimizeContentImages(
-              normalizeWordPressContentLinks(page.content?.rendered || '')
-            ),
+            __html: prepareWordPressContent(page.content?.rendered),
           }}
         />
 
