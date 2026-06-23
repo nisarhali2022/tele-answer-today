@@ -481,39 +481,45 @@ internal links, canonicals, and sitemaps.
 non-root URLs. Canonical helpers and all XML sitemap URL entries follow the
 same convention.
 
-### SEO-13: Homepage metadata date and visible H1 can diverge
+### SEO-13: Homepage metadata date intentionally advances before visible H1
 
-**Status:** Resolved on June 14, 2026.
+**Status:** Implemented intentionally on June 23, 2026.
 
 **Source:** Code
 
-The H1 always contains the current Karachi date. Metadata primarily comes from
-the WordPress `telenor-answer-today` Yoast/title data, which may not update at
-midnight.
+The H1 contains the current visible Karachi date. Homepage metadata uses a
+separate SEO freshness date that adds six hours before formatting in Karachi
+time.
 
-**Impact:** Search snippets and the visible page can present different dates.
+**Impact:** From 6:00 PM to 11:59 PM PKT, search-facing metadata can show
+tomorrow's date while the visible page still shows today's date. This is a
+deliberate homepage-only SEO freshness strategy.
 
-**Fix:** Generate the homepage title and description from the same Karachi
-date helper, while retaining only stable Yoast fields that do not conflict.
+**Fix:** Keep visible content on the normal Karachi date, and generate
+homepage metadata, Open Graph, Twitter metadata, and homepage WebPage JSON-LD
+from the six-hour-early SEO date helper.
 
-**Implemented result:** The homepage metadata title and visible H1 now use the
-same Karachi date helper. The stable Yoast description can still be used.
+**Implemented result:** Homepage visible H1/content uses
+`getKarachiDateLabel()`. Homepage title, description, Open Graph, Twitter
+metadata, and WebPage `dateModified` use `getKarachiSeoDateLabel()` or
+`getKarachiSeoDayStartISO()`.
 
 ### SEO-14: Homepage sitemap `lastmod` does not reflect midnight date changes
 
 **Status:** Resolved on June 15, 2026.
 
 **Implemented result:** Homepage sitemap `lastmod` uses the start of the
-current Karachi calendar day, matching the visible daily date rollover.
+six-hour-early SEO Karachi date. `/sitemap_index.xml` inherits the newer page
+sitemap `lastmod`.
 
 **Source:** Code
 
 The homepage visibly changes its date each midnight, but sitemap `lastmod`
 uses the quiz post modification date or a WordPress page modification date.
 
-**Fix:** Either update homepage `lastmod` at the Karachi date rollover or stop
-treating the displayed date as a substantive content update. Do not publish a
-false modification time.
+**Fix:** Update homepage `lastmod` from the same six-hour-early SEO date helper
+used for homepage metadata. Keep post and category sitemap dates based on
+WordPress data.
 
 ### SEO-15: Breadcrumb JSON-LD omits the final item URL
 

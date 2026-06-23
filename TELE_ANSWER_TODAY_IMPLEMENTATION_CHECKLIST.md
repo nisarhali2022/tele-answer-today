@@ -35,6 +35,9 @@ Status updated June 22, 2026.
 - [x] Use page content for FAQ parsing.
 - [x] Update H1 to:
       `My Telenor Answer Today {todayLabel} - Latest Telenor Quiz Today`.
+- [x] Use the six-hour-early SEO date for homepage metadata while keeping the
+      visible H1/content on the normal Karachi date.
+- [x] Add homepage WebPage JSON-LD with the six-hour-early SEO `dateModified`.
 - [x] Keep latest-news query and visual layout stable.
 - [x] Add visible fallback text when no quiz questions parse.
 - [x] Keep the homepage intro, informational sections, and participation steps
@@ -76,6 +79,9 @@ Status updated June 22, 2026.
 - [x] Confirm `robots.txt` points to the public sitemap index.
 - [x] Confirm normal pages such as `/about-us`, `/contact-us`, and
       `/privacy-policy` remain included.
+- [x] Use the six-hour-early SEO date for the homepage `/` entry in
+      `/page-sitemap.xml`; `/sitemap_index.xml` inherits that newer page
+      sitemap `lastmod`.
 
 ## 7. Tests
 
@@ -86,6 +92,7 @@ Status updated June 22, 2026.
 - [x] Add sitemap test or focused assertion for excluding `telenor-answer-today`.
 - [x] Update any existing tests that still assume `daily-quiz` is the homepage
       source.
+- [x] Add date tests for the 6:00 PM PKT SEO date rollover.
 
 ## 8. SEO And UI Fixes Completed
 
@@ -101,6 +108,9 @@ Status updated June 22, 2026.
 - [x] Keep Google Analytics, Google AdSense, and Google Search Console values
       static in app configuration for consistent sitewide tracking,
       advertising, and verification.
+- [x] Add `/api/cron/seo-preupdate` at `13:00 UTC` and update
+      `/api/cron/midnight` so both revalidate `/`, `/page-sitemap.xml`, and
+      `/sitemap_index.xml`.
 
 ## 9. Verification Commands
 

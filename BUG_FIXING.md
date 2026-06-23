@@ -10,7 +10,7 @@ Commands checked:
 | --- | --- |
 | `npm.cmd run build` | Passed; all 29 routes generated on June 22, 2026 |
 | `npm.cmd run lint` | Passed with no warnings or errors |
-| `npm.cmd run test` | Passed: 23 tests |
+| `npm.cmd run test` | Passed: 25 tests |
 | Hardcoded backend/API secret scan | Passed: no tracked-source backend URL or secret matches |
 | `.env.local` tracking check | Passed: ignored by Git and not tracked |
 

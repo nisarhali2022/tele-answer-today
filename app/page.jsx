@@ -2,9 +2,10 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { getHomepageQuizPage, getPosts } from '@/lib/wordpress';
 import { EXCLUDED_CONTENT_SLUGS, SITE_CONFIG } from '@/lib/constants';
-import { getKarachiDateLabel } from '@/lib/date';
+import { getKarachiDateLabel, getKarachiSeoDateLabel, getKarachiSeoDayStartISO } from '@/lib/date';
 import { buildMetadata } from '@/lib/seo';
 import { parseQuizTables, parseFaqs } from '@/lib/quizParser';
+import { serializeJsonLd } from '@/lib/schema';
 
 import Sidebar from '@/components/layout/Sidebar';
 import AdBanner from '@/components/ads/AdBanner';
@@ -39,13 +40,10 @@ const HOME_TOC = [
 
 export async function generateMetadata() {
   const page = await getHomepageQuizPage();
-  const yoast = page?.yoast_head_json;
-  const todayLabel = getKarachiDateLabel();
+  const seoDateLabel = getKarachiSeoDateLabel();
 
-  const title = `Telenor Quiz Today ${todayLabel} - Latest My Telenor Answers`;
-  const description =
-    yoast?.description ||
-    SITE_CONFIG.description;
+  const title = `Telenor Quiz Today ${seoDateLabel} - Latest My Telenor Answer Today`;
+  const description = `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
   const ogImage =
     page?._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
     `${SITE_CONFIG.siteUrl}${SITE_CONFIG.defaultOgImage}`;
@@ -71,9 +69,26 @@ export default async function HomePage() {
   const faqs = parseFaqs(homepageContent);
 
   const todayLabel = getKarachiDateLabel();
+  const seoDateLabel = getKarachiSeoDateLabel();
+  const seoDateModified = getKarachiSeoDayStartISO();
+  const homepageDescription = `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
+  const homepageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE_CONFIG.siteUrl}/#homepage`,
+    name: `Telenor Quiz Today ${seoDateLabel} - Latest My Telenor Answer Today`,
+    description: homepageDescription,
+    url: SITE_CONFIG.siteUrl,
+    isPartOf: { '@id': `${SITE_CONFIG.siteUrl}/#website` },
+    dateModified: seoDateModified,
+  };
 
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(homepageSchema) }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8">
 

@@ -35,7 +35,10 @@ separate application database.
 ## 3. Main Features
 
 - Daily quiz answers on the homepage.
-- Dynamic Karachi date that changes daily without requiring a quiz update.
+- Dynamic Karachi visible date that changes at midnight Pakistan time without
+  requiring a quiz update.
+- Homepage SEO date mode that advances six hours early for metadata, homepage
+  WebPage schema, and sitemap freshness.
 - Latest-news homepage cards.
 - Category, tag, blog, and search archives with pagination.
 - Canonical `/<category>/<post>` article routes.
@@ -85,9 +88,15 @@ getPosts({ perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
 `telenor-answer-today` and uses the `quiz` cache tag. Publishing a newer normal
 article cannot replace the homepage quiz.
 
-The page parses quiz tables and FAQs, calculates the current
+The page parses quiz tables and FAQs, calculates the current visible
 `Asia/Karachi` date, and renders quiz answers, latest news, static
 informational sections, participation steps, ads, FAQs, and the sidebar.
+
+Homepage metadata, homepage WebPage JSON-LD, and the homepage entry in
+`/page-sitemap.xml` use a separate SEO date helper that adds six hours before
+formatting in `Asia/Karachi`. From `18:00` to `23:59` Pakistan time,
+Google-facing metadata can show tomorrow's date while the visible H1 still
+shows today's date.
 
 Homepage Latest News cards intentionally do not display publication dates.
 
@@ -143,9 +152,15 @@ an outage from being mistaken for a missing post.
 
 ### Daily Date Refresh
 
-`vercel.json` calls `/api/cron/midnight` at `19:00 UTC`, which is midnight in
-Karachi. The endpoint revalidates `/`; the next request regenerates the
-homepage with the new date even when quiz answers were not edited.
+`vercel.json` calls `/api/cron/seo-preupdate` at `13:00 UTC`, which is
+`18:00` in Karachi. It revalidates `/`, `/page-sitemap.xml`, and
+`/sitemap_index.xml` so homepage SEO metadata and sitemap freshness can move
+to tomorrow's date six hours early.
+
+`vercel.json` also calls `/api/cron/midnight` at `19:00 UTC`, which is
+midnight in Karachi. The endpoint revalidates the same routes; the next
+request regenerates the homepage visible H1/content with the new date even
+when quiz answers were not edited.
 
 ## 6. Current UI Behavior
 
@@ -251,7 +266,8 @@ points to the sitemap index.
 
 The page sitemap also includes crawlable `/author/<slug>` profiles. Sitemap
 collection uses the shared WordPress retry policy and aborts rather than
-publishing partial XML. Homepage `lastmod` follows the Karachi date rollover.
+publishing partial XML. Homepage `lastmod` follows the six-hour-early SEO date
+rollover; post and category sitemap dates remain based on WordPress data.
 
 ## 10. Verification Status
 

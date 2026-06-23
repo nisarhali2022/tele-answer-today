@@ -43,6 +43,7 @@ tele-answer-today/
 | `/api/quiz` | `app/api/quiz/route.js` | WordPress pages API | Read/write daily quiz |
 | `/api/revalidate` | `app/api/revalidate/route.js` | Next cache API | On-demand revalidation |
 | `/api/cron/midnight` | `app/api/cron/midnight/route.js` | Next cache API | Daily homepage invalidation |
+| `/api/cron/seo-preupdate` | `app/api/cron/seo-preupdate/route.js` | Next cache API | 6 PM PKT SEO date invalidation |
 | `/sitemap_index.xml` | `app/sitemap_index.xml/route.js` | Sitemap helpers | Sitemap index |
 | `/post-sitemap.xml` | `app/post-sitemap.xml/route.js` | WordPress posts | Blog and post URLs |
 | `/page-sitemap.xml` | `app/page-sitemap.xml/route.js` | WordPress pages/quiz | Homepage and page URLs |
@@ -136,7 +137,9 @@ and returns both modified HTML and table-of-contents entries.
 ### `lib/date.js`
 
 Provides canonical `Asia/Karachi` ISO and display-date helpers for the
-homepage, quiz API, admin panel, parser compatibility exports, and cron route.
+homepage, quiz API, admin panel, parser compatibility exports, cron routes,
+and sitemap routes. It also exports six-hour-early SEO date helpers used only
+for homepage metadata/schema and homepage sitemap freshness.
 
 ### `lib/wordpressConfig.js`
 
@@ -354,6 +357,18 @@ is limited to 300 characters, and the answer must match one option. The API
 HTML-escapes all values before saving them to WordPress. The server assigns and
 returns the current Karachi date automatically.
 
+### `GET /api/cron/seo-preupdate`
+
+Vercel Cron calls this endpoint daily at 13:00 UTC using:
+
+```text
+Authorization: Bearer CRON_SECRET
+```
+
+It invalidates `/`, `/page-sitemap.xml`, and `/sitemap_index.xml`, allowing
+the next request to regenerate homepage metadata/schema and sitemap freshness
+with the six-hour-early SEO date at 6:00 PM PKT.
+
 ### `GET /api/cron/midnight`
 
 Vercel Cron calls this endpoint daily using:
@@ -362,8 +377,9 @@ Vercel Cron calls this endpoint daily using:
 Authorization: Bearer CRON_SECRET
 ```
 
-It invalidates `/`, allowing the next request to regenerate the ISR homepage
-with the current Karachi date.
+It invalidates `/`, `/page-sitemap.xml`, and `/sitemap_index.xml`, allowing
+the next request to regenerate the ISR homepage with the current visible
+Karachi date.
 
 ### `POST /api/revalidate`
 
@@ -405,7 +421,7 @@ self-referencing canonical containing the active `page` query parameter.
 `lib/wordpress.js` uses selective `_fields` and `_embed` values for public
 queries. `lib/sitemap.js` reuses its retry policy, aborts incomplete
 generation, includes author profiles, understands lazy/srcset images, and
-sets the homepage modification time to Karachi midnight.
+sets the homepage modification time to the six-hour-early Karachi SEO date.
 
 Performance-specific behavior:
 
