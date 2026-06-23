@@ -26,13 +26,21 @@ const HOME_TOC = [
   { id: 'quiz-answers', text: 'Today Telenor Answer', level: 2 },
   { id: 'latest-news', text: 'Latest News', level: 2 },
   { id: 'what-is-telenor-daily-quiz', text: 'What is the Telenor Daily Quiz?', level: 2 },
-  { id: 'find-correct-answers', text: 'How to Find Correct Answers', level: 2 },
+  { id: 'find-correct-answers', text: 'How to Find Correct Answers Quickly', level: 2 },
   { id: 'how-to-play', text: 'How to Play and Win Free MBs', level: 2 },
+  { id: 'verified-answer', text: 'Get Verified Answers Before Expiry', level: 2 },
   { id: 'why-people-love-it', text: 'Why People Love the Daily Quiz', level: 2 },
   { id: 'who-can-join', text: 'Who Can Join', level: 2 },
-  { id: 'rewards', text: 'Rewards You Can Get', level: 2 },
-  { id: 'common-problems', text: 'Common Problems and Fixes', level: 2 },
-  { id: 'tips', text: 'Tips to Boost Your Success', level: 2 },
+  { id: 'what-you-get', text: 'What You Get', level: 2 },
+  { id: 'accurate-quiz', text: 'Always Get Accurate Answers', level: 2 },
+  { id: 'ai-answer-method', text: 'Fastest AI Answer Method', level: 2 },
+  { id: 'quiz-not-working', text: 'What To Do If Quiz Is Not Working', level: 2 },
+  { id: 'educational-benefits', text: 'Educational Benefits', level: 2 },
+  { id: 'tips', text: 'Tips to Maximize Success', level: 2 },
+  { id: 'seamless-experience', text: 'Seamless Quiz Experience', level: 2 },
+  { id: 'play-every-day', text: 'Why Play Every Day', level: 2 },
+  { id: 'fairness', text: 'Quiz Fairness', level: 2 },
+  { id: 'future', text: 'Future of Today My Telenor Answer', level: 2 },
   { id: 'conclusion', text: 'Conclusion', level: 2 },
   { id: 'steps-to-participate', text: 'Steps to Participate', level: 2 },
   { id: 'faqs', text: 'FAQs', level: 2 },
@@ -100,25 +108,26 @@ export default async function HomePage() {
               id="article-title"
               className="font-heading font-bold text-2xl sm:text-3xl text-text-primary leading-tight mb-4"
             >
-              My Telenor Answer Today {todayLabel} - Latest Telenor Quiz Today</h1>
+              My Telenor Answer today {todayLabel} - Latest Telenor Quiz Today</h1>
 
             {/* Intro */}
             <div className="text-text-secondary text-sm sm:text-base leading-relaxed space-y-3 mb-6">
               <p>
                 <strong>
-                  <Link href="/" className="text-accent hover:underline">Telenor quiz today</Link>
+                  <Link href="/" className="text-accent font-bold underline decoration-2">My Telenor Answer Today</Link>
                 </strong>{' '}
-              is a popular daily feature inside the My Telenor app. Tele Answer Today helps Telenor users find the latest quiz answers, win free internet MBs, and avoid missing daily rewards.
+                is a daily feature inside the Today My Telenor App Question Answer that gives you the opportunity to win free internet MBs, balance, and exciting bonus rewards. By answering a few simple questions correctly, you can enjoy free connectivity while boosting your knowledge at the same time.
               </p>
               <p>
-                Tele Answer Today suits every type of user. Students can grab extra data for online classes, freelancers can stay connected for work, and regular users can collect daily rewards without any hassle. The quiz takes only a few seconds, and the questions stay easy, relevant, and engaging.
+                <Link href="/" className="text-accent font-bold underline decoration-2">Telenor quiz today</Link>{' '}
+                is designed for everyone, whether you are a student who wants extra MBs for study, a freelancer who relies on mobile data, or an everyday user looking for bonus rewards. It takes only a few seconds to participate, and the questions are both engaging and easy to attempt.
               </p>
               <p>
-                We update the today Telenor 5 question answer every day so you never miss a winning chance. Even if you use a dual SIM phone with{' '}
-                <a href="https://jazz.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-semibold">Jazz</a>,{' '}
-                <a href="https://www.zong.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-semibold">Zong</a>, or{' '}
-                <a href="https://www.ufone.com/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline font-semibold">Ufone</a>{' '}
-                as your main number, you can still participate using your Telenor SIM in the second slot.
+                We update the today telenor 5 question answer regularly so you do not miss your daily chance to win. Even if you use a dual SIM phone with another primary number like{' '}
+                <a href="https://jazz.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2 font-semibold">Jazz</a>,{' '}
+                <a href="https://www.zong.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2 font-semibold">Zong</a>, or{' '}
+                <a href="https://www.ufone.com/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2 font-semibold">Ufone</a>{' '}
+                you can still participate with your Telenor SIM in the secondary slot. This makes the quiz convenient and accessible for almost everyone.
               </p>
             </div>
 

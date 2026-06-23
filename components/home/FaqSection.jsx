@@ -1,33 +1,37 @@
 const FAQS = [
   {
     q: 'What is the today my Telenor question and answer 2026?',
-    a: 'Today My Telenor Answer 2026 provides the latest daily quiz challenges. Users can submit correct answers to earn free MBs, SMS, and call minutes instantly.',
+    a: 'Today my telenor answer 2026 provide the latest daily quiz solutions to help users win free MBs, SMS, and call minutes instantly.',
   },
   {
-    q: 'How many MBs can I win from the Telenor quiz today?',
-    a: 'Answer the Telenor quiz today correctly to win up to 150 MB of free internet every day. The reward system makes it easy to enjoy extra data while participating in a fun quiz.',
+    q: 'How many MBs can I win from the telenor quiz today?',
+    a: 'Today Telenor quiz answers correctly and get up to 150MB free internet daily.',
   },
   {
-    q: 'How often do Telenor quiz answers update?',
-    a: 'Telenor quiz answers update every day at midnight. Our website tracks the MyTelenor App quiz in real time and publishes the latest correct answers within minutes.',
+    q: 'How often are Telenor quiz answers today updated?',
+    a: 'Telenor quiz today update daily at midnight. We track the My Telenor App quiz today in real time and update our website within minutes, so you always get the latest correct Telenor quiz answers.',
   },
   {
-    q: 'Can non-Telenor users participate in the quiz?',
-    a: 'The Telenor Daily Quiz only works for active Telenor SIM users. Prepaid and postpaid numbers both qualify. Dual-SIM phone users can play using their Telenor SIM even if another network is primary.',
+    q: 'Can non-Telenor users take part in the quiz?',
+    a: 'Telenor Daily Quiz works exclusively for Telenor SIM users. You must use an active Telenor number to participate through the MyTelenor app.',
   },
   {
-    q: 'How many times can I play the Telenor quiz each day?',
-    a: 'Each Telenor SIM allows one quiz attempt per day. The quiz resets at midnight, giving users a fresh set of questions and rewards every day.',
+    q: 'How many times can I play the Telenor quiz per day?',
+    a: 'You can play the Telenor Daily Quiz once every day. The quiz resets at midnight, allowing you to attempt new questions and win rewards the next day.',
+  },
+  {
+    q: 'What is the Telenor question today?',
+    a: 'Today Telenor questions appears inside the MyTelenor app daily quiz, where users open the app to check the My Telenor question today, submit the correct answer, and earn instant rewards.',
   },
   {
     q: 'Where can I find today Telenor question answer?',
-    a: 'You can find today Telenor question answers directly in the My Telenor App under sections like Quiz, Test Your Skills, or Play & Win. Users also check here to confirm the correct answer before submitting.',
+    a: 'Find today Telenor questions and answers directly in the My Telenor app under the Quiz, Test Your Skills, or Play & Win sections.',
   },
 ];
 
 export default function FaqSection({ faqs }) {
   // Use parsed FAQs if available, otherwise fall back to hardcoded
-  const items = faqs?.length ? faqs : FAQS;
+  const items = (faqs?.length ? faqs : FAQS).slice(0, 6);
 
   return (
     <section id="faqs" className="my-8">

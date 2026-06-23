@@ -4,32 +4,32 @@ const STEPS = [
   {
     num: 1,
     title: 'Install the My Telenor App',
-    desc: 'Download from the Google Play Store or Apple App Store and log in with your Telenor number.',
+    desc: 'Download and install the official My Telenor App from the Google Play Store or the Apple App Store and log in with your Telenor number. ',
     img: '/assets/tele-answer-step-install.webp',
   },
   {
     num: 2,
-    title: 'Log in with Your Telenor SIM',
-    desc: 'Open the app and register with your Telenor number. The login process takes only a moment.',
-    img: '/assets/tele-answer-step-login.jpg',
+    title: 'Log In with Your Telenor SIM',
+    desc: 'Open the app and sign in using your active Telenor mobile number. Enter the verification code to confirm and complete the login process.',
+    img: '/assets/tele-answer-step-login.webp',
   },
   {
     num: 3,
-    title: 'Open the Play & Win Section',
-    desc: 'From the home screen, scroll down and tap the Telenor Play & Win or Test Your Skills section.',
-    img: '/assets/tele-answer-step-play-win.jpg',
+    title: 'Navigate to the "Play & Win" Section',
+    desc: 'Open the app and stay on the home screen. Scroll down to find the Telenor Play and Win or Test Your Skills section. Tap the section to continue.',
+    img: '/assets/tele-answer-step-play-win.webp',
   },
   {
     num: 4,
-    title: 'Answer Five Quiz Questions',
-    desc: 'Read each of the 5 multiple-choice questions carefully and select the best answer.',
+    title: 'Answer 5 Quiz Questions',
+    desc: 'In this step, you will be presented with 5 multiple-choice questions. Take your time to read each question carefully before selecting the correct answer. The quiz is designed to be simple and straightforward, with questions based on general knowledge questions pakistan.',
     img: null,
   },
   {
     num: 5,
-    title: 'Get Your Free Internet Reward',
-    desc: 'Answer all five correctly and receive 150 MB of free internet credited directly to your Telenor account.',
-    img: '/assets/tele-answer-step-answers.webp',
+    title: 'Claim Your Reward',
+    desc: 'Answer the questions and submit them directly in the app. If you choose the correct option, the app credits your reward instantly to your account, such as free MBs, SMS, or call minutes.',
+    img: '/assets/Claim-Your-Reward.webp',
   },
 ];
 
@@ -49,14 +49,14 @@ export default function StepsSection() {
               <h3 className="font-semibold text-text-primary mb-1">{step.title}</h3>
               <p className="text-sm text-text-secondary leading-relaxed">{step.desc}</p>
               {step.img && (
-                <div className="mt-3 relative w-40 aspect-[2/3] rounded-lg overflow-hidden shadow-sm border border-border">
+                <div className="mt-3 relative w-80 aspect-[2/3] rounded-lg overflow-hidden shadow-sm border border-border">
                   <Image
                     src={step.img}
                     alt={step.title}
                     fill
                     loading="lazy"
                     className="object-cover"
-                    sizes="160px"
+                    sizes="800px"
                   />
                 </div>
               )}

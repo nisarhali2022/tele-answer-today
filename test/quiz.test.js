@@ -5,7 +5,7 @@ import {
   formatQuizContent,
   normalizeQuizQuestions,
 } from '../lib/quiz.js'
-import { parseQuizTables } from '../lib/quizParser.js'
+import { parseFaqs, parseQuizTables } from '../lib/quizParser.js'
 
 function makeQuestions() {
   return Array.from({ length: 5 }, (_, index) => ({
@@ -98,4 +98,39 @@ test('parseQuizTables handles numbered WordPress page format', () => {
       answer: 'Telenor',
     },
   ])
+})
+
+test('parseFaqs reads only the real homepage FAQ section', () => {
+  const html = `
+    <h2>How to Play the Telenor Quiz Today and Win Free MBs?</h2>
+    <p>This question-style heading is normal content and should not be a FAQ.</p>
+    <h2>FAQs - My Telenor Answers Today</h2>
+    <h3>Q: What is the today my Telenor question and answer 2026?</h3>
+    <p>Today my telenor answer 2026 provide the latest daily quiz solutions.</p>
+    <h3>Q: How many MBs can I win from the telenor quiz today?</h3>
+    <p>Today Telenor quiz answers correctly and get up to 150MB free internet daily.</p>
+  `
+
+  assert.deepEqual(parseFaqs(html), [
+    {
+      q: 'What is the today my Telenor question and answer 2026?',
+      a: 'Today my telenor answer 2026 provide the latest daily quiz solutions.',
+    },
+    {
+      q: 'How many MBs can I win from the telenor quiz today?',
+      a: 'Today Telenor quiz answers correctly and get up to 150MB free internet daily.',
+    },
+  ])
+})
+
+test('parseFaqs caps homepage FAQs to six items', () => {
+  const questions = Array.from(
+    { length: 7 },
+    (_, index) => `<h3>Q: Question ${index + 1}?</h3><p>Answer ${index + 1}</p>`
+  ).join('')
+
+  const faqs = parseFaqs(`<h2>FAQs - My Telenor Answers Today</h2>${questions}`)
+
+  assert.equal(faqs.length, 6)
+  assert.equal(faqs[5].q, 'Question 6?')
 })
