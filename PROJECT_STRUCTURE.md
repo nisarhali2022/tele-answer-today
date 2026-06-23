@@ -144,9 +144,10 @@ for homepage metadata/schema and homepage sitemap freshness.
 ### `lib/wordpressConfig.js`
 
 Provides one WordPress REST API URL resolver for public reads, sitemap
-generation, and authenticated quiz writes. It requires `WORDPRESS_API_URL` or,
-for backward compatibility, `NEXT_PUBLIC_WORDPRESS_API_URL`. There is no
-hardcoded WordPress API fallback in tracked source.
+generation, and authenticated quiz writes. `WORDPRESS_API_URL` and the
+backward-compatible `NEXT_PUBLIC_WORDPRESS_API_URL` can override the backend,
+but the module defaults to `https://wp.teleanswertoday.pk/wp-json/wp/v2` so
+Vercel builds do not fail when the optional URL env var is missing.
 
 ### `hooks/useSearch.js`
 

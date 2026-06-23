@@ -663,9 +663,11 @@ and write to another.
 URL should not need the `NEXT_PUBLIC_` prefix.
 
 **Implemented result:** Public reads, sitemap generation, and quiz writes now
-use `lib/wordpressConfig.js`. It requires the server-only `WORDPRESS_API_URL`
-environment variable and supports `NEXT_PUBLIC_WORDPRESS_API_URL` only for
-backward compatibility. There is no hardcoded WordPress API fallback in source.
+use `lib/wordpressConfig.js`. It supports the server-only `WORDPRESS_API_URL`
+environment variable and the backward-compatible `NEXT_PUBLIC_WORDPRESS_API_URL`
+override. If neither is configured, it defaults to the canonical public Tele
+Answer WordPress REST API so Vercel builds do not fail before env setup is
+complete.
 
 ### BF-25: Legacy files and dead code increase confusion
 
@@ -818,12 +820,12 @@ WordPress maintenance scripts.
 through fallback configuration. This was not a password or private credential,
 but it exposed the backend host and made migration settings easier to confuse.
 
-**Implemented result:** WordPress API configuration is now environment-only.
-`lib/wordpressConfig.js` requires `WORDPRESS_API_URL` or the backward-compatible
-`NEXT_PUBLIC_WORDPRESS_API_URL` and throws clearly if neither exists.
-Maintenance scripts use the same env-only requirement. `next.config.js`
-derives the WordPress image host from the configured API URL instead of
-hardcoding it.
+**Implemented result:** WordPress API configuration now has explicit env
+override support plus a canonical public fallback:
+`https://wp.teleanswertoday.pk/wp-json/wp/v2`. `WORDPRESS_API_URL` remains
+recommended in Vercel for clarity, while the fallback prevents build-time
+failure when the optional URL env var is missing. `next.config.js` derives the
+WordPress image host from the resolved API URL.
 
 ### BF-35: Fixed assets depended on the old main-domain WordPress uploads path
 

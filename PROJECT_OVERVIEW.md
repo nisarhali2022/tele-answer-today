@@ -197,8 +197,8 @@ when quiz answers were not edited.
 
 | Variable | Purpose |
 | --- | --- |
-| `WORDPRESS_API_URL` | Required server-side WordPress REST API URL |
-| `NEXT_PUBLIC_WORDPRESS_API_URL` | Backward-compatible URL fallback |
+| `WORDPRESS_API_URL` | Optional server-side WordPress REST API override |
+| `NEXT_PUBLIC_WORDPRESS_API_URL` | Backward-compatible URL override |
 | `NEXT_PUBLIC_ADSENSE_ID` | Public AdSense publisher/client ID |
 | `NEXT_PUBLIC_AD_SLOT_TOP` | Top horizontal ad slot |
 | `NEXT_PUBLIC_AD_SLOT_MID` | Mid-page horizontal ad slot |
@@ -220,14 +220,17 @@ Current local admin defaults for development live in `.env.local`. Production
 must set its own `ADMIN_SECRET`, `REVALIDATE_SECRET`, `CRON_SECRET`,
 `WP_ADMIN_USER`, and `WP_ADMIN_PASS` in Vercel.
 
-`WORDPRESS_API_URL` must be configured in Vercel, for example:
+The app defaults to the canonical Tele Answer WordPress API:
+`https://wp.teleanswertoday.pk/wp-json/wp/v2`. Setting `WORDPRESS_API_URL` in
+Vercel is still recommended so the backend source is explicit:
 
 ```text
 WORDPRESS_API_URL=https://wp.teleanswertoday.pk/wp-json/wp/v2
 ```
 
-There is no hardcoded WordPress API fallback in tracked source. Local secrets
-and the real local API URL live in `.env.local`, which is ignored by Git.
+The canonical public WordPress API fallback is tracked intentionally so Vercel
+builds can complete even if the optional URL env var is not configured yet.
+Local secrets live in `.env.local`, which is ignored by Git.
 
 ## 8. Deployment Model
 
@@ -325,11 +328,12 @@ Engineering safeguards completed on June 15, 2026:
 
 Additional migration safeguards completed on June 19, 2026:
 
-- WordPress API configuration is environment-only.
+- WordPress API configuration supports env overrides and has a canonical public
+  Tele Answer fallback for build safety.
 - Fixed public assets were moved from WordPress upload URLs into
   `public/assets/`.
 - `next.config.js` derives the WordPress media host from `WORDPRESS_API_URL`.
-- Tracked source contains no hardcoded backend API URL, WordPress backend host,
+- Tracked source contains no backend secrets, private credentials,
   WordPress API path, old main-domain upload path, or hardcoded local
   passwords/secrets.
 

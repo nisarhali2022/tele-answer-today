@@ -41,8 +41,8 @@ The project has a useful SEO foundation:
 - The intended deployment model separates the public Vercel frontend from the
   Hostinger WordPress backend on a `wp.` subdomain.
 - Fixed logo/favicon/homepage instructional images are local public assets.
-- The WordPress backend/API URL is environment-only and not hardcoded in
-  tracked source.
+- The WordPress backend/API URL has a canonical public fallback and can be
+  overridden through Vercel environment variables.
 - WordPress body content is passed through `prepareWordPressContent()`, which
   removes embedded content H1 blocks before rendering. Templates keep exactly
   one visible page-level H1.
@@ -782,14 +782,15 @@ publisher ID is non-empty and does not contain the placeholder `XXXX`.
 
 **Status:** Resolved on June 19, 2026.
 
-**Problem:** A hardcoded WordPress API fallback in tracked source can reveal
-the backend API host and cause accidental configuration drift between local,
-preview, and production environments.
+**Problem:** A hardcoded WordPress API fallback in tracked source can cause
+accidental configuration drift between local, preview, and production
+environments.
 
-**Implemented result:** `lib/wordpressConfig.js` now requires
-`WORDPRESS_API_URL` or the backward-compatible `NEXT_PUBLIC_WORDPRESS_API_URL`.
-There is no hardcoded WordPress API fallback in tracked source. The WordPress
-media host in `next.config.js` is derived from the environment URL.
+**Implemented result:** The project now intentionally defaults to the
+canonical public Tele Answer WordPress REST API so Vercel builds can complete
+even before optional env setup. `WORDPRESS_API_URL` remains the recommended
+production override, and the WordPress media host in `next.config.js` is
+derived from the resolved API URL.
 
 ### SEO-36: Static images depended on the old main-domain WordPress uploads URL
 
