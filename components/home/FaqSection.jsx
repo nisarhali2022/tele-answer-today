@@ -1,15 +1,15 @@
 const FAQS = [
   {
     q: 'What is the today my Telenor question and answer 2026?',
-    a: 'Today my telenor answer 2026 provide the latest daily quiz solutions to help users win free MBs, SMS, and call minutes instantly.',
+    a: 'Today My Telenor answer 2026 provides the latest daily quiz solutions to help users win free MBs, SMS, and call minutes instantly.',
   },
   {
-    q: 'How many MBs can I win from the telenor quiz today?',
-    a: 'Today Telenor quiz answers correctly and get up to 150MB free internet daily.',
+    q: 'How many MBs can I win from the Telenor quiz today?',
+    a: 'Answer the Today Telenor quiz correctly and get up to 150MB free internet daily.',
   },
   {
     q: 'How often are Telenor quiz answers today updated?',
-    a: 'Telenor quiz today update daily at midnight. We track the My Telenor App quiz today in real time and update our website within minutes, so you always get the latest correct Telenor quiz answers.',
+    a: 'Telenor Quiz Today updates daily at midnight. We track the My Telenor App quiz today in real time and update our website within minutes, so you always get the latest correct Telenor quiz answers.',
   },
   {
     q: 'Can non-Telenor users take part in the quiz?',
@@ -21,7 +21,7 @@ const FAQS = [
   },
   {
     q: 'What is the Telenor question today?',
-    a: 'Today Telenor questions appears inside the MyTelenor app daily quiz, where users open the app to check the My Telenor question today, submit the correct answer, and earn instant rewards.',
+    a: 'Today Telenor question appears inside the MyTelenor app daily quiz, where users open the app to check the My Telenor question today, submit the correct answer, and earn instant rewards.',
   },
   {
     q: 'Where can I find today Telenor question answer?',
@@ -30,13 +30,13 @@ const FAQS = [
 ];
 
 export default function FaqSection({ faqs }) {
-  // Use parsed FAQs if available, otherwise fall back to hardcoded
+  // Use parsed FAQs if available, otherwise fall back to hardcoded.
   const items = (faqs?.length ? faqs : FAQS).slice(0, 6);
 
   return (
     <section id="faqs" className="my-8">
       <h2 className="font-heading font-bold text-xl text-text-primary mb-5">
-        FAQs – My Telenor Answers Today
+        FAQs - My Telenor Answers Today
       </h2>
       <div className="space-y-4">
         {items.map((faq, i) => (

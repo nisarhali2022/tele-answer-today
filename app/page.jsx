@@ -100,7 +100,7 @@ export default async function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8">
 
-          {/* ── Main Content ── */}
+          {/* Main Content */}
           <article className="min-w-0">
             {/* Title */}
       
@@ -108,7 +108,7 @@ export default async function HomePage() {
               id="article-title"
               className="font-heading font-bold text-2xl sm:text-3xl text-text-primary leading-tight mb-4"
             >
-              My Telenor Answer today {todayLabel} - Latest Telenor Quiz Today</h1>
+              My Telenor Answer Today {todayLabel} - Latest Telenor Quiz Today</h1>
 
             {/* Intro */}
             <div className="text-text-secondary text-sm sm:text-base leading-relaxed space-y-3 mb-6">
@@ -123,10 +123,10 @@ export default async function HomePage() {
                 is designed for everyone, whether you are a student who wants extra MBs for study, a freelancer who relies on mobile data, or an everyday user looking for bonus rewards. It takes only a few seconds to participate, and the questions are both engaging and easy to attempt.
               </p>
               <p>
-                We update the today telenor 5 question answer regularly so you do not miss your daily chance to win. Even if you use a dual SIM phone with another primary number like{' '}
-                <a href="https://jazz.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2 font-semibold">Jazz</a>,{' '}
-                <a href="https://www.zong.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2 font-semibold">Zong</a>, or{' '}
-                <a href="https://www.ufone.com/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2 font-semibold">Ufone</a>{' '}
+                We update the Today Telenor 5 question answer regularly so you do not miss your daily chance to win. Even if you use a dual SIM phone with another primary number like{' '}
+                <a href="https://jazz.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2">Jazz</a>,{' '}
+                <a href="https://www.zong.com.pk/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2">Zong</a>, or{' '}
+                <a href="https://www.ufone.com/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2">Ufone</a>{' '}
                 you can still participate with your Telenor SIM in the secondary slot. This makes the quiz convenient and accessible for almost everyone.
               </p>
             </div>
@@ -166,7 +166,7 @@ export default async function HomePage() {
             <AdBanner position="bottom" />
           </article>
 
-          {/* ── Sidebar ── */}
+          {/* Sidebar */}
           <Suspense fallback={<LoadingSpinner size="lg" className="py-10" />}>
             <Sidebar />
           </Suspense>
