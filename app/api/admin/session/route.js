@@ -29,7 +29,7 @@ export async function POST(request) {
     response.cookies.set(
       ADMIN_SESSION_COOKIE,
       createAdminSessionToken(),
-      getAdminSessionCookieOptions()
+      getAdminSessionCookieOptions(request)
     )
     response.headers.set('Cache-Control', 'no-store')
     return response
@@ -41,10 +41,10 @@ export async function POST(request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request) {
   const response = NextResponse.json({ authenticated: false })
   response.cookies.set(ADMIN_SESSION_COOKIE, '', {
-    ...getAdminSessionCookieOptions(),
+    ...getAdminSessionCookieOptions(request),
     maxAge: 0,
   })
   response.headers.set('Cache-Control', 'no-store')

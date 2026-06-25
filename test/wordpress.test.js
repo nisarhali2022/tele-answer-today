@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 
 process.env.WORDPRESS_API_URL = 'https://example.test'
 
@@ -78,4 +79,83 @@ test('homepage quiz source loads the telenor-answer-today page', async () => {
   } finally {
     globalThis.fetch = originalFetch
   }
+})
+
+test('daily quiz source loads the daily-quiz post', async () => {
+  const { getDailyQuizPost } = await getWordPressModule()
+  const originalFetch = globalThis.fetch
+  let requestedUrl = ''
+
+  globalThis.fetch = async (url) => {
+    requestedUrl = String(url)
+    return new Response(
+      JSON.stringify([{ id: 512, slug: 'daily-quiz' }]),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
+  }
+
+  try {
+    const post = await getDailyQuizPost()
+    assert.equal(post.id, 512)
+    assert.match(requestedUrl, /\/posts\?/)
+    assert.match(requestedUrl, /slug=daily-quiz/)
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
+test('homepage and daily quiz slugs are both excluded from public post lists', async () => {
+  const { EXCLUDED_CONTENT_SLUGS } = await import('../lib/constants.js')
+
+  assert.ok(EXCLUDED_CONTENT_SLUGS.includes('telenor-answer-today'))
+  assert.ok(EXCLUDED_CONTENT_SLUGS.includes('daily-quiz'))
+})
+
+test('admin quiz API targets the daily-quiz WordPress post', async () => {
+  const source = await readFile(
+    new URL('../app/api/quiz/route.js', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /DAILY_QUIZ_SLUG/)
+  assert.match(source, /\/posts\?slug=/)
+  assert.match(source, /\/posts\$\{existing \? `\/\$\{existing\.id\}` : ''\}/)
+  assert.match(source, /method: existing \? 'PUT' : 'POST'/)
+  assert.doesNotMatch(source, /HOME_PAGE_SLUG/)
+  assert.doesNotMatch(source, /\/pages\?slug=/)
+  assert.doesNotMatch(source, /\/pages\/\$\{existing\.id\}/)
+})
+
+test('homepage parses quiz and FAQ content from separate WordPress sources', async () => {
+  const source = await readFile(
+    new URL('../app/page.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /getDailyQuizPost/)
+  assert.match(source, /getHomepageQuizPage/)
+  assert.match(source, /const quizContent = quizPage\?\.content\?\.rendered \|\| ''/)
+  assert.match(source, /const homepageContent = homepagePage\?\.content\?\.rendered \|\| ''/)
+  assert.match(source, /parseQuizTables\(quizContent\)/)
+  assert.match(source, /parseFaqs\(homepageContent\)/)
+  assert.doesNotMatch(source, /parseQuizTables\(homepageContent\)/)
+})
+
+test('admin session cookie secure flag follows the request protocol', async () => {
+  const { getAdminSessionCookieOptions } = await import('../lib/adminAuth.js')
+  const httpOptions = getAdminSessionCookieOptions({
+    headers: new Headers(),
+    nextUrl: { protocol: 'http:' },
+  })
+  const httpsOptions = getAdminSessionCookieOptions({
+    headers: new Headers({ 'x-forwarded-proto': 'https' }),
+    nextUrl: { protocol: 'http:' },
+  })
+
+  assert.equal(httpOptions.secure, false)
+  assert.equal(httpsOptions.secure, true)
+  assert.equal(httpOptions.sameSite, 'lax')
 })

@@ -21,7 +21,7 @@ export default function AdminQuizPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/admin/session', { cache: 'no-store' })
+    fetch('/api/admin/session', { cache: 'no-store', credentials: 'same-origin' })
       .then((response) => response.json())
       .then((data) => setAuthed(Boolean(data.authenticated)))
       .catch(() => setAuthed(false));
@@ -31,7 +31,7 @@ export default function AdminQuizPage() {
   useEffect(() => {
     if (!authed) return;
     setLoading(true);
-    fetch('/api/quiz', { cache: 'no-store' })
+    fetch('/api/quiz', { cache: 'no-store', credentials: 'same-origin' })
       .then(async (response) => {
         if (response.status === 401) {
           setAuthed(false);
@@ -62,6 +62,7 @@ export default function AdminQuizPage() {
     try {
       const response = await fetch('/api/admin/session', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ secret }),
       });
@@ -82,7 +83,7 @@ export default function AdminQuizPage() {
   };
 
   const handleLogout = async () => {
-    await fetch('/api/admin/session', { method: 'DELETE' }).catch(() => {});
+    await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
     setAuthed(false);
     setQuestions(DEFAULT_QUESTIONS);
     setMessage(null);
@@ -129,6 +130,7 @@ export default function AdminQuizPage() {
     try {
       const res = await fetch('/api/quiz', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
         },

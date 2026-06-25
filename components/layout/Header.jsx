@@ -22,6 +22,7 @@ export default function Header() {
                   width={220}
                   height={50}
                   className="h-10 w-auto max-w-[calc(100vw-8rem)] object-contain sm:h-11 sm:max-w-none"
+                  style={{ width: 'auto' }}
                   priority
                 />
               </Link>

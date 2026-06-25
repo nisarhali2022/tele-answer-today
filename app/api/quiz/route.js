@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { revalidateTag } from 'next/cache'
 import { hasAdminSession } from '@/lib/adminAuth'
-import { HOME_PAGE_SLUG } from '@/lib/constants'
+import { DAILY_QUIZ_SLUG } from '@/lib/constants'
 import { getKarachiDateISO, getKarachiDateLabel } from '@/lib/date'
 import { formatQuizContent, normalizeQuizQuestions } from '@/lib/quiz'
 import { parseQuizTables } from '@/lib/quizParser'
@@ -33,8 +33,17 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+async function getWordPressErrorMessage(response) {
+  try {
+    const error = await response.json()
+    return error?.message || `WordPress API error: ${response.status}`
+  } catch {
+    return `WordPress API error: ${response.status}`
+  }
+}
+
 async function getMainQuizPage() {
-  const url = `${WP_API_URL}/pages?slug=${encodeURIComponent(HOME_PAGE_SLUG)}&per_page=1`
+  const url = `${WP_API_URL}/posts?slug=${encodeURIComponent(DAILY_QUIZ_SLUG)}&per_page=1`
   let lastError
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
@@ -98,21 +107,17 @@ async function saveQuizToWordPress(questions) {
   }
 
   const existing = await getMainQuizPage()
-  if (!existing) {
-    throw new Error(`WordPress page "${HOME_PAGE_SLUG}" was not found.`)
-  }
-
   const authHeader = createAuthHeader(WP_USER, WP_PASS)
   const pageData = {
     title: `Daily Quiz - ${getKarachiDateLabel()}`,
     content: formatQuizContent(questions),
-    slug: HOME_PAGE_SLUG,
+    slug: DAILY_QUIZ_SLUG,
     status: 'publish',
   }
 
   try {
-    const res = await fetch(`${WP_API_URL}/pages/${existing.id}`, {
-      method: 'PUT',
+    const res = await fetch(`${WP_API_URL}/posts${existing ? `/${existing.id}` : ''}`, {
+      method: existing ? 'PUT' : 'POST',
       headers: {
         Authorization: authHeader,
         'Content-Type': 'application/json',
@@ -121,8 +126,8 @@ async function saveQuizToWordPress(questions) {
     })
 
     if (!res.ok) {
-      const error = await res.json()
-      throw new Error(error.message || `WordPress API error: ${res.status}`)
+      const message = await getWordPressErrorMessage(res)
+      throw new QuizWordPressError(message, { status: res.status })
     }
 
     return await res.json()
@@ -192,11 +197,22 @@ export async function POST(request) {
     })
   } catch (err) {
     console.error('Error in POST /api/quiz:', err.message)
-    const status = err instanceof QuizWordPressError ? 503 : 500
+    const isWordPressPermissionError =
+      err instanceof QuizWordPressError && [401, 403].includes(err.status)
+    const status =
+      err instanceof QuizWordPressError
+        ? isWordPressPermissionError
+          ? 502
+          : err.status || 503
+        : 500
     return NextResponse.json(
       {
         message:
-          status === 503
+          isWordPressPermissionError
+            ? 'WordPress permission error: ' +
+              err.message +
+              ' Check WP_ADMIN_USER/WP_ADMIN_PASS permissions or create the daily-quiz post once in WordPress.'
+            : err instanceof QuizWordPressError && !err.status
             ? 'WordPress is temporarily unavailable. Quiz was not saved. Please try again.'
             : 'Error saving quiz: ' + err.message,
       },

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { getHomepageQuizPage, getPosts } from '@/lib/wordpress';
+import { getDailyQuizPost, getHomepageQuizPage, getPosts } from '@/lib/wordpress';
 import { EXCLUDED_CONTENT_SLUGS, SITE_CONFIG } from '@/lib/constants';
 import { getKarachiDateLabel, getKarachiSeoDateLabel, getKarachiSeoDayStartISO } from '@/lib/date';
 import { buildMetadata } from '@/lib/seo';
@@ -46,8 +46,21 @@ const HOME_TOC = [
   { id: 'faqs', text: 'FAQs', level: 2 },
 ];
 
+async function optionalHomeData(promise, context, fallback) {
+  try {
+    return await promise;
+  } catch (error) {
+    console.error(context, error);
+    return fallback;
+  }
+}
+
 export async function generateMetadata() {
-  const page = await getHomepageQuizPage();
+  const page = await optionalHomeData(
+    getHomepageQuizPage(),
+    'Unable to fetch homepage metadata source',
+    null
+  );
   const seoDateLabel = getKarachiSeoDateLabel();
 
   const title = `Telenor Quiz Today ${seoDateLabel} - Latest My Telenor Answer Today`;
@@ -66,14 +79,20 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const [quizPage, newsData] = await Promise.all([
-    getHomepageQuizPage(),
-    getPosts({ page: 1, perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
+  const [quizPage, homepagePage, newsData] = await Promise.all([
+    optionalHomeData(getDailyQuizPost(), 'Unable to fetch daily quiz post', null),
+    optionalHomeData(getHomepageQuizPage(), 'Unable to fetch homepage content page', null),
+    optionalHomeData(
+      getPosts({ page: 1, perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
+      'Unable to fetch homepage news posts',
+      { posts: [] }
+    ),
   ]);
 
   const newsPosts = newsData?.posts || [];
-  const homepageContent = quizPage?.content?.rendered || '';
-  const quizQuestions = parseQuizTables(homepageContent);
+  const quizContent = quizPage?.content?.rendered || '';
+  const homepageContent = homepagePage?.content?.rendered || '';
+  const quizQuestions = parseQuizTables(quizContent);
   const faqs = parseFaqs(homepageContent);
 
   const todayLabel = getKarachiDateLabel();

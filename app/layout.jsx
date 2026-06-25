@@ -76,6 +76,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-PK" className={inter.variable}>
       <body className="font-body bg-white text-text-primary">
+        {hasAdSenseClient && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE_CONFIG.googleAdsenseId}`}
+            crossOrigin="anonymous"
+          />
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(siteSchema) }}
@@ -98,14 +105,6 @@ export default function RootLayout({ children }) {
             gtag('config', '${SITE_CONFIG.googleAnalyticsId}');
           `}
         </Script>
-        {hasAdSenseClient && (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE_CONFIG.googleAdsenseId}`}
-            crossOrigin="anonymous"
-            strategy="lazyOnload"
-          />
-        )}
       </body>
     </html>
   )
