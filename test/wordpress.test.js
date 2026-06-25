@@ -145,6 +145,126 @@ test('homepage parses quiz and FAQ content from separate WordPress sources', asy
   assert.doesNotMatch(source, /parseQuizTables\(homepageContent\)/)
 })
 
+test('homepage TOC includes H1 and all main-content H2/H3 anchors', async () => {
+  const { homeAnchorId } = await import('../lib/homeAnchors.js')
+  const pageSource = await readFile(
+    new URL('../app/page.jsx', import.meta.url),
+    'utf8'
+  )
+  const quizInfoSource = await readFile(
+    new URL('../components/home/QuizInfoSections.jsx', import.meta.url),
+    'utf8'
+  )
+  const stepsSource = await readFile(
+    new URL('../components/home/StepsSection.jsx', import.meta.url),
+    'utf8'
+  )
+  const latestNewsSource = await readFile(
+    new URL('../components/home/LatestNewsGrid.jsx', import.meta.url),
+    'utf8'
+  )
+  const faqSource = await readFile(
+    new URL('../components/home/FaqSection.jsx', import.meta.url),
+    'utf8'
+  )
+
+  const requiredTocTitles = [
+    'Latest News',
+    'What is the Telenor Daily Quiz?',
+    'How to Find the Correct My Telenor Quiz Answers Today Quickly?',
+    'How to Play the Telenor Quiz Today and Win Free MBs?',
+    'How to Get Verified Telenor Quiz Today Answer Before It Expires?',
+    'Why Do People Love the Daily Telenor Quiz So Much?',
+    'Who Can Participate in the Today Telenor Quiz Answer?',
+    'Eligibility Details',
+    'Key Participation Rules',
+    'Rewards',
+    'What You Get from My Telenor Today Answers?',
+    'How Can You Always Get Accurate Today Telenor Quiz?',
+    'What is the Fastest Way to Get Accurate Answers Using Modern AI?',
+    'Quick AI Solution Method',
+    "What to Do If the Telenor Quiz Isn't Working",
+    'Quiz Not Loading?',
+    'App Keeps Crashing?',
+    "Didn't Receive Free MBs?",
+    'Discover the Educational Benefits',
+    'Tips to Maximize Your Success',
+    'Tips for a Seamless Telenor Quiz Experience:',
+    'Keep Your App Updated',
+    'Check Your Device Storage and Software',
+    'Use Stable Internet',
+    'Report Persistent Issues',
+    'Enjoy a Hassle-Free Quiz',
+    'Why You Should Play the Telenor Quiz Every Day',
+    'Earn Free Daily Internet',
+    'Sharpen Your Knowledge',
+    'Learn on the Go',
+    'Fast and Fun',
+    'How Telenor Maintains Quiz Fairness',
+    'The Future of Today My Telenor Answer',
+    'Conclusion',
+    'Steps to Participate',
+    'Install the My Telenor App',
+    'Log In with Your Telenor SIM',
+    'Navigate to the "Play & Win" Section',
+    'Answer 5 Quiz Questions',
+    'Claim Your Reward',
+    'FAQs - My Telenor Answers Today',
+  ]
+
+  for (const title of requiredTocTitles) {
+    const id = homeAnchorId(title)
+
+    assert.doesNotMatch(id, /\s|%20/)
+    assert.ok(
+      pageSource.includes(title),
+      `${title} should be listed in HOME_TOC with full text`
+    )
+
+    assert.ok(
+      `${pageSource}\n${quizInfoSource}\n${stepsSource}\n${latestNewsSource}\n${faqSource}`.includes(title) ||
+        `${pageSource}\n${quizInfoSource}\n${stepsSource}\n${latestNewsSource}\n${faqSource}`.includes(id),
+      `${id} should exist as a rendered anchor source`
+    )
+  }
+
+  assert.match(pageSource, /tocItem\(`My Telenor Answer Today \$\{todayLabel\} - Latest Telenor Quiz Today`, 1\)/)
+  assert.match(pageSource, /tocItem\(`Today Telenor Answer \$\{todayLabel\}`, 2\)/)
+  assert.match(pageSource, /id=\{homeAnchorId\(h1Text\)\}/)
+  assert.match(pageSource, /id=\{homeAnchorId\(quizHeading\)\}/)
+  assert.match(pageSource, /tocItem\('How to Play the Telenor Quiz Today and Win Free MBs\?', 2\)/)
+  assert.doesNotMatch(pageSource, /post\.title/)
+})
+
+test('homepage TOC label is not rendered as a heading', async () => {
+  const source = await readFile(
+    new URL('../components/posts/TableOfContents.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.doesNotMatch(source, /<h[1-6][^>]*>\s*Table of Contents\s*<\/h[1-6]>/)
+  assert.match(source, />\s*Table of Contents\s*</)
+})
+
+test('homepage TOC anchors use readable hyphen fragments', async () => {
+  const { homeAnchorId } = await import('../lib/homeAnchors.js')
+  const tocSource = await readFile(
+    new URL('../components/posts/TableOfContents.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.equal(
+    homeAnchorId('How to Play the Telenor Quiz Today and Win Free MBs?'),
+    'How-to-Play-the-Telenor-Quiz-Today-and-Win-Free-MBs'
+  )
+  assert.doesNotMatch(
+    homeAnchorId('How to Play the Telenor Quiz Today and Win Free MBs?'),
+    /\s|%20/
+  )
+  assert.match(tocSource, /href=\{`#\$\{item\.id\}`\}/)
+  assert.doesNotMatch(tocSource, /encodeURIComponent/)
+})
+
 test('admin session cookie secure flag follows the request protocol', async () => {
   const { getAdminSessionCookieOptions } = await import('../lib/adminAuth.js')
   const httpOptions = getAdminSessionCookieOptions({

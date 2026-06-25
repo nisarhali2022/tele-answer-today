@@ -1,3 +1,5 @@
+import { homeAnchorId } from '@/lib/homeAnchors';
+
 const FAQS = [
   {
     q: 'What is the today my Telenor question and answer 2026?',
@@ -34,7 +36,7 @@ export default function FaqSection({ faqs }) {
   const items = (faqs?.length ? faqs : FAQS).slice(0, 6);
 
   return (
-    <section id="faqs" className="my-8">
+    <section id={homeAnchorId('FAQs - My Telenor Answers Today')} className="my-8">
       <h2 className="font-heading font-bold text-xl text-text-primary mb-5">
         FAQs - My Telenor Answers Today
       </h2>

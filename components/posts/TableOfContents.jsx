@@ -13,7 +13,9 @@ export default function TableOfContents({ toc, defaultExpanded = false }) {
         className="flex items-center justify-between cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <h3 className="font-heading font-bold text-lg text-navy-dark m-0">Table of Contents</h3>
+        <div className="font-heading font-bold text-lg text-navy-dark m-0">
+          Table of Contents
+        </div>
         <button 
           className="text-navy-dark hover:text-primary transition-colors focus:outline-none"
           aria-label={isExpanded ? 'Collapse Table of Contents' : 'Expand Table of Contents'}
@@ -34,11 +36,11 @@ export default function TableOfContents({ toc, defaultExpanded = false }) {
           <ul className="list-none space-y-2.5 m-0 p-0">
             {toc.map((item, index) => {
               // Calculate left margin based on heading level
-              let mlClass = 'ml-5'; // Default for h1
-              if (item.level === 2) mlClass = 'ml-10';
-              if (item.level === 3) mlClass = 'ml-16';
-              if (item.level === 4) mlClass = 'ml-20';
-              if (item.level > 4) mlClass = 'ml-24';
+              let mlClass = 'ml-4';
+              if (item.level === 2) mlClass = 'ml-8';
+              if (item.level === 3) mlClass = 'ml-12';
+              if (item.level === 4) mlClass = 'ml-16';
+              if (item.level > 4) mlClass = 'ml-20';
 
               return (
                 <li 

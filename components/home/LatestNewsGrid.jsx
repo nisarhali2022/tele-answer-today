@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { homeAnchorId } from '@/lib/homeAnchors'
 import {
   getCategoryColor,
   getFeaturedImageAlt,
@@ -31,7 +32,7 @@ export default function LatestNewsGrid({ posts, limit = 6 }) {
   if (!posts?.length) return null
 
   return (
-    <section id="latest-news" className="my-8">
+    <section id={homeAnchorId('Latest News')} className="my-8">
       <h2 className="mb-5 inline-block border-b-2 border-accent pb-2 font-heading text-xl font-bold text-text-primary">
         Latest News
       </h2>

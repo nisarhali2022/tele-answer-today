@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { homeAnchorId } from '@/lib/homeAnchors';
 
 const STEPS = [
   {
@@ -35,7 +36,7 @@ const STEPS = [
 
 export default function StepsSection() {
   return (
-    <section id="steps-to-participate" className="my-8">
+    <section id={homeAnchorId('Steps to Participate')} className="my-8">
       <h2 className="font-heading font-bold text-xl text-text-primary mb-6">
         Steps to Participate
       </h2>
@@ -46,7 +47,7 @@ export default function StepsSection() {
               {step.num}
             </span>
             <div className="flex-1">
-              <h3 className="font-semibold text-text-primary mb-1">{step.title}</h3>
+              <h3 id={homeAnchorId(step.title)} className="font-semibold text-text-primary mb-1">{step.title}</h3>
               <p className="text-sm text-text-secondary leading-relaxed">{step.desc}</p>
               {step.img && (
                 <div className="mt-3 relative w-80 aspect-[2/3] rounded-lg overflow-hidden shadow-sm border border-border">

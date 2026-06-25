@@ -1,9 +1,10 @@
 import Link from 'next/link'
+import { homeAnchorId } from '@/lib/homeAnchors'
 
-function Section({ id, title, children, highlight = false }) {
+function Section({ title, children, highlight = false }) {
   return (
     <section
-      id={id}
+      id={homeAnchorId(title)}
       className={`my-8 ${highlight ? 'rounded-xl border border-primary/20 bg-primary/5 p-6' : ''}`}
     >
       <h2 className="mb-4 font-heading text-xl font-bold text-text-primary">
@@ -19,7 +20,7 @@ function Section({ id, title, children, highlight = false }) {
 export default function QuizInfoSections() {
   return (
     <div className="render-deferred">
-      <Section id="what-is-telenor-daily-quiz" title="What is the Telenor Daily Quiz?">
+      <Section title="What is the Telenor Daily Quiz?">
         <p>
           When Telenor first launched the <b>"Test Your Skills today"</b> inside its
           app, it was seen as just another engagement feature. It quickly became
@@ -36,7 +37,6 @@ export default function QuizInfoSections() {
       </Section>
 
       <Section
-        id="find-correct-answers"
         title="How to Find the Correct My Telenor Quiz Answers Today Quickly?"
       >
         <p>
@@ -57,7 +57,6 @@ export default function QuizInfoSections() {
       </Section>
 
       <Section
-        id="how-to-play"
         title="How to Play the Telenor Quiz Today and Win Free MBs?"
       >
         <p>To play the Telenor quiz today, start by downloading the My Telenor App today questions and answers from the Google Play Store or Apple App Store and sign in using your active Telenor number. Once you're logged in, look for the <strong>"Play &amp; Win"</strong> or <strong>"Test Your Skills"</strong> button on the app's home screen - this is where the daily quiz lives. Tap it to launch the quiz, then answer all five multiple-choice questions one by one. Make sure to read each question carefully and choose the correct option before tapping "Next." After submitting all five answers, you'll see a results screen where you can claim your reward if your answers are correct.</p>
@@ -67,7 +66,6 @@ export default function QuizInfoSections() {
       </Section>
 
       <Section
-        id="verified-answer"
         title="How to Get Verified Telenor Quiz Today Answer Before It Expires?"
       >
         <p>
@@ -90,7 +88,6 @@ export default function QuizInfoSections() {
       </Section>
 
       <Section
-        id="why-people-love-it"
         title="Why Do People Love the Daily Telenor Quiz So Much?"
       >
         <p>
@@ -118,7 +115,6 @@ export default function QuizInfoSections() {
       </Section>
 
       <Section
-        id="who-can-join"
         title="Who Can Participate in the Today Telenor Quiz Answer?"
       >
         <p>
@@ -127,7 +123,7 @@ export default function QuizInfoSections() {
         <p>
           You pay no fees and face no hidden conditions. Playing the quiz does not deduct balance, and you do not need any package. Simply open the Today Answer of My Telenor App and use a small amount of internet to access the quiz. Telenor updates the quiz daily, and anyone can play it without needing advanced knowledge.
         </p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Eligibility Details')} className="font-heading text-base font-bold text-text-primary">
           Eligibility Details
         </h3>
         <ul className="list-disc space-y-2 pl-5">
@@ -136,14 +132,14 @@ export default function QuizInfoSections() {
           <li><strong>Internet Connection:</strong> Use mobile data or Wi-Fi to load questions and submit answers without interruption.</li>
           <li><strong>No Extra Charges:</strong> Play the quiz without spending balance. Telenor does not apply any hidden fees.</li>
         </ul>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Key Participation Rules')} className="font-heading text-base font-bold text-text-primary">
           Key Participation Rules
         </h3>
         <ul className="list-disc space-y-2 pl-5">
           <li><strong>One Entry Per Day:</strong> Attempt the quiz once per day. This rule helps Telenor distribute rewards fairly among users.</li>
           <li><strong>Telenor Users Only:</strong> Only Telenor subscribers can access the quiz. Users from other networks cannot join.</li>
         </ul>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Rewards')} className="font-heading text-base font-bold text-text-primary">
           Rewards
         </h3>
         <p>
@@ -159,7 +155,7 @@ export default function QuizInfoSections() {
         </ul>
       </Section>
 
-      <Section id="what-you-get" title="What You Get from My Telenor Today Answers?">
+      <Section title="What You Get from My Telenor Today Answers?">
         <p>
           The primary prize is 150 MB free data, but some users also report additional rewards such as:
         </p>
@@ -173,7 +169,7 @@ export default function QuizInfoSections() {
         </p>
       </Section>
 
-      <Section id="accurate-quiz" title="How Can You Always Get Accurate Today Telenor Quiz?">
+      <Section title="How Can You Always Get Accurate Today Telenor Quiz?">
         <p>
           We understand how frustrating it feels to miss out on free rewards because of one wrong answer. That's exactly why our platform focuses on delivering accurate and up-to-date Telenor Quiz answers you can rely on. Our goal is simple: help you save time, avoid guesswork, and increase your chances of winning free internet MBs every day without stress.
         </p>
@@ -186,11 +182,10 @@ export default function QuizInfoSections() {
       </Section>
 
       <Section
-        id="ai-answer-method"
         title="What is the Fastest Way to Get Accurate Answers Using Modern AI?"
       >
         <p>When you encounter unique questions not covered in our daily updates, technology can be your best friend. Modern AI tools like <a href="https://chatgpt.com/" target="_blank" rel="noreferrer noopener"><strong>ChatGPT</strong></a> or <a href="https://gemini.google.com/app" target="_blank" rel="noreferrer noopener"><strong>Gemini AI</strong></a> can provide instant, accurate answers to any quiz question.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Quick AI Solution Method')} className="font-heading text-base font-bold text-text-primary">
           Quick AI Solution Method:
         </h3>
         <ol className="list-decimal space-y-2 pl-5">
@@ -204,11 +199,11 @@ export default function QuizInfoSections() {
         </p>
       </Section>
 
-      <Section id="quiz-not-working" title="What to Do If the Telenor Quiz Isn't Working">
+      <Section title="What to Do If the Telenor Quiz Isn't Working">
         <p>
           Most users enjoy a smooth experience with the Telenor Quiz Today, but occasionally, technical issues can occur. Here's how to fix the most common problems:
         </p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Quiz Not Loading?')} className="font-heading text-base font-bold text-text-primary">
           Quiz Not Loading?
         </h3>
         <ul className="list-disc space-y-2 pl-5">
@@ -216,7 +211,7 @@ export default function QuizInfoSections() {
           <li>Clear the app cache.</li>
           <li>Update the app to the latest version.</li>
         </ul>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('App Keeps Crashing?')} className="font-heading text-base font-bold text-text-primary">
           App Keeps Crashing?
         </h3>
         <ul className="list-disc space-y-2 pl-5">
@@ -224,7 +219,7 @@ export default function QuizInfoSections() {
           <li>Uninstall and reinstall the app.</li>
           <li>Ensure your device runs Android 7 or iOS 12 or newer.</li>
         </ul>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId("Didn't Receive Free MBs?")} className="font-heading text-base font-bold text-text-primary">
           Didn't Receive Free MBs?
         </h3>
         <ul className="list-disc space-y-2 pl-5">
@@ -234,7 +229,7 @@ export default function QuizInfoSections() {
         </ul>
       </Section>
 
-      <Section id="educational-benefits" title="Discover the Educational Benefits">
+      <Section title="Discover the Educational Benefits">
         <p>Daily participation offers more than free MBs. It is a boost for your mind.</p>
         <ul className="list-disc space-y-2 pl-5">
           <li>Expand your knowledge across science, Islamic studies, and more.</li>
@@ -243,7 +238,7 @@ export default function QuizInfoSections() {
         </ul>
       </Section>
 
-      <Section id="tips" title="Tips to Maximize Your Success">
+      <Section title="Tips to Maximize Your Success">
         <p>Want to consistently get your Today My Telenor answers right?</p>
         <ol className="list-decimal space-y-2 pl-5">
           <li>Read carefully and do not rush.</li>
@@ -253,49 +248,49 @@ export default function QuizInfoSections() {
         </ol>
       </Section>
 
-      <Section id="seamless-experience" title="Tips for a Seamless Telenor Quiz Experience:">
-        <h3 className="font-heading text-base font-bold text-text-primary">
+      <Section title="Tips for a Seamless Telenor Quiz Experience:">
+        <h3 id={homeAnchorId('Keep Your App Updated')} className="font-heading text-base font-bold text-text-primary">
           1. Keep Your App Updated
         </h3>
         <p>Always use the latest Android or iOS app for the best experience.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Check Your Device Storage and Software')} className="font-heading text-base font-bold text-text-primary">
           2. Check Your Device Storage and Software
         </h3>
         <p>Ensure your phone has enough free space and current software updates.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Use Stable Internet')} className="font-heading text-base font-bold text-text-primary">
           3. Use Stable Internet
         </h3>
         <p>Connect through Wi-Fi or a reliable mobile data network.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Report Persistent Issues')} className="font-heading text-base font-bold text-text-primary">
           4. Report Persistent Issues
         </h3>
         <p>If problems continue, use the app support option to report them.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Enjoy a Hassle-Free Quiz')} className="font-heading text-base font-bold text-text-primary">
           5. Enjoy a Hassle-Free Quiz
         </h3>
         <p>A few simple checks can make your quiz experience fast and smooth.</p>
       </Section>
 
-      <Section id="play-every-day" title="Why You Should Play the Telenor Quiz Every Day">
-        <h3 className="font-heading text-base font-bold text-text-primary">
+      <Section title="Why You Should Play the Telenor Quiz Every Day">
+        <h3 id={homeAnchorId('Earn Free Daily Internet')} className="font-heading text-base font-bold text-text-primary">
           Earn Free Daily Internet:
         </h3>
         <p>Get extra MBs every day without touching your balance.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Sharpen Your Knowledge')} className="font-heading text-base font-bold text-text-primary">
           Sharpen Your Knowledge:
         </h3>
         <p>Challenge yourself with questions on history, geography, science, and religion.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Learn on the Go')} className="font-heading text-base font-bold text-text-primary">
           Learn on the Go:
         </h3>
         <p>Ideal for students, job seekers, and freelancers.</p>
-        <h3 className="font-heading text-base font-bold text-text-primary">
+        <h3 id={homeAnchorId('Fast and Fun')} className="font-heading text-base font-bold text-text-primary">
           Fast and Fun:
         </h3>
         <p>Complete the quiz in under two minutes and enjoy the experience.</p>
       </Section>
 
-      <Section id="fairness" title="How Telenor Maintains Quiz Fairness">
+      <Section title="How Telenor Maintains Quiz Fairness">
         <p>To keep the experience fair and transparent:</p>
         <ul className="list-disc space-y-2 pl-5">
           <li>Every user gets the same set of quiz questions daily.</li>
@@ -305,7 +300,7 @@ export default function QuizInfoSections() {
         </ul>
       </Section>
 
-      <Section id="future" title="The Future of Today My Telenor Answer">
+      <Section title="The Future of Today My Telenor Answer">
         <p>
           The daily Telenor quiz question answer today is just the beginning. With gamification and digital learning becoming popular, we can expect:
         </p>
@@ -320,7 +315,7 @@ export default function QuizInfoSections() {
         </p>
       </Section>
 
-      <Section id="conclusion" title="Conclusion" highlight>
+      <Section title="Conclusion" highlight>
         <p>
           Telenor Answer Today isn't just about winning free internet - it's about transforming idle moments into opportunities for growth and connection. Every day brings a fresh chance to learn something new, earn valuable rewards, and stay connected without depleting your mobile balance. Whether you're seeking the My Telenor Today question for immediate rewards or looking to build a sustainable learning habit, this daily quiz offers the perfect blend of education and practical benefits.
         </p>
