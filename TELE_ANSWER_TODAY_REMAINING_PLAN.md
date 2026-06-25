@@ -1,5 +1,13 @@
 # Tele Answer Today Migration Status And Remaining Plan
 
+> Current-state correction, June 25, 2026: the page-source quiz migration
+> described below is historical and superseded. The active model is now:
+> static React homepage content, quiz cards from the WordPress post
+> `daily-quiz`, and homepage FAQ/metadata fallback from the WordPress page
+> `telenor-answer-today`. `/admin/quiz` must read and write only the
+> `daily-quiz` post and must not update the WordPress Front Page or page ID
+> `640`.
+
 ## Current Status
 
 The first-priority foundation migration has been completed:
@@ -14,10 +22,31 @@ The first-priority foundation migration has been completed:
 - Public contact/domain references were updated to Tele Answer Today.
 - Docs were updated for the new public and WordPress domains.
 
-The homepage source, quiz parsing, admin save behavior, local Tele Answer
-assets, responsive header, live-style submenus, and duplicate-H1 SEO fixes
-have now been implemented. This file remains as a status record plus the
-remaining production-deployment checklist.
+The homepage source split, quiz parsing, admin save behavior, local Tele
+Answer assets, responsive header, live-style submenus, duplicate-H1 SEO fixes,
+mobile ad collapse, and responsive WordPress table scroll fixes have now been
+implemented. This file remains as a status record plus the remaining
+production-deployment checklist.
+
+## Current Active Source Model
+
+- Static homepage intro, informational sections, and participation steps remain
+  app-owned React content.
+- `daily-quiz` is the only WordPress post updated by `/admin/quiz`.
+- `telenor-answer-today` is the homepage page source for FAQ parsing and
+  metadata image fallback only.
+- `daily-quiz` and `telenor-answer-today` stay excluded from normal public post
+  and page listings where appropriate.
+- Wide WordPress tables are wrapped in `.wp-table-scroll` by
+  `prepareWordPressContent()` for mobile horizontal scrolling.
+- Empty or unfilled AdSense slots collapse on mobile so the top ad cannot leave
+  a large blank area below the header.
+
+## Superseded Notes
+
+The next sections are retained for history, but any instruction saying that
+`/admin/quiz` should update the page `telenor-answer-today` is no longer the
+current implementation target.
 
 ## Completed Goal
 
@@ -35,9 +64,9 @@ https://wp.teleanswertoday.pk
   -> WordPress admin, media, and REST API backend
 ```
 
-## Homepage Source
+## Homepage Page Source
 
-Use the WordPress page:
+Use the WordPress page for homepage FAQ parsing and metadata image fallback:
 
 ```text
 telenor-answer-today
@@ -53,26 +82,31 @@ Implemented behavior:
 
 - `getHomepageQuizPage()` fetches the page with embedded author and featured
   media.
-- The page is cached with the `quiz` cache tag.
-- `getDailyQuizPost()` remains only as a compatibility alias; avoid making
-  new homepage code read like it still depends on the old post.
+- `getDailyQuizPost()` fetches the WordPress post `daily-quiz` and remains the
+  active homepage quiz-card source.
+- `/admin/quiz` reads and writes only the `daily-quiz` post.
 - `telenor-answer-today` is excluded from public page sitemap output so it does not
   appear as `/telenor-answer-today`.
-- `daily-quiz` remains excluded from normal post lists as a legacy slug.
+- `daily-quiz` remains excluded from normal post lists because it is a system
+  quiz source post.
 
 ## Homepage Rendering
 
 The homepage loads:
 
 ```text
+getDailyQuizPost()
 getHomepageQuizPage()
 getPosts({ page: 1, perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
 ```
 
-The homepage uses the WordPress page content for:
+The homepage uses the `daily-quiz` WordPress post for:
 
 - Quiz questions.
 - Answers.
+
+The homepage uses the `telenor-answer-today` WordPress page for:
+
 - FAQs, where reliably parseable.
 - Metadata fallback source.
 - Featured image fallback for Open Graph.
@@ -277,18 +311,21 @@ After implementation, update these docs:
 
 Docs should state:
 
-- Homepage source is `telenor-answer-today`.
+- Homepage quiz source is the WordPress post `daily-quiz`.
+- Homepage FAQ parsing and metadata image fallback source is the WordPress page
+  `telenor-answer-today`.
 - WordPress API source is `https://wp.teleanswertoday.pk/wp-json/wp/v2`.
-- The old `daily-quiz` post is no longer the active homepage source.
+- `/admin/quiz` updates only the `daily-quiz` post.
 
 ## Acceptance Criteria
 
 The work is complete when:
 
-- Homepage loads quiz content from the WordPress page slug
-  `telenor-answer-today`.
-- Admin GET reads from that page.
-- Admin POST updates that page.
+- Homepage loads quiz content from the WordPress post slug `daily-quiz`.
+- Admin GET reads from the `daily-quiz` post.
+- Admin POST updates the `daily-quiz` post only.
+- The WordPress page slug `telenor-answer-today`, the WordPress Front Page, and
+  page ID `640` are not changed by quiz saves.
 - Homepage still renders latest news, ads, sidebar, static guidance sections,
   and FAQs.
 - No duplicate `/telenor-answer-today` sitemap URL is generated.

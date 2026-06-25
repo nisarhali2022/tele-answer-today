@@ -117,9 +117,11 @@ WordPress body images.
 
 `prepareWordPressContent()` is the standard rendering pipeline for WordPress
 body HTML. It removes embedded H1 blocks, rewrites public backend links from
-`wp.teleanswertoday.pk` to the public root where appropriate, and optimizes
-WordPress images. Use this helper before rendering `page.content.rendered` or
-`post.content.rendered` with `dangerouslySetInnerHTML`.
+`wp.teleanswertoday.pk` to the public root where appropriate, optimizes
+WordPress images, and wraps standalone WordPress tables in `.wp-table-scroll`
+so wide tables can scroll horizontally on mobile. Use this helper before
+rendering `page.content.rendered` or `post.content.rendered` with
+`dangerouslySetInnerHTML`.
 
 Main callers: post cards, post pages, metadata functions, widgets, homepage,
 footer, and breadcrumbs.
@@ -149,6 +151,13 @@ generation, and authenticated quiz writes. `WORDPRESS_API_URL` and the
 backward-compatible `NEXT_PUBLIC_WORDPRESS_API_URL` can override the backend,
 but the module defaults to `https://wp.teleanswertoday.pk/wp-json/wp/v2` so
 Vercel builds do not fail when the optional URL env var is missing.
+
+### `styles/globals.css`
+
+Global Tailwind layers plus application CSS for article typography, WordPress
+body content, ad placeholders, and responsive content safety. `.wp-table-scroll`
+is the standard wrapper for rendered WordPress tables; it keeps the page from
+scrolling sideways while allowing the table area itself to scroll on mobile.
 
 ### `hooks/useSearch.js`
 

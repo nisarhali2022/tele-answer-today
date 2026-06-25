@@ -50,6 +50,8 @@ separate application database.
 - Protected five-question quiz editor.
 - On-demand and scheduled cache revalidation.
 - Temporary-unavailable pages for repeated WordPress failures.
+- Mobile-safe ad containers that collapse empty/unfilled AdSense slots.
+- Responsive WordPress tables that scroll horizontally on small screens.
 
 ## 4. Architecture
 
@@ -289,7 +291,7 @@ rollover; post and category sitemap dates remain based on WordPress data.
 
 ## 10. Verification Status
 
-Reviewed and updated on June 19, 2026:
+Reviewed and updated on June 25, 2026:
 
 | Check | Current result |
 | --- | --- |
@@ -299,9 +301,9 @@ Reviewed and updated on June 19, 2026:
 | `git diff --check` | Previously passed; current verification focused on lint/test/build |
 | Focused TOC behavior simulation | Covered by automated tests and build |
 | Admin WordPress lookup simulations | Covered by automated tests |
-| `npm.cmd run build` | Passed on June 19, 2026 |
+| `npm.cmd run build` | Passed on June 25, 2026 |
 | ESLint | Passed with `npm.cmd run lint` |
-| Automated test suite | 15 tests passed with `npm.cmd run test` |
+| Automated test suite | 36 tests passed with `npm.cmd run test` |
 
 The production build compiled, linted, type-checked, and generated all 28 routes.
 Browser checks verified Organization/WebSite, Article, Person, author profile,
@@ -393,3 +395,27 @@ Current production note:
   slot status in DevTools. `data-ad-status="unfilled"` means Google loaded the
   ad request but did not return inventory; that is an AdSense fill issue, not a
   rendering bug in the project.
+
+## Latest Update - 2026-06-25
+
+The current source model is:
+
+- Static homepage intro, informational sections, and participation steps remain
+  in React code and are not overwritten by quiz saves.
+- Homepage quiz cards read from the WordPress post slug `daily-quiz`.
+- Homepage FAQ parsing and metadata image fallback read from the WordPress page
+  slug `telenor-answer-today`.
+- `/admin/quiz` reads and writes only the `daily-quiz` post. It must not update
+  the WordPress Front Page or page ID `640`.
+
+Additional completed fixes:
+
+- Admin session cookies now use a Tele Answer-specific cookie name and protocol
+  aware options so local saves do not incorrectly expire the session.
+- Empty or unfilled AdSense containers collapse on mobile after client-side
+  status detection, preventing large blank spaces below the fixed header.
+- Rendered WordPress tables are wrapped with `.wp-table-scroll`, allowing table
+  content to scroll horizontally on phones while the page itself stays fixed to
+  the viewport width.
+- Tests guard the quiz source split, WordPress page safety, ad placeholder
+  behavior, content H1 removal, and responsive table wrapping.

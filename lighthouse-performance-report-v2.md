@@ -11,6 +11,11 @@
 > and WordPress backend/API configuration is now environment-only. Re-run
 > Lighthouse against the deployed production build before treating any metric
 > or recommendation below as current.
+>
+> **Follow-up note, June 25, 2026:** mobile empty AdSense slots now collapse,
+> and WordPress tables now scroll horizontally inside `.wp-table-scroll`
+> wrappers. Re-run Lighthouse after deployment for updated mobile layout and
+> Core Web Vitals measurements.
 
 ---
 

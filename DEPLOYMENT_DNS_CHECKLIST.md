@@ -252,3 +252,25 @@ Expected results:
 
 Do not delete the Hostinger WordPress installation, database, or `wp.`
 subdomain. Only the public root domain should point to Vercel.
+
+## Post-Deploy Functional Smoke Checks - 2026-06-25
+
+After deploying the latest build, verify:
+
+```text
+https://teleanswertoday.pk/
+https://teleanswertoday.pk/admin/quiz
+https://teleanswertoday.pk/sitemap_index.xml
+https://teleanswertoday.pk/page-sitemap.xml
+```
+
+Expected results:
+
+- Saving from `/admin/quiz` updates only the WordPress post slug `daily-quiz`.
+- The WordPress page slug `telenor-answer-today`, the WordPress Front Page, and
+  old page ID `640` are not changed by quiz saves.
+- Mobile homepage does not show a large blank area under the header when the
+  top AdSense slot is unfilled.
+- Wide WordPress-rendered tables scroll horizontally inside the table area on
+  mobile, while the page itself has no horizontal scroll.
+- Homepage static React content remains unchanged after quiz updates.

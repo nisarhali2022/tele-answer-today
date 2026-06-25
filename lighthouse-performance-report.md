@@ -10,6 +10,11 @@
 > Typography with compact custom `.prose` CSS, and route-specific homepage
 > JavaScript is now approximately `628 B`. Use `PROJECT_OVERVIEW.md` and
 > `SEO_ANALYSIS.md` for current status.
+>
+> **Follow-up note, June 25, 2026:** mobile empty AdSense slots now collapse,
+> and WordPress tables now scroll horizontally inside `.wp-table-scroll`
+> wrappers. Re-run Lighthouse on the deployed production build before using the
+> metrics below for current performance decisions.
 
 ---
 

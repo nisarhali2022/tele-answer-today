@@ -33,3 +33,20 @@ When the admin saves quiz questions:
 - Normal saves after that update the same post.
 
 Saving quiz questions must not change static homepage React content.
+
+## Related Frontend Safeguards
+
+- Empty or unfilled AdSense slots collapse on mobile so a missing ad does not
+  leave a large blank space above the homepage content.
+- WordPress-rendered tables are wrapped by `prepareWordPressContent()` in
+  `.wp-table-scroll` containers, so wide tables remain reachable on mobile
+  without changing the quiz source or homepage static content.
+
+## Verification
+
+After saving from `/admin/quiz`, confirm:
+
+- The WordPress post `daily-quiz` was updated.
+- The WordPress page `telenor-answer-today` was not overwritten.
+- Any WordPress Front Page page, including old page ID `640`, was not changed.
+- The homepage static React content is unchanged and only the quiz cards update.

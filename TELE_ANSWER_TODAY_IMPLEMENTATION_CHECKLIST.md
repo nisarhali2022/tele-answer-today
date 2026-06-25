@@ -1,7 +1,28 @@
 # Tele Answer Today Implementation Checklist
 
 Use this checklist for the migration after the first-priority config work.
-Status updated June 22, 2026.
+Status updated June 25, 2026.
+
+## Current Corrections - June 25, 2026
+
+- [x] Keep static React homepage content unchanged by quiz saves.
+- [x] Keep `HOME_PAGE_SLUG = 'telenor-answer-today'` for homepage FAQ parsing
+      and metadata image fallback.
+- [x] Add/keep `DAILY_QUIZ_SLUG = 'daily-quiz'` as the public homepage quiz
+      card source and `/admin/quiz` target.
+- [x] Ensure `/api/quiz` reads and writes WordPress posts only, never pages.
+- [x] Add tests/documentation confirming page ID `640` and the WordPress Front
+      Page are not quiz editor targets.
+- [x] Collapse empty or unfilled AdSense slots on mobile to avoid large blank
+      space below the header.
+- [x] Wrap WordPress tables in `.wp-table-scroll` so wide tables scroll
+      horizontally on mobile.
+- [x] Verify with `npm.cmd run test`, `npm.cmd run lint`, and
+      `npm.cmd run build`.
+
+> Historical note: sections below that describe moving `/admin/quiz` to the
+> `telenor-answer-today` page were part of an earlier migration plan. The
+> current active implementation uses `daily-quiz` for quiz saves.
 
 ## 1. Constants And Shared Slugs
 
@@ -20,18 +41,19 @@ Status updated June 22, 2026.
 - [x] Fetch from `/pages?slug=telenor-answer-today`.
 - [x] Use `_embed=author,wp:featuredmedia`.
 - [x] Use the existing page field set.
-- [x] Use `next: { revalidate, tags: ['quiz'] }`.
-- [x] Update homepage callers to use `getHomepageQuizPage()`.
-- [x] Keep `getDailyQuizPost()` only as a compatibility alias if needed.
+- [x] Use `next: { revalidate, tags: ['quiz'] }` for the `daily-quiz` post.
+- [x] Keep `getDailyQuizPost()` as the active quiz-card source helper.
+- [x] Keep `getHomepageQuizPage()` as the active homepage FAQ and metadata
+      fallback helper.
 - [x] Update post/archive helper defaults to exclude the right slugs.
 
 ## 3. Homepage
 
-- [x] Change `app/page.jsx` import from `getDailyQuizPost` to
-      `getHomepageQuizPage`.
-- [x] Use the page result in `generateMetadata()`.
+- [x] Load both `getDailyQuizPost()` and `getHomepageQuizPage()` on the
+      homepage.
+- [x] Use the page result as the metadata image fallback.
 - [x] Use page featured media as the Open Graph image fallback.
-- [x] Use page content for quiz parsing.
+- [x] Use `daily-quiz` post content for quiz parsing.
 - [x] Use page content for FAQ parsing.
 - [x] Update H1 to:
       `My Telenor Answer Today {todayLabel} - Latest Telenor Quiz Today`.
@@ -132,15 +154,17 @@ rg -n "daily-quiz|telenor-answer-today|getDailyQuizPost|getHomepageQuizPage" -S 
 Expected:
 
 - Old production values should not appear in current-state code/docs.
-- `daily-quiz` may remain only as a legacy exclusion or compatibility path.
-- `telenor-answer-today` should appear as the active homepage source.
+- `daily-quiz` should appear as the active quiz source and `/admin/quiz`
+  target.
+- `telenor-answer-today` should appear as the active homepage FAQ and metadata
+  fallback source.
 
 ## 10. Rollback Notes
 
-If the page-source migration causes production risk:
+If the current split-source model causes production risk:
 
-- Revert homepage imports to `getDailyQuizPost()`.
-- Revert `/api/quiz` lookup/update endpoints to posts.
+- Confirm homepage quiz imports still use `getDailyQuizPost()`.
+- Confirm `/api/quiz` lookup/update endpoints still use posts.
 - Keep first-priority config migration in place.
 - Do not revert Tele Answer domain, Google IDs, AdSense slot, or docs unless
   specifically rolling back the whole domain migration.

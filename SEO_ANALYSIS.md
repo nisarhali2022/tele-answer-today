@@ -26,7 +26,7 @@ are therefore labeled as:
 
 ## 2. Executive Summary
 
-Latest update: June 22, 2026.
+Latest update: June 25, 2026.
 
 The project has a useful SEO foundation:
 
@@ -54,6 +54,13 @@ The project has a useful SEO foundation:
 - WordPress list queries now fetch compact list fields instead of full post
   bodies, reducing hidden server-rendered payload size and preventing stale
   body links from appearing in archive/sidebar payloads.
+- The current homepage quiz source is the WordPress post slug `daily-quiz`;
+  the homepage page slug `telenor-answer-today` is used for FAQ parsing and
+  metadata image fallback only.
+- Empty or unfilled mobile ad containers now collapse instead of leaving large
+  blank spaces above content.
+- WordPress-rendered tables now receive horizontal scroll wrappers, improving
+  mobile usability for tables without creating sitewide horizontal overflow.
 
 However, several issues can prevent correct indexing or weaken search
 performance.

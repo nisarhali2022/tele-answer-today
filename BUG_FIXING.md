@@ -19,6 +19,63 @@ linting, and a tracked-source configuration/security scan. The
 following register records behavioral, security, data-integrity, SEO,
 performance, UI, and maintainability findings.
 
+## June 25, 2026 Current Fixes
+
+### BF-00E: Quiz editor could target the wrong WordPress content source
+
+**Severity:** High
+
+**Status:** Resolved on June 25, 2026.
+
+**Files:** `lib/constants.js`, `lib/wordpress.js`, `app/page.jsx`,
+`app/api/quiz/route.js`, `test/wordpress.test.js`,
+`WORDPRESS_QUIZ_SOURCE.md`
+
+**Problem:** Earlier migration notes and code paths could treat the homepage
+page slug `telenor-answer-today` as the quiz editor target. That risked
+confusing the homepage content page or WordPress Front Page with the private
+daily quiz source.
+
+**Implemented result:** The source split is now explicit. Homepage quiz cards
+and `/admin/quiz` use only the WordPress post slug `daily-quiz`; homepage FAQ
+and metadata fallback can still read the page slug `telenor-answer-today`.
+Tests guard against `/api/quiz` using WordPress pages or hardcoded page ID
+`640`.
+
+### BF-00F: Empty mobile AdSense slots could create large blank space
+
+**Severity:** Medium
+
+**Status:** Resolved on June 25, 2026.
+
+**Files:** `components/ads/AdBanner.jsx`, `components/ads/AdInArticle.jsx`,
+`test/wordpress.test.js`
+
+**Problem:** Generic ad wrappers could reserve too much vertical space on
+mobile when Google returned an unfilled ad or the ad was blocked.
+
+**Implemented result:** AdSense wrappers keep a small loading placeholder,
+detect `data-ad-status="unfilled"` and empty slots, then collapse empty ad
+containers on mobile while keeping desktop spacing stable enough to limit
+layout shift.
+
+### BF-00G: WordPress tables could be clipped on mobile
+
+**Severity:** Medium
+
+**Status:** Resolved on June 25, 2026.
+
+**Files:** `lib/utils.js`, `styles/globals.css`, `test/utils.test.js`
+
+**Problem:** Wide tables rendered from WordPress content could extend beyond
+the viewport. Because the page hides global horizontal overflow, the right side
+of those tables could become unreachable on mobile.
+
+**Implemented result:** `prepareWordPressContent()` wraps standalone table
+blocks in `.wp-table-scroll`. The wrapper scrolls horizontally with touch
+momentum while keeping the page itself within the viewport. Tests cover table
+wrapping, double-wrap prevention, and unchanged non-table content.
+
 ## 2. Critical and High-Priority Issues
 
 ### BF-00A: WordPress-backed pages can render duplicate H1 tags
