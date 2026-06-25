@@ -127,6 +127,7 @@ test('admin quiz API targets the daily-quiz WordPress post', async () => {
   assert.doesNotMatch(source, /HOME_PAGE_SLUG/)
   assert.doesNotMatch(source, /\/pages\?slug=/)
   assert.doesNotMatch(source, /\/pages\/\$\{existing\.id\}/)
+  assert.doesNotMatch(source, /post=640|page ID `?640`?|\/pages\/640/)
 })
 
 test('homepage parses quiz and FAQ content from separate WordPress sources', async () => {
@@ -158,4 +159,24 @@ test('admin session cookie secure flag follows the request protocol', async () =
   assert.equal(httpOptions.secure, false)
   assert.equal(httpsOptions.secure, true)
   assert.equal(httpOptions.sameSite, 'lax')
+})
+
+test('mobile ad wrappers collapse empty ads instead of reserving large blank space', async () => {
+  const bannerSource = await readFile(
+    new URL('../components/ads/AdBanner.jsx', import.meta.url),
+    'utf8'
+  )
+  const inArticleSource = await readFile(
+    new URL('../components/ads/AdInArticle.jsx', import.meta.url),
+    'utf8'
+  )
+  const lazySource = await readFile(
+    new URL('../components/ads/LazyAdSenseUnit.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.doesNotMatch(bannerSource, /min-h-\[250px\]/)
+  assert.doesNotMatch(inArticleSource, /min-h-\[250px\]/)
+  assert.match(lazySource, /adStatus === 'empty'/)
+  assert.match(lazySource, /min-h-16 md:min-h-\[120px\]/)
 })

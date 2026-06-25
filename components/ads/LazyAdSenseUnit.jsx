@@ -12,6 +12,7 @@ export default function LazyAdSenseUnit({
 }) {
   const ref = useRef(null)
   const [shouldLoad, setShouldLoad] = useState(eager)
+  const [adStatus, setAdStatus] = useState(eager ? 'loading' : 'idle')
 
   useEffect(() => {
     if (shouldLoad || eager) return
@@ -28,6 +29,7 @@ export default function LazyAdSenseUnit({
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
           setShouldLoad(true)
+          setAdStatus('loading')
           observer.disconnect()
         }
       },
@@ -38,9 +40,20 @@ export default function LazyAdSenseUnit({
     return () => observer.disconnect()
   }, [eager, rootMargin, shouldLoad])
 
+  if (adStatus === 'empty') return null
+
+  const loadingClass =
+    shouldLoad && adStatus === 'loading' ? 'min-h-16 md:min-h-[120px]' : ''
+
   return (
-    <div ref={ref} className={className}>
-      {shouldLoad ? <AdSenseUnit slot={slot} format={format} /> : null}
+    <div ref={ref} className={`${className} ${loadingClass}`.trim()}>
+      {shouldLoad ? (
+        <AdSenseUnit
+          slot={slot}
+          format={format}
+          onStatusChange={setAdStatus}
+        />
+      ) : null}
     </div>
   )
 }

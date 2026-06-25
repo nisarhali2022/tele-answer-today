@@ -7,10 +7,12 @@ answers, telecom/news articles, and supporting informational pages.
 
 The application uses:
 
-- WordPress REST API for posts, pages, categories, tags, media, authors, and
-  the `telenor-answer-today` homepage source page.
+- WordPress REST API for posts, pages, categories, tags, media, authors, the
+  `daily-quiz` quiz source post, and the `telenor-answer-today` homepage
+  source page.
 - WordPress-managed body content for public pages, policies, articles,
-  archives, categories, tags, media, authors, quiz tables, and homepage FAQs.
+  archives, categories, tags, media, authors, daily quiz tables, and homepage
+  FAQs.
 - Static React configuration for permanent site integrations such as Google
   Analytics, Google AdSense, Google Search Console verification, navigation,
   local public assets, and site settings.
@@ -80,17 +82,24 @@ all future CMS updates.
 `app/page.jsx` loads these resources in parallel:
 
 ```text
+getDailyQuizPost()
 getHomepageQuizPage()
 getPosts({ perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
 ```
 
-`getHomepageQuizPage()` explicitly requests the fixed WordPress page slug
-`telenor-answer-today` and uses the `quiz` cache tag. Publishing a newer normal
-article cannot replace the homepage quiz.
+`getDailyQuizPost()` explicitly requests the fixed WordPress post slug
+`daily-quiz` and uses the `quiz` cache tag. This post is the only source for
+homepage quiz cards.
 
-The page parses quiz tables and FAQs, calculates the current visible
-`Asia/Karachi` date, and renders quiz answers, latest news, static
-informational sections, participation steps, ads, FAQs, and the sidebar.
+`getHomepageQuizPage()` explicitly requests the fixed WordPress page slug
+`telenor-answer-today`. The app uses this page for homepage FAQ parsing and
+metadata image fallback only; the static React homepage intro, SEO sections,
+and participation steps are not replaced by this WordPress page.
+
+The page parses quiz tables from `daily-quiz`, parses FAQs from
+`telenor-answer-today`, calculates the current visible `Asia/Karachi` date, and
+renders quiz answers, latest news, static informational sections,
+participation steps, ads, FAQs, and the sidebar.
 
 Homepage metadata, homepage WebPage JSON-LD, and the homepage entry in
 `/page-sitemap.xml` use a separate SEO date helper that adds six hours before
@@ -135,13 +144,14 @@ POST /api/admin/session
   -> create signed HTTP-only session cookie
 
 GET /api/quiz
-  -> load the existing telenor-answer-today page
+  -> load the existing daily-quiz post
 
 POST /api/quiz
   -> validate exactly five questions and four options each
   -> HTML-escape all stored fields
-  -> confirm whether telenor-answer-today exists
-  -> update the page with PUT
+  -> confirm whether daily-quiz exists
+  -> create the daily-quiz post once if missing
+  -> update the daily-quiz post with PUT after it exists
   -> revalidateTag("quiz")
 ```
 
@@ -149,6 +159,11 @@ The WordPress existence lookup returns `null` only after a successful empty
 array response. Network, rate-limit, server, malformed-JSON, or malformed-data
 failures retry once and then return HTTP 503. The save is stopped, preventing
 an outage from being mistaken for a missing post.
+
+The quiz admin flow must never write to WordPress pages or to WordPress page
+ID `640`. If WordPress shows an old quiz page as "Front Page", fix that in
+WordPress Reading Settings or restore the page content there. Quiz saves from
+this app are intended to affect only the `daily-quiz` post.
 
 ### Daily Date Refresh
 

@@ -25,7 +25,7 @@ tele-answer-today/
 
 | URL | File | Data/API calls | Main output |
 | --- | --- | --- | --- |
-| `/` | `app/page.jsx` | `getHomepageQuizPage`, `getPosts`, quiz/FAQ parsers | Daily quiz and latest news |
+| `/` | `app/page.jsx` | `getDailyQuizPost`, `getHomepageQuizPage`, `getPosts`, quiz/FAQ parsers | Daily quiz and latest news |
 | `/blog` | `app/blog/page.jsx` | `getPosts` | Paginated all-post archive |
 | `/search?q=...` | `app/search/page.jsx` | `searchPosts` | Dynamic search results |
 | `/<slug>` | `app/[slug]/page.jsx` | Category API, then page API | Category archive or WP page |
@@ -40,7 +40,7 @@ tele-answer-today/
 | `/corrections-policy` | `app/corrections-policy/page.jsx` | `getPageBySlug('corrections-policy')` | Corrections policy |
 | `/admin/quiz` | `app/admin/quiz/page.jsx` | `GET/POST /api/quiz` | Quiz editor |
 | `/api/admin/session` | `app/api/admin/session/route.js` | Signed cookie auth | Login/session/logout |
-| `/api/quiz` | `app/api/quiz/route.js` | WordPress pages API | Read/write daily quiz |
+| `/api/quiz` | `app/api/quiz/route.js` | WordPress posts API | Read/write daily quiz post |
 | `/api/revalidate` | `app/api/revalidate/route.js` | Next cache API | On-demand revalidation |
 | `/api/cron/midnight` | `app/api/cron/midnight/route.js` | Next cache API | Daily homepage invalidation |
 | `/api/cron/seo-preupdate` | `app/api/cron/seo-preupdate/route.js` | Next cache API | 6 PM PKT SEO date invalidation |
@@ -87,6 +87,7 @@ The server-side WordPress REST client.
 | `getPosts` | `/posts` | Home, blog, tag, popular widget |
 | `getPostsByCategory` | `/posts?categories=` | `[slug]` category archive |
 | `getPostBySlug` | `/posts?slug=` | Post detail |
+| `getDailyQuizPost` | `/posts?slug=daily-quiz` | Homepage quiz cards |
 | `getHomepageQuizPage` | `/pages?slug=telenor-answer-today` | Homepage and homepage metadata |
 | `getLatestPosts` | `/posts?orderby=date` | Footer, sidebar/recent widget |
 | `getMostCommentedPosts` | `/comments`, then `/posts?orderby=include` | Sidebar |
@@ -235,11 +236,14 @@ Browser
 
 ```text
 app/page.jsx
+  -> getDailyQuizPost()
+     -> WordPress /posts?_embed&slug=daily-quiz
+     -> cache tag "quiz"
   -> getHomepageQuizPage()
      -> WordPress /pages?_embed&slug=telenor-answer-today
-     -> cache tag "quiz"
   -> getPosts({ perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
-  -> parseQuizTables(post.content.rendered)
+  -> parseQuizTables(dailyQuizPost.content.rendered)
+  -> parseFaqs(homepagePage.content.rendered)
   -> QuizAnswerCards
   -> LatestNewsGrid without visible publication dates
 ```
@@ -267,15 +271,19 @@ app/admin/quiz/page.jsx
   -> receive a signed HTTP-only session cookie
   -> POST /api/quiz with the session cookie
   -> validate five questions and four options each
-  -> find WordPress page slug "telenor-answer-today"
+  -> find WordPress post slug "daily-quiz"
      -> successful [] means missing
      -> network/429/5xx/invalid JSON retries once
      -> repeated failure stops with HTTP 503
   -> format questions as HTML tables
-  -> WordPress POST or PUT using Basic Authentication
+  -> WordPress POST once if missing, otherwise PUT using Basic Authentication
   -> revalidateTag("quiz")
   -> homepage quiz fetch becomes stale
 ```
+
+The quiz editor must not update WordPress pages, the WordPress Front Page, or
+page ID `640`. Static React homepage content remains app-owned and is not
+changed by quiz saves.
 
 ### Sidebar
 
