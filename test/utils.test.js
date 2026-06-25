@@ -5,6 +5,7 @@ import {
   optimizeContentImages,
   prepareWordPressContent,
   removeContentH1Blocks,
+  wrapContentTables,
 } from '../lib/utils.js'
 
 test('body images replace supplied responsive markup with optimizer markup', () => {
@@ -102,6 +103,30 @@ test('prepared wordpress content removes h1 before rendering', () => {
 
   assert.doesNotMatch(result, /<h1\b/i)
   assert.match(result, /href="https:\/\/teleanswertoday\.pk\/about-us\/"/)
+})
+
+test('prepared wordpress content wraps tables for mobile horizontal scroll', () => {
+  const result = prepareWordPressContent(
+    '<p>Before</p><table><tbody><tr><td>One</td><td>Two</td></tr></tbody></table><p>After</p>'
+  )
+
+  assert.match(result, /<div class="wp-table-scroll"><table>/)
+  assert.match(result, /<td>One<\/td><td>Two<\/td>/)
+  assert.match(result, /<\/table><\/div><p>After<\/p>/)
+})
+
+test('table wrapping does not double-wrap existing responsive tables', () => {
+  const result = wrapContentTables(
+    '<div class="wp-table-scroll"><table><tbody><tr><td>One</td></tr></tbody></table></div>'
+  )
+
+  assert.equal((result.match(/wp-table-scroll/g) || []).length, 1)
+})
+
+test('table wrapping leaves non-table content unchanged', () => {
+  const html = '<p>Simple paragraph</p><ul><li>Item</li></ul>'
+
+  assert.equal(wrapContentTables(html), html)
 })
 
 test('wordpress system links are not rewritten', () => {

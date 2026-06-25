@@ -145,6 +145,19 @@
     font-size: 0.875rem;
   }
 
+  .wp-table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1em;
+  }
+
+  .wp-table-scroll table {
+    min-width: max-content;
+    margin-bottom: 0;
+  }
+
   .prose th,
   .prose td {
     border: 1px solid #e2e8f0;
