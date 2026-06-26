@@ -5,6 +5,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 80px;
     overflow-x: hidden;
   }
 
@@ -18,9 +19,27 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-inter), system-ui, sans-serif;
   }
+
+  @media (min-width: 768px) {
+    html {
+      scroll-padding-top: 110px;
+    }
+  }
 }
 
 @layer components {
+  main [id],
+  .prose [id] {
+    scroll-margin-top: 80px;
+  }
+
+  @media (min-width: 768px) {
+    main [id],
+    .prose [id] {
+      scroll-margin-top: 110px;
+    }
+  }
+
   .btn-primary {
     @apply bg-accent hover:bg-accent-dark text-white font-semibold px-5 py-2.5 rounded transition-colors duration-200 inline-block;
   }

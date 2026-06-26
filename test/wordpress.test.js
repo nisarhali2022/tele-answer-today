@@ -265,6 +265,20 @@ test('homepage TOC anchors use readable hyphen fragments', async () => {
   assert.doesNotMatch(tocSource, /encodeURIComponent/)
 })
 
+test('global anchor offsets keep hash targets below the fixed header', async () => {
+  const css = await readFile(
+    new URL('../styles/globals.css', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(css, /scroll-padding-top:\s*80px/)
+  assert.match(css, /scroll-padding-top:\s*110px/)
+  assert.match(css, /main \[id\]/)
+  assert.match(css, /\.prose \[id\]/)
+  assert.match(css, /scroll-margin-top:\s*80px/)
+  assert.match(css, /scroll-margin-top:\s*110px/)
+})
+
 test('homepage latest news fetches a wider lightweight post pool', async () => {
   const source = await readFile(
     new URL('../app/page.jsx', import.meta.url),
