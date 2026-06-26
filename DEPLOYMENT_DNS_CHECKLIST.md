@@ -274,3 +274,43 @@ Expected results:
 - Wide WordPress-rendered tables scroll horizontally inside the table area on
   mobile, while the page itself has no horizontal scroll.
 - Homepage static React content remains unchanged after quiz updates.
+
+## WordPress Update Revalidation Webhook
+
+To make WordPress edits appear quickly on the Vercel frontend, configure
+WordPress to call:
+
+```text
+POST https://teleanswertoday.pk/api/revalidate
+```
+
+Required header:
+
+```text
+x-revalidate-secret: <Vercel REVALIDATE_SECRET value>
+```
+
+Preferred body for nested posts:
+
+```json
+{
+  "path": "/telenor/telenor-packages"
+}
+```
+
+Fallback body if the webhook can send separate fields:
+
+```json
+{
+  "category": "telenor",
+  "slug": "telenor-packages"
+}
+```
+
+Expected result:
+
+- `/telenor/telenor-packages` is revalidated directly.
+- `/`, `/sitemap_index.xml`, `/post-sitemap.xml`, `/page-sitemap.xml`, and
+  `/category-sitemap.xml` are also revalidated.
+- Slug-only webhook bodies still work for simple page routes such as
+  `/privacy-policy`.

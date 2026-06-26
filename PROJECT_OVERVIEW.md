@@ -167,6 +167,25 @@ ID `640`. If WordPress shows an old quiz page as "Front Page", fix that in
 WordPress Reading Settings or restore the page content there. Quiz saves from
 this app are intended to affect only the `daily-quiz` post.
 
+### On-Demand Revalidation
+
+`POST /api/revalidate` is protected by `REVALIDATE_SECRET` in the
+`x-revalidate-secret` header. It always revalidates the homepage and sitemap
+routes, and it can also revalidate a full production path such as
+`/telenor/telenor-packages`.
+
+Preferred WordPress webhook body for nested posts:
+
+```json
+{
+  "path": "/telenor/telenor-packages"
+}
+```
+
+If a webhook can only send `category` and `slug`, the app revalidates
+`/{category}/{slug}`. If it sends only `slug`, the app keeps the older
+`/{slug}` behavior for backward compatibility.
+
 ### Daily Date Refresh
 
 `vercel.json` calls `/api/cron/seo-preupdate` at `13:00 UTC`, which is

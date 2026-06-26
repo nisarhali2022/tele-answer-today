@@ -331,6 +331,66 @@ test('latest news selection safely handles fewer than six posts', async () => {
   assert.equal(selected[1], posts[1])
 })
 
+test('revalidation accepts full nested paths for production WordPress updates', async () => {
+  const { getRevalidationPaths } = await import('../lib/revalidation.js')
+  const paths = getRevalidationPaths({
+    path: '/telenor/telenor-packages/',
+    slug: 'ignored-slug',
+  })
+
+  assert.ok(paths.includes('/'))
+  assert.ok(paths.includes('/sitemap_index.xml'))
+  assert.ok(paths.includes('/post-sitemap.xml'))
+  assert.ok(paths.includes('/page-sitemap.xml'))
+  assert.ok(paths.includes('/category-sitemap.xml'))
+  assert.ok(paths.includes('/telenor/telenor-packages'))
+  assert.ok(!paths.includes('/ignored-slug'))
+})
+
+test('revalidation builds nested paths from category and slug fallback', async () => {
+  const { getRevalidationPaths } = await import('../lib/revalidation.js')
+  const paths = getRevalidationPaths({
+    category: 'telenor',
+    slug: 'telenor-packages',
+  })
+
+  assert.ok(paths.includes('/telenor/telenor-packages'))
+  assert.ok(!paths.includes('/telenor-packages'))
+})
+
+test('revalidation keeps slug-only behavior for old webhook bodies', async () => {
+  const { getRevalidationPaths } = await import('../lib/revalidation.js')
+  const paths = getRevalidationPaths({ slug: 'privacy-policy' })
+
+  assert.ok(paths.includes('/privacy-policy'))
+})
+
+test('revalidate route rejects unauthorized requests before revalidating', async () => {
+  const previousSecret = process.env.REVALIDATE_SECRET
+  process.env.REVALIDATE_SECRET = 'test-secret'
+
+  try {
+    const { POST } = await import('../app/api/revalidate/route.js')
+    const response = await POST(
+      new Request('https://teleanswertoday.pk/api/revalidate', {
+        method: 'POST',
+        headers: { 'x-revalidate-secret': 'wrong-secret' },
+        body: JSON.stringify({ path: '/telenor/telenor-packages' }),
+      })
+    )
+    const body = await response.json()
+
+    assert.equal(response.status, 401)
+    assert.equal(body.message, 'Unauthorized')
+  } finally {
+    if (previousSecret === undefined) {
+      delete process.env.REVALIDATE_SECRET
+    } else {
+      process.env.REVALIDATE_SECRET = previousSecret
+    }
+  }
+})
+
 test('admin session cookie secure flag follows the request protocol', async () => {
   const { getAdminSessionCookieOptions } = await import('../lib/adminAuth.js')
   const httpOptions = getAdminSessionCookieOptions({
