@@ -111,7 +111,7 @@ export default async function HomePage() {
     optionalHomeData(getDailyQuizPost(), 'Unable to fetch daily quiz post', null),
     optionalHomeData(getHomepageQuizPage(), 'Unable to fetch homepage content page', null),
     optionalHomeData(
-      getPosts({ page: 1, perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
+      getPosts({ page: 1, perPage: 60, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
       'Unable to fetch homepage news posts',
       { posts: [] }
     ),

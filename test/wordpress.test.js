@@ -265,6 +265,58 @@ test('homepage TOC anchors use readable hyphen fragments', async () => {
   assert.doesNotMatch(tocSource, /encodeURIComponent/)
 })
 
+test('homepage latest news fetches a wider lightweight post pool', async () => {
+  const source = await readFile(
+    new URL('../app/page.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /getPosts\(\{ page: 1, perPage: 60,/)
+  assert.doesNotMatch(source, /getPosts\(\{ page: 1, perPage: 12,/)
+})
+
+test('latest news keeps the newest two fixed and randomizes only older posts', async () => {
+  const { selectLatestNewsPosts } = await import('../lib/latestNews.js')
+  const originalRandom = Math.random
+  const posts = Array.from({ length: 10 }, (_, index) => ({
+    id: index + 1,
+    slug: `post-${index + 1}`,
+    title: { rendered: `Post ${index + 1}` },
+  }))
+
+  Math.random = () => 0
+
+  try {
+    const selected = selectLatestNewsPosts(posts, 6)
+
+    assert.equal(selected.length, 6)
+    assert.equal(selected[0], posts[0])
+    assert.equal(selected[1], posts[1])
+    assert.ok(selected.slice(2).every((post) => posts.indexOf(post) >= 2))
+  } finally {
+    Math.random = originalRandom
+  }
+})
+
+test('latest news selection safely handles fewer than six posts', async () => {
+  const { selectLatestNewsPosts } = await import('../lib/latestNews.js')
+  const posts = Array.from({ length: 4 }, (_, index) => ({
+    id: index + 1,
+    slug: `post-${index + 1}`,
+    title: { rendered: `Post ${index + 1}` },
+  }))
+
+  const selected = selectLatestNewsPosts(posts, 6)
+
+  assert.equal(selected.length, 4)
+  assert.deepEqual(
+    selected.map((post) => post.id).sort((a, b) => a - b),
+    [1, 2, 3, 4]
+  )
+  assert.equal(selected[0], posts[0])
+  assert.equal(selected[1], posts[1])
+})
+
 test('admin session cookie secure flag follows the request protocol', async () => {
   const { getAdminSessionCookieOptions } = await import('../lib/adminAuth.js')
   const httpOptions = getAdminSessionCookieOptions({

@@ -4,20 +4,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { homeAnchorId } from '@/lib/homeAnchors'
+import { selectLatestNewsPosts } from '@/lib/latestNews'
 import {
   getCategoryColor,
   getFeaturedImageAlt,
   getFeaturedImageUrl,
 } from '@/lib/utils'
-
-function shufflePosts(posts) {
-  const shuffled = [...posts]
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
 
 export default function LatestNewsGrid({ posts, limit = 6 }) {
   const [visiblePosts, setVisiblePosts] = useState(() =>
@@ -26,7 +18,7 @@ export default function LatestNewsGrid({ posts, limit = 6 }) {
 
   useEffect(() => {
     if (!posts?.length) return
-    setVisiblePosts(shufflePosts(posts).slice(0, limit))
+    setVisiblePosts(selectLatestNewsPosts(posts, limit))
   }, [posts, limit])
 
   if (!posts?.length) return null
