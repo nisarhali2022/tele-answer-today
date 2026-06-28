@@ -699,3 +699,16 @@ test('sitemap image output uses canonical media URLs', async () => {
   assert.match(xml, /https:\/\/wp\.teleanswertoday\.pk\/wp-content\/uploads\/example\.webp/)
   assert.doesNotMatch(xml, /\/_next\/image/)
 })
+
+test('revalidate route invalidates quiz cache tag for central admin updates', async () => {
+  const source = await readFile(
+    new URL('../app/api/revalidate/route.js', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /import \{ revalidatePath, revalidateTag \} from 'next\/cache'/)
+  assert.match(source, /if \(type === 'quiz'\) \{[\s\S]*revalidateTag\('quiz'\)/)
+  assert.match(source, /tags\.push\('quiz'\)/)
+  assert.match(source, /tags,/)
+  assert.match(source, /paths,/)
+})

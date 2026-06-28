@@ -1,4 +1,4 @@
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { getRevalidationPaths } from '../../../lib/revalidation';
 
@@ -12,9 +12,15 @@ export async function POST(request) {
     const body = await request.json().catch(() => ({}));
     const { slug, type, path, category } = body;
     const paths = getRevalidationPaths({ path, slug, category });
+    const tags = [];
 
     for (const revalidateTarget of paths) {
       revalidatePath(revalidateTarget);
+    }
+
+    if (type === 'quiz') {
+      revalidateTag('quiz');
+      tags.push('quiz');
     }
 
     return NextResponse.json({
@@ -23,6 +29,7 @@ export async function POST(request) {
       category,
       path,
       paths,
+      tags,
       type,
       timestamp: new Date().toISOString(),
     });
