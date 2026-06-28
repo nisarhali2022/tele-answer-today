@@ -409,6 +409,10 @@ Latest completed work:
   matching the app's card, featured-image, and fallback image usage.
 - Top ad placement loads eagerly; lower, sidebar, and in-article ad placements
   load through an `IntersectionObserver` before the user reaches them.
+- Ad placements now use display-friendly `auto` format and placement-specific
+  reserved sizes so image-capable ads have enough room to render. The top ad
+  keeps a stable reserved area; lower ads still collapse when Google reports an
+  unfilled slot.
 - Homepage Latest News cards and sidebar Recent Posts now randomize client-side
   from larger WordPress post pools.
 - Footer social links were updated for LinkedIn, Facebook, X, Instagram,
@@ -432,9 +436,10 @@ Current production note:
   slot status in DevTools. `data-ad-status="unfilled"` means Google loaded the
   ad request but did not return inventory; that is an AdSense fill issue, not a
   rendering bug in the project.
-- For better RPM reporting later, create separate AdSense ad units for each
-  placement. Those future slot IDs should still remain static app
-  configuration, not WordPress-managed content.
+- For better RPM reporting and image/display inventory diagnostics, create
+  separate AdSense display ad units for top, mid, in-article, sidebar,
+  after-content, and bottom placements. Those future slot IDs should still
+  remain static app configuration, not WordPress-managed content.
 
 ## Latest Update - 2026-06-25
 

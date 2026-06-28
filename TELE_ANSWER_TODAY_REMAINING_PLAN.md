@@ -54,8 +54,11 @@ Current verification baseline:
   a large blank area below the header.
 - AdSense is static app configuration in production and intentionally disabled
   during local development to avoid localhost Google ad `403` console noise.
-- Future separate AdSense units per placement are recommended for better RPM
-  reporting, but those IDs should also remain static app config.
+- Ad placements use display-friendly `auto` format, stable top-ad space, and
+  safer empty timing so image-capable ads are not collapsed too early.
+- Future separate AdSense display units per placement are recommended for
+  better RPM and image/display diagnostics, but those IDs should also remain
+  static app config.
 - Homepage `FAQPage` JSON-LD uses only the visible FAQ items rendered on the
   homepage, capped at six valid question/answer pairs.
 

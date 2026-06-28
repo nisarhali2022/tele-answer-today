@@ -571,12 +571,13 @@ test('mobile ad wrappers collapse empty ads instead of reserving large blank spa
 
   assert.doesNotMatch(bannerSource, /min-h-\[250px\]/)
   assert.doesNotMatch(inArticleSource, /min-h-\[250px\]/)
-  assert.match(lazySource, /adStatus === 'empty'/)
-  assert.match(lazySource, /min-h-16 md:min-h-\[120px\]/)
+  assert.match(lazySource, /adStatus === 'empty' && collapseWhenEmpty/)
+  assert.match(lazySource, /loadingClassName = 'min-h-16 md:min-h-\[120px\]'/)
 })
 
 test('Google Ads configuration is static app configuration', async () => {
   const {
+    AD_PLACEMENTS,
     AD_SLOTS,
     GOOGLE_ADSENSE_CLIENT_ID,
     GOOGLE_AD_SLOT_ID,
@@ -609,11 +610,40 @@ test('Google Ads configuration is static app configuration', async () => {
     Object.values(AD_SLOTS),
     Array(Object.values(AD_SLOTS).length).fill(GOOGLE_AD_SLOT_ID)
   )
+  assert.equal(AD_PLACEMENTS.top.eager, true)
+  assert.equal(AD_PLACEMENTS.top.format, 'auto')
+  assert.equal(AD_PLACEMENTS['in-article'].format, 'auto')
+  assert.equal(AD_PLACEMENTS.sidebar.format, 'auto')
+  assert.match(AD_PLACEMENTS.top.wrapperClassName, /min-h-\[100px\]/)
+  assert.match(AD_PLACEMENTS['in-article'].wrapperClassName, /min-h-\[250px\]/)
+  assert.equal(AD_PLACEMENTS['after-content'].emptyTimeout, 10000)
   assert.match(adsTxt, /google\.com, pub-9444471613078101, DIRECT/)
   assert.match(layoutSource, /isAdSenseEnabled\(\) &&/)
   assert.match(layoutSource, /pagead2\.googlesyndication\.com/)
   assert.doesNotMatch(layoutSource, /NEXT_PUBLIC_ADSENSE_ID/)
   assert.doesNotMatch(layoutSource, /lazyOnload/)
+})
+
+test('AdSense placements use display-friendly sizing and top ad remains stable', async () => {
+  const bannerSource = await readFile(
+    new URL('../components/ads/AdBanner.jsx', import.meta.url),
+    'utf8'
+  )
+  const inArticleSource = await readFile(
+    new URL('../components/ads/AdInArticle.jsx', import.meta.url),
+    'utf8'
+  )
+  const unitSource = await readFile(
+    new URL('../components/ads/AdSenseUnit.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(bannerSource, /AD_PLACEMENTS/)
+  assert.match(bannerSource, /collapseWhenEmpty=\{position !== 'top'\}/)
+  assert.match(inArticleSource, /AD_PLACEMENTS\['in-article'\]/)
+  assert.doesNotMatch(inArticleSource, /format="fluid"/)
+  assert.match(unitSource, /emptyTimeout = 8000/)
+  assert.match(unitSource, /\}, emptyTimeout\)/)
 })
 
 test('Next image quality values are explicitly configured', async () => {

@@ -9,6 +9,9 @@ export default function LazyAdSenseUnit({
   className = '',
   eager = false,
   rootMargin = '900px 0px',
+  loadingClassName = 'min-h-16 md:min-h-[120px]',
+  emptyTimeout = 8000,
+  collapseWhenEmpty = true,
 }) {
   const ref = useRef(null)
   const [shouldLoad, setShouldLoad] = useState(eager)
@@ -40,10 +43,10 @@ export default function LazyAdSenseUnit({
     return () => observer.disconnect()
   }, [eager, rootMargin, shouldLoad])
 
-  if (adStatus === 'empty') return null
+  if (adStatus === 'empty' && collapseWhenEmpty) return null
 
   const loadingClass =
-    shouldLoad && adStatus === 'loading' ? 'min-h-16 md:min-h-[120px]' : ''
+    shouldLoad && adStatus === 'loading' ? loadingClassName : ''
 
   return (
     <div ref={ref} className={`${className} ${loadingClass}`.trim()}>
@@ -51,6 +54,7 @@ export default function LazyAdSenseUnit({
         <AdSenseUnit
           slot={slot}
           format={format}
+          emptyTimeout={emptyTimeout}
           onStatusChange={setAdStatus}
         />
       ) : null}

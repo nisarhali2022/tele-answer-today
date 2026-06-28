@@ -8,6 +8,7 @@ export default function AdSenseUnit({
   format = 'auto',
   className = '',
   onStatusChange,
+  emptyTimeout = 8000,
 }) {
   const adRef = useRef(null)
 
@@ -46,7 +47,7 @@ export default function AdSenseUnit({
     const timeout = window.setTimeout(() => {
       if (!updateStatus()) onStatusChange?.('empty')
       observer.disconnect()
-    }, 4500)
+    }, emptyTimeout)
 
     try {
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
@@ -64,7 +65,7 @@ export default function AdSenseUnit({
       observer.disconnect()
       window.clearTimeout(timeout)
     }
-  }, [slot, format, onStatusChange])
+  }, [slot, format, onStatusChange, emptyTimeout])
 
   return (
     <div className={className}>

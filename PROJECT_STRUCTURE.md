@@ -217,7 +217,7 @@ form.
 - `AdSenseUnit.jsx`: client-side AdSense unit.
 - `AdBanner.jsx`: position-to-slot wrapper that renders only with valid
   environment configuration and reserves stable layout space.
-- `AdInArticle.jsx`: fluid in-article ad.
+- `AdInArticle.jsx`: display-friendly in-article ad.
 - `ShareButtons.jsx`: WhatsApp, Facebook, X, and clipboard sharing.
 - `lib/schema.js`: safely serializes JSON-LD for site, article, breadcrumb,
   and author schemas.
@@ -484,8 +484,8 @@ New or recently changed files and responsibilities:
 | `public/ads.txt` | Static AdSense seller authorization file served from `/ads.txt`; this remains repo-owned, not WordPress-managed. |
 | `app/layout.jsx` | Root metadata, Search Console verification meta tag, Google Analytics script, and global native AdSense script loaded from static app config. |
 | `components/ads/LazyAdSenseUnit.jsx` | Client-side ad loader that uses `IntersectionObserver` so below-fold ads load as the user approaches them. |
-| `components/ads/AdBanner.jsx` | Shared display ad wrapper; top placement is eager, lower placements are lazy. |
-| `components/ads/AdInArticle.jsx` | In-article ad placement using the same lazy AdSense loader. |
+| `components/ads/AdBanner.jsx` | Shared display ad wrapper; top placement is eager, lower placements are lazy, and placements use display-friendly reserved sizing. |
+| `components/ads/AdInArticle.jsx` | In-article display ad placement using the same lazy AdSense loader. |
 | `components/home/LatestNewsGrid.jsx` | Client-side randomization for homepage Latest News cards. |
 | `lib/homeFaqs.js` | Shared homepage FAQ selection helper; keeps visible FAQ UI and `FAQPage` JSON-LD aligned and capped at six valid items. |
 | `components/widgets/RecentPosts.jsx` | Client-side randomization for Recent Posts while keeping server-fetched post data. |
@@ -513,6 +513,9 @@ Important call flow updates:
   keeps static Google Ads IDs and native script loading.
 - Ad containers render reserved layout space first; `LazyAdSenseUnit.jsx`
   initializes AdSense when the placement is eager or near the viewport.
+- Top, mid, in-article, sidebar, after-content, and bottom placements have
+  explicit display-friendly sizing and a safer empty timeout so slower image
+  creatives are not collapsed too early.
 - WordPress-backed media components render with `unoptimized` so public pages
   use canonical WordPress media URLs instead of Vercel image proxy URLs.
 - Homepage `FAQPage` JSON-LD is generated from the same visible FAQ list used by

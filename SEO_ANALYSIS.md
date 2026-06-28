@@ -1116,9 +1116,12 @@ Performance and Core Web Vitals status:
 - The first/top ad placement loads eagerly for better monetization opportunity.
 - Lower placements load before scroll arrival using a generous viewport margin,
   balancing RPM and page speed.
-- Reserved ad container height is kept to reduce CLS.
+- Reserved ad container height is kept to reduce CLS, and each placement now
+  uses display-friendly `auto` format with sizing that can support banner and
+  rectangle image ads.
 - Current placements all use slot `4789150646`; separate static per-placement
-  ad units are recommended later for clearer RPM reporting.
+  display ad units are recommended later for clearer RPM reporting and better
+  image/display fill diagnostics.
 - `next.config.js` allows image qualities `60`, `70`, and `75`, matching the
   current image component usage and avoiding Next image quality warnings.
 
@@ -1128,7 +1131,8 @@ Remaining SEO/performance recommendations:
    have had time to fill.
 2. Check Search Console sitemap details for discovered URL count and indexing
    errors.
-3. Create separate AdSense ad units per placement for better RPM diagnostics.
+3. Create separate AdSense display ad units per placement for better RPM and
+   image/display diagnostics.
 4. Monitor whether ad loading changes affect LCP, INP, and CLS in real Chrome
    User Experience data.
 5. Keep the WordPress `wp.` subdomain blocked from indexing while allowing REST

@@ -1147,6 +1147,9 @@ Completed fixes:
   to avoid localhost Google ad-request `403` console noise.
 - Added eager top ad loading and near-viewport lazy loading for lower ad
   placements.
+- Updated AdSense placements to use display-friendly `auto` format, reserved
+  sizing for banner/rectangle image ads, and a safer empty timeout so slower
+  image creatives are not collapsed too early.
 - Randomized Homepage Latest News cards on refresh/client render.
 - Randomized sidebar Recent Posts on refresh/client render.
 - Updated footer social links and icons.
@@ -1165,10 +1168,10 @@ Recommended next checks after deploy:
    sitemaps.
 3. Open `/sitemap.xml` and confirm it redirects to `/sitemap_index.xml`.
 4. Run PageSpeed again after ads have been live for a few hours.
-5. In AdSense, create separate ad units for top, middle, sidebar, in-article,
-   after-content, and bottom placements if RPM testing requires per-placement
-   reporting. Future ad unit IDs should still remain static application
-   configuration.
+5. In AdSense, create separate display ad units for top, middle, sidebar,
+   in-article, after-content, and bottom placements if RPM or image/display
+   diagnostics require per-placement reporting. Future ad unit IDs should still
+   remain static application configuration.
 
 ## 10. Latest Fixes - 2026-06-28
 

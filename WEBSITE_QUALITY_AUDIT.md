@@ -150,7 +150,7 @@ warnings appear in Vercel production logs.
 | Bing Webmaster Tools | Recommended | Low | No Bing verification found. | Add Bing verification if Bing traffic matters. |
 | Conversion tracking | Recommended | Low | No conversion events found. | Define conversions first, such as quiz copy clicks or outbound app clicks. |
 | Event tracking | Recommended | Medium | GA4 base pageview tracking exists; custom events not found. | Add events for quiz interactions, search, outbound links, and CTA clicks if needed. |
-| AdSense | Pass | - | Client `ca-pub-9444471613078101`, shared slot `4789150646`, native production script loading, local-development suppression, and static `public/ads.txt` are configured in the Next.js app. | Keep Google Ads IDs static in app config; monitor fill/403/unfilled status in production and create separate static slots later for RPM reporting. |
+| AdSense | Pass with live monitoring | Medium | Client `ca-pub-9444471613078101`, shared slot `4789150646`, native production script loading, local-development suppression, static `public/ads.txt`, display-friendly placement sizing, and safer empty-ad timing are configured in the Next.js app. | Keep Google Ads IDs static in app config; create separate display ad units per placement in AdSense, then map those static slot IDs in code and monitor text vs image/display fill in production. |
 
 ## 8. Security
 
