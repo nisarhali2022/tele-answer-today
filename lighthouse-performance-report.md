@@ -15,6 +15,11 @@
 > and WordPress tables now scroll horizontally inside `.wp-table-scroll`
 > wrappers. Re-run Lighthouse on the deployed production build before using the
 > metrics below for current performance decisions.
+>
+> **Follow-up note, June 28, 2026:** WordPress-backed images now keep canonical
+> WordPress media URLs and bypass Vercel `/_next/image` proxying. Next image
+> qualities `60`, `70`, and `75` are configured, and AdSense is disabled during
+> local development to avoid localhost ad-request `403` noise.
 
 ---
 
@@ -195,8 +200,9 @@ These scripts are loaded **eagerly** on every page, blocking FCP and LCP even on
 
 #### ✅ Fixes
 
-**Option A — Lazy Load AdSense (Recommended)**  
-Defer AdSense loading until the page is interactive or the user scrolls:
+**Historical option — delayed AdSense loading**  
+This was an earlier performance idea. It is superseded by the current static
+native script plus near-viewport placement loading approach documented below:
 
 ```html
 <!-- ❌ Current — loads immediately, blocks rendering -->
@@ -216,7 +222,7 @@ Defer AdSense loading until the page is interactive or the user scrolls:
 </script>
 ```
 
-**Option B — Intersection Observer (Load ads on scroll)**
+**Historical option — load the global script on scroll**
 
 ```javascript
 // Load AdSense only when an ad slot enters the viewport
@@ -243,18 +249,16 @@ function loadAdSense() {
 }
 ```
 
-**Option C — Next.js Script Component (Recommended for this project)**
+**Current project approach — Static native AdSense script**
 
-```jsx
-import Script from 'next/script'
-
-// Use strategy="lazyOnload" to defer ads until everything else loads
-<Script
-  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXX"
-  strategy="lazyOnload"
-  crossOrigin="anonymous"
-/>
+```html
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9444471613078101" crossorigin="anonymous"></script>
 ```
+
+The publisher ID and slot IDs are static app configuration, not WordPress
+content. Native script loading avoids the Next.js `data-nscript` attribute
+warning from AdSense. Local development suppresses real ad requests; production
+keeps static AdSense loading.
 
 > ⚠️ **Important:** Lazy-loading ads may slightly reduce ad viewability metrics. Test the impact on ad revenue before deploying. Most cases see negligible revenue impact with significant performance gains.
 
@@ -265,7 +269,7 @@ import Script from 'next/script'
 | Priority | Issue | Effort | Est. LCP Improvement |
 |---|---|---|---|
 | 🥇 1 | Add `priority` to LCP `<Image>` component | Very Low (1 line) | ~1–2 s |
-| 🥈 2 | Lazy-load AdSense via `next/script lazyOnload` | Low (5 min) | ~0.5–1 s |
+| 🥈 2 | Keep native static AdSense script and near-viewport lower-ad loading | Done | ~0.5–1 s |
 | 🥉 3 | Preload or inline critical CSS | Medium (30 min) | ~0.3–0.5 s |
 
 ---
@@ -306,7 +310,9 @@ Recent PageSpeed screenshot showed:
 
 Latest implemented changes:
 
-- AdSense global script now uses `next/script` with `lazyOnload`.
+- AdSense global script now loads from static app configuration in the root
+  layout with native `<script async ...>`, avoiding the Next.js `data-nscript`
+  attribute warning.
 - Top ad placement loads eagerly so the first monetization opportunity is not
   delayed.
 - Lower, sidebar, and in-article ad placements lazy-load through

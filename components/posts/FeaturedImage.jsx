@@ -35,6 +35,7 @@ export default function FeaturedImage({
         className={`object-cover ${className}`}
         sizes={sizes}
         quality={quality}
+        unoptimized
       />
     )
   }
@@ -50,6 +51,7 @@ export default function FeaturedImage({
       className={`w-full h-auto object-cover ${className}`}
       sizes={sizes}
       quality={quality}
+      unoptimized
     />
   )
 }

@@ -662,10 +662,9 @@ uses the last option.
 News `priority` flags were removed. The above-the-fold logo is the only
 homepage image preload observed.
 
-**Source:** Code
-
-The header logo uses `priority`. The first Latest News image also uses
-`priority`, and `LCPPreloader` injects another preload for that same image.
+**Original issue:** The header logo used `priority`, the first Latest News
+image also used `priority`, and `LCPPreloader` injected another preload for
+that same image.
 
 **Impact:** Competing high-priority resources can reduce LCP performance.
 
@@ -913,6 +912,13 @@ Strengths:
 - The current date appears in the H1.
 - Quiz answers are immediately available.
 - Supporting sections cover participation and troubleshooting.
+- Search Console keyword coverage was expanded on June 28, 2026 using the
+  supplied three-month query list as the primary keyword source.
+- New original sections cover quick-answer intent, today's questions and
+  answers, quiz categories, PC/app usage limits, and different-question
+  handling.
+- Homepage fallback FAQs now better match high-impression question-style
+  searches while keeping the existing six-FAQ rendering limit.
 
 Improvements:
 
@@ -967,7 +973,7 @@ Noindex or remove one-post, duplicate, or near-synonymous tags.
 - SEO-26: placeholder social profile removal.
 - SEO-27: `en-PK` document language.
 - SEO-28: obsolete preconnect removal.
-- SEO-29: conditional AdSense script.
+- SEO-29: static production AdSense script with local-development suppression.
 - SEO-33: explicit `noindex, follow` for search.
 
 SEO-32 was completed with the complex metadata/schema work on June 15, 2026.
@@ -1086,6 +1092,8 @@ Completed SEO-related changes:
   sitemap index.
 - Google Search Console verification is included statically in root metadata.
 - Google Analytics is included statically through the root layout.
+- Google AdSense publisher and slot IDs are static app configuration in
+  `lib/constants.js`; WordPress content must not manage or overwrite ad IDs.
 - `ads.txt` is static and authorized for the AdSense publisher account.
 - Backend WordPress domain text is normalized out of public page content so
   users and crawlers see the public root domain instead of `wp.` URLs.
@@ -1101,11 +1109,18 @@ Performance and Core Web Vitals status:
 - Latest PageSpeed screenshot showed strong SEO and accessibility scores, with
   remaining performance pressure mainly from third-party ad scripts, CSS render
   blocking, and JavaScript work.
-- AdSense now loads globally with `lazyOnload`.
+- AdSense loads globally in production through native `<script async ...>` in
+  the root layout so the script does not receive a Next.js `data-nscript`
+  attribute. Local development disables AdSense to avoid localhost ad-request
+  `403` console noise.
 - The first/top ad placement loads eagerly for better monetization opportunity.
 - Lower placements load before scroll arrival using a generous viewport margin,
   balancing RPM and page speed.
 - Reserved ad container height is kept to reduce CLS.
+- Current placements all use slot `4789150646`; separate static per-placement
+  ad units are recommended later for clearer RPM reporting.
+- `next.config.js` allows image qualities `60`, `70`, and `75`, matching the
+  current image component usage and avoiding Next image quality warnings.
 
 Remaining SEO/performance recommendations:
 
@@ -1118,3 +1133,39 @@ Remaining SEO/performance recommendations:
    User Experience data.
 5. Keep the WordPress `wp.` subdomain blocked from indexing while allowing REST
    API and media access for the Vercel frontend.
+
+## 13. Latest Homepage SEO/AEO Content Update - 2026-06-28
+
+Completed content optimization:
+
+- Used the supplied Google Search Console query list to target the strongest
+  homepage-intent terms, including `my telenor answer today`,
+  `today my telenor answer`, `today my telenor question answer`,
+  `today telenor 5 question answer`, `telenor quiz today`,
+  `telenor answer today`, `my telenor app answer today`, and
+  `test your skills`.
+- Added original AEO-friendly sections for quick summary, today's quiz
+  questions and answers, quiz categories, PC/app guidance, and different
+  question variations.
+- Cleaned homepage grammar and standardized app/feature names such as
+  `My Telenor App`, `Telenor Quiz Today`, `Test Your Skills`, and
+  `Play & Win`.
+- Updated fallback FAQ copy to answer high-impression Search Console questions
+  more directly.
+- Added homepage `FAQPage` JSON-LD using only the same visible FAQ items shown
+  on the homepage, capped at six valid question/answer pairs.
+- Updated homepage TOC coverage for the new H2 sections.
+
+Guardrails preserved:
+
+- Quiz cards still read from the WordPress post slug `daily-quiz`.
+- Homepage FAQ parsing and metadata image fallback still read from the page
+  slug `telenor-answer-today`.
+- `/admin/quiz`, quiz parser logic, metadata date behavior, ads, Latest News,
+  and WordPress API behavior were not changed.
+
+Verification:
+
+- `npm.cmd run test` passed 55 tests.
+- `npm.cmd run lint` passed.
+- `npm.cmd run build` passed and generated 30 routes.

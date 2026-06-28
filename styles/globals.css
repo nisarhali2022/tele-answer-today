@@ -11,6 +11,7 @@
 
   body {
     font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: 16px;
     color: #111827;
     background-color: #ffffff;
     overflow-x: hidden;
@@ -70,11 +71,12 @@
   }
 
   .article-content {
-    font-size: 15px !important;
+    font-size: 1rem;
   }
 
   .prose {
     font-family: var(--font-inter), system-ui, sans-serif;
+    font-size: 1rem;
     color: #111827;
     line-height: 1.75;
   }
@@ -161,7 +163,7 @@
   .prose table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
 
   .wp-table-scroll {

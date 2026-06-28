@@ -86,7 +86,7 @@ all future CMS updates.
 ```text
 getDailyQuizPost()
 getHomepageQuizPage()
-getPosts({ perPage: 12, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
+getPosts({ perPage: 60, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: "news" })
 ```
 
 `getDailyQuizPost()` explicitly requests the fixed WordPress post slug
@@ -109,7 +109,14 @@ formatting in `Asia/Karachi`. From `18:00` to `23:59` Pakistan time,
 Google-facing metadata can show tomorrow's date while the visible H1 still
 shows today's date.
 
+Homepage `FAQPage` JSON-LD uses the same visible FAQ items rendered by
+`FaqSection`, capped at six valid question/answer pairs, so structured data
+matches what users can see.
+
 Homepage Latest News cards intentionally do not display publication dates.
+The first two Latest News cards remain the newest WordPress posts, while the
+remaining four are randomly selected client-side from the older lightweight
+post pool.
 
 ### Category and Blog Archives
 
@@ -222,7 +229,7 @@ when quiz answers were not edited.
 - Visible publish dates are hidden from articles, related cards, blog cards,
   category cards, and homepage Latest News cards.
 - The root document uses `lang="en-PK"`, footer social icons use configured
-  profile URLs, and AdSense loads only when a publisher ID is configured.
+  profile URLs, and AdSense loads only outside local development.
 - A branded 1200x630 fallback social image is available at
   `public/assets/tele-answer-today-og.webp`.
 - Fixed logo, favicon, and homepage participation-step images are served from
@@ -235,18 +242,15 @@ when quiz answers were not edited.
 | --- | --- |
 | `WORDPRESS_API_URL` | Optional server-side WordPress REST API override |
 | `NEXT_PUBLIC_WORDPRESS_API_URL` | Backward-compatible URL override |
-| `NEXT_PUBLIC_ADSENSE_ID` | Public AdSense publisher/client ID |
-| `NEXT_PUBLIC_AD_SLOT_TOP` | Top horizontal ad slot |
-| `NEXT_PUBLIC_AD_SLOT_MID` | Mid-page horizontal ad slot |
-| `NEXT_PUBLIC_AD_SLOT_IN_ARTICLE` | In-article fluid ad slot |
-| `NEXT_PUBLIC_AD_SLOT_SIDEBAR` | Sidebar ad slot |
-| `NEXT_PUBLIC_AD_SLOT_AFTER_CONTENT` | After-content ad slot |
-| `NEXT_PUBLIC_AD_SLOT_BOTTOM` | Bottom horizontal ad slot |
 | `WP_ADMIN_USER` | WordPress API username |
 | `WP_ADMIN_PASS` | WordPress application password |
 | `ADMIN_SECRET` | Admin login and session-signing secret |
 | `REVALIDATE_SECRET` | Protects POST cache revalidation |
 | `CRON_SECRET` | Protects scheduled midnight revalidation |
+
+Google Ads/AdSense values are intentionally not environment variables.
+Publisher `ca-pub-9444471613078101`, shared slot `4789150646`, and placement
+slot mapping are static application configuration in `lib/constants.js`.
 
 Site constants, route sizes, AdSense slots, navigation, colors, local image
 paths, and the one-hour revalidation duration are defined in
@@ -388,7 +392,21 @@ Latest completed work:
   are static application constants in `lib/constants.js`.
 - `public/ads.txt` is static and contains the authorized Google AdSense seller
   line.
-- The global AdSense script uses `lazyOnload` to reduce Core Web Vitals impact.
+- The global AdSense script is loaded from static app configuration in
+  `app/layout.jsx` with native `<script async ...>`. This intentionally avoids
+  the Next.js `data-nscript` attribute that can trigger AdSense console
+  warnings.
+- WordPress content must not manage or overwrite Google Ads configuration.
+  Publisher IDs, slot IDs, script loading, and `ads.txt` remain controlled by
+  the Next.js project.
+- Current AdSense configuration uses publisher `ca-pub-9444471613078101`; all
+  placement slots currently use `4789150646` for top, mid, in-article,
+  sidebar, after-content, and bottom ads.
+- Local development intentionally disables the AdSense script and ad units so
+  localhost does not generate Google ad-request `403` console noise. Production
+  keeps the static publisher and slot IDs.
+- `next.config.js` explicitly allows image qualities `60`, `70`, and `75`,
+  matching the app's card, featured-image, and fallback image usage.
 - Top ad placement loads eagerly; lower, sidebar, and in-article ad placements
   load through an `IntersectionObserver` before the user reaches them.
 - Homepage Latest News cards and sidebar Recent Posts now randomize client-side
@@ -414,6 +432,9 @@ Current production note:
   slot status in DevTools. `data-ad-status="unfilled"` means Google loaded the
   ad request but did not return inventory; that is an AdSense fill issue, not a
   rendering bug in the project.
+- For better RPM reporting later, create separate AdSense ad units for each
+  placement. Those future slot IDs should still remain static app
+  configuration, not WordPress-managed content.
 
 ## Latest Update - 2026-06-25
 
@@ -438,3 +459,50 @@ Additional completed fixes:
   the viewport width.
 - Tests guard the quiz source split, WordPress page safety, ad placeholder
   behavior, content H1 removal, and responsive table wrapping.
+
+## Latest Update - 2026-06-28
+
+Homepage content was expanded and cleaned up using the supplied three-month
+Google Search Console keyword data as the primary keyword source. The reference
+sites were used only for topic-gap inspiration; no competitor text, images,
+tables, headings, or FAQs were copied.
+
+Completed homepage content and SEO/AEO updates:
+
+- Added a `Quick Summary: My Telenor Answer Today` section near the top of the
+  homepage for direct-answer search intent.
+- Added a `Today's Telenor Quiz Questions and Answers - Quick Guide` section
+  after the quiz cards.
+- Added original informational sections for quiz categories, PC/app usage, and
+  different-question handling.
+- Improved grammar and brand consistency for terms such as `My Telenor App`,
+  `Telenor Quiz Today`, `Test Your Skills`, and `Play & Win`.
+- Updated fallback homepage FAQ wording to better match high-impression Search
+  Console queries while keeping the FAQ count capped by existing behavior.
+- Added homepage `FAQPage` JSON-LD from the same visible capped FAQ list shown
+  to users.
+- Updated the homepage TOC so new H2 sections receive stable anchors through
+  `homeAnchorId()`.
+- Preserved the existing quiz source, admin quiz flow, parser behavior, SEO
+  date behavior, metadata/schema generation, ads, Latest News behavior, and
+  WordPress API logic.
+
+Public homepage quiz-card presentation was also updated:
+
+- Each quiz card now uses a white rounded container, blue `Question N` header,
+  bordered question box, responsive two-column option grid, A/B/C/D markers,
+  green correct-answer styling, and a green answer box.
+- This was a presentation-only change in `components/home/QuizAnswerCards.jsx`;
+  `/admin/quiz`, `daily-quiz`, and parser logic were not changed.
+
+Verification on June 28, 2026:
+
+| Check | Result |
+| --- | --- |
+| `npm.cmd run test` | Passed: 55 tests |
+| `npm.cmd run lint` | Passed |
+| `npm.cmd run build` | Passed: 30 routes generated |
+
+Build note: local builds can still print sandbox `EACCES` warnings when the
+environment blocks outgoing WordPress fetches. The Next.js production build
+completed successfully.

@@ -3,6 +3,7 @@ import {
   AD_POSITIONS,
   AD_SLOTS,
   hasConfiguredAdSlot,
+  isAdSenseEnabled,
   SITE_CONFIG,
 } from '@/lib/constants'
 
@@ -14,8 +15,8 @@ export default function AdBanner({
 }) {
   const resolvedSlot = slot || AD_POSITIONS[position] || AD_SLOTS.TOP_LEADERBOARD
   const isConfigured =
+    isAdSenseEnabled() &&
     SITE_CONFIG.googleAdsenseId &&
-    !SITE_CONFIG.googleAdsenseId.includes('XXXX') &&
     hasConfiguredAdSlot(resolvedSlot)
 
   if (!isConfigured) return null

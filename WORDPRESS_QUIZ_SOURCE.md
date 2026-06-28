@@ -7,6 +7,8 @@
 - Homepage quiz cards read from the WordPress post slug `daily-quiz`.
 - Homepage FAQ parsing and metadata image fallback may read from the WordPress
   page slug `telenor-answer-today`.
+- Homepage `FAQPage` JSON-LD uses the same visible FAQ items rendered on the
+  page, capped at six valid question/answer pairs.
 - `/admin/quiz` must read and write only the `daily-quiz` post.
 
 ## WordPress Front Page Warning
@@ -41,6 +43,10 @@ Saving quiz questions must not change static homepage React content.
 - WordPress-rendered tables are wrapped by `prepareWordPressContent()` in
   `.wp-table-scroll` containers, so wide tables remain reachable on mobile
   without changing the quiz source or homepage static content.
+- WordPress-backed media remains canonical and should not be rewritten to
+  Vercel `/_next/image` proxy URLs.
+- AdSense is static production app configuration and is disabled during local
+  development to avoid localhost Google ad `403` noise.
 
 ## Verification
 
@@ -50,3 +56,4 @@ After saving from `/admin/quiz`, confirm:
 - The WordPress page `telenor-answer-today` was not overwritten.
 - Any WordPress Front Page page, including old page ID `640`, was not changed.
 - The homepage static React content is unchanged and only the quiz cards update.
+- Homepage FAQ schema still matches only the visible capped FAQ items.

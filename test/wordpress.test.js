@@ -145,6 +145,30 @@ test('homepage parses quiz and FAQ content from separate WordPress sources', asy
   assert.doesNotMatch(source, /parseQuizTables\(homepageContent\)/)
 })
 
+test('homepage public quiz cards use the updated card design only', async () => {
+  const source = await readFile(
+    new URL('../components/home/QuizAnswerCards.jsx', import.meta.url),
+    'utf8'
+  )
+  const adminSource = await readFile(
+    new URL('../app/admin/quiz/page.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(source, /Question \{i \+ 1\}/)
+  assert.match(source, /rounded-md border border-border bg-white px-3 py-3/)
+  assert.match(source, /<p className="text-sm font-bold uppercase tracking-wide text-text-primary">\s*Options\s*<\/p>/)
+  assert.match(source, /grid grid-cols-1 gap-2 min-\[360px\]:grid-cols-2/)
+  assert.match(source, /String\.fromCharCode\(65 \+ j\)/)
+  assert.match(source, /correct \? '\\u2713'/)
+  assert.match(source, /border-green-500 bg-green-50 font-semibold text-green-800/)
+  assert.match(source, /rounded-md border border-green-200 bg-green-50/)
+  assert.match(source, /text-\[15px\]/)
+  assert.match(source, /Today&apos;s quiz answers are temporarily unavailable/)
+  assert.doesNotMatch(source, /<p className="text-white font-semibold text-sm leading-snug">\s*\{q\.question\}/)
+  assert.match(adminSource, /Admin Panel/)
+})
+
 test('homepage TOC includes H1 and all main-content H2/H3 anchors', async () => {
   const { homeAnchorId } = await import('../lib/homeAnchors.js')
   const pageSource = await readFile(
@@ -167,12 +191,20 @@ test('homepage TOC includes H1 and all main-content H2/H3 anchors', async () => 
     new URL('../components/home/FaqSection.jsx', import.meta.url),
     'utf8'
   )
+  const homeFaqsSource = await readFile(
+    new URL('../lib/homeFaqs.js', import.meta.url),
+    'utf8'
+  )
 
   const requiredTocTitles = [
+    'Quick Summary: My Telenor Answer Today',
+    "Today's Telenor Quiz Questions and Answers - Quick Guide",
     'Latest News',
     'What is the Telenor Daily Quiz?',
+    'Today Telenor Quiz Categories',
     'How to Find the Correct My Telenor Quiz Answers Today Quickly?',
     'How to Play the Telenor Quiz Today and Win Free MBs?',
+    'Can You Play the My Telenor Quiz on PC?',
     'How to Get Verified Telenor Quiz Today Answer Before It Expires?',
     'Why Do People Love the Daily Telenor Quiz So Much?',
     'Who Can Participate in the Today Telenor Quiz Answer?',
@@ -181,6 +213,7 @@ test('homepage TOC includes H1 and all main-content H2/H3 anchors', async () => 
     'Rewards',
     'What You Get from My Telenor Today Answers?',
     'How Can You Always Get Accurate Today Telenor Quiz?',
+    'What If Your My Telenor Question Is Different?',
     'What is the Fastest Way to Get Accurate Answers Using Modern AI?',
     'Quick AI Solution Method',
     "What to Do If the Telenor Quiz Isn't Working",
@@ -229,11 +262,94 @@ test('homepage TOC includes H1 and all main-content H2/H3 anchors', async () => 
   }
 
   assert.match(pageSource, /tocItem\(`My Telenor Answer Today \$\{todayLabel\} - Latest Telenor Quiz Today`, 1\)/)
+  assert.match(pageSource, /tocItem\('Quick Summary: My Telenor Answer Today', 2\)/)
   assert.match(pageSource, /tocItem\(`Today Telenor Answer \$\{todayLabel\}`, 2\)/)
   assert.match(pageSource, /id=\{homeAnchorId\(h1Text\)\}/)
   assert.match(pageSource, /id=\{homeAnchorId\(quizHeading\)\}/)
   assert.match(pageSource, /tocItem\('How to Play the Telenor Quiz Today and Win Free MBs\?', 2\)/)
   assert.doesNotMatch(pageSource, /post\.title/)
+})
+
+test('homepage content includes GSC keyword coverage without changing quiz data flow', async () => {
+  const pageSource = await readFile(
+    new URL('../app/page.jsx', import.meta.url),
+    'utf8'
+  )
+  const quizInfoSource = await readFile(
+    new URL('../components/home/QuizInfoSections.jsx', import.meta.url),
+    'utf8'
+  )
+  const faqSource = await readFile(
+    new URL('../components/home/FaqSection.jsx', import.meta.url),
+    'utf8'
+  )
+  const combinedSource = `${pageSource}\n${quizInfoSource}\n${faqSource}`.toLowerCase()
+
+  for (const keyword of [
+    'my telenor answer today',
+    'today my telenor answer',
+    'today my telenor question answer',
+    'today telenor 5 question answer',
+    'telenor quiz today',
+    'telenor answer today',
+    'my telenor app answer today',
+    'test your skills',
+    'my telenor app today questions and answers',
+  ]) {
+    assert.ok(
+      combinedSource.includes(keyword),
+      `${keyword} should appear naturally in homepage content`
+    )
+  }
+
+  assert.match(quizInfoSource, /Today Telenor Quiz Categories/)
+  assert.match(quizInfoSource, /What If Your My Telenor Question Is Different\?/)
+  assert.match(quizInfoSource, /Can You Play the My Telenor Quiz on PC\?/)
+  assert.match(pageSource, /getDailyQuizPost/)
+  assert.match(pageSource, /parseQuizTables\(quizContent\)/)
+  assert.doesNotMatch(pageSource, /parseQuizTables\(homepageContent\)/)
+})
+
+test('homepage FAQPage schema uses only visible capped FAQs', async () => {
+  const { getVisibleHomeFaqs } = await import('../lib/homeFaqs.js')
+  const pageSource = await readFile(
+    new URL('../app/page.jsx', import.meta.url),
+    'utf8'
+  )
+  const faqSource = await readFile(
+    new URL('../components/home/FaqSection.jsx', import.meta.url),
+    'utf8'
+  )
+  const homeFaqsSource = await readFile(
+    new URL('../lib/homeFaqs.js', import.meta.url),
+    'utf8'
+  )
+  const rawFaqs = [
+    { q: 'One?', a: 'Answer one.' },
+    { q: '', a: 'Missing question.' },
+    { q: 'Two?', a: '' },
+    { q: 'Three?', a: 'Answer three.' },
+    { q: 'Four?', a: 'Answer four.' },
+    { q: 'Five?', a: 'Answer five.' },
+    { q: 'Six?', a: 'Answer six.' },
+    { q: 'Seven?', a: 'Answer seven.' },
+    { q: 'Eight?', a: 'Answer eight.' },
+  ]
+  const visibleFaqs = getVisibleHomeFaqs(rawFaqs)
+
+  assert.deepEqual(
+    visibleFaqs.map((faq) => faq.q),
+    ['One?', 'Three?', 'Four?', 'Five?', 'Six?', 'Seven?']
+  )
+  assert.equal(visibleFaqs.length, 6)
+  assert.match(pageSource, /const visibleFaqs = getVisibleHomeFaqs\(faqs\)/)
+  assert.match(pageSource, /'@type': 'FAQPage'/)
+  assert.match(pageSource, /mainEntity: visibleFaqs\.map/)
+  assert.match(pageSource, /'@type': 'Question'/)
+  assert.match(pageSource, /acceptedAnswer:\s*\{[\s\S]*'@type': 'Answer'/)
+  assert.match(pageSource, /<FaqSection faqs=\{visibleFaqs\} \/>/)
+  assert.match(faqSource, /getVisibleHomeFaqs\(faqs\)/)
+  assert.match(homeFaqsSource, /slice\(0, 6\)/)
 })
 
 test('homepage TOC label is not rendered as a heading', async () => {
@@ -277,6 +393,38 @@ test('global anchor offsets keep hash targets below the fixed header', async () 
   assert.match(css, /\.prose \[id\]/)
   assert.match(css, /scroll-margin-top:\s*80px/)
   assert.match(css, /scroll-margin-top:\s*110px/)
+})
+
+test('readable content typography defaults to 16px without forced font-size overrides', async () => {
+  const css = await readFile(
+    new URL('../styles/globals.css', import.meta.url),
+    'utf8'
+  )
+  const homeSource = await readFile(
+    new URL('../app/page.jsx', import.meta.url),
+    'utf8'
+  )
+  const quizInfoSource = await readFile(
+    new URL('../components/home/QuizInfoSections.jsx', import.meta.url),
+    'utf8'
+  )
+  const quizCardsSource = await readFile(
+    new URL('../components/home/QuizAnswerCards.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(css, /body\s*\{[^}]*font-size:\s*16px;/s)
+  assert.match(css, /\.article-content\s*\{[^}]*font-size:\s*1rem;/s)
+  assert.match(css, /\.prose\s*\{[^}]*font-size:\s*1rem;/s)
+  assert.match(css, /\.prose table\s*\{[^}]*font-size:\s*1rem;/s)
+  assert.match(css, /\.prose h1\s*\{[^}]*font-size:\s*1\.875rem;/s)
+  assert.match(css, /\.prose h2\s*\{[^}]*font-size:\s*1\.5rem;/s)
+  assert.match(css, /\.prose h3\s*\{[^}]*font-size:\s*1\.25rem;/s)
+  assert.match(css, /\.prose h4\s*\{[^}]*font-size:\s*1\.125rem;/s)
+  assert.doesNotMatch(css, /font-size:[^;]+!important/)
+  assert.doesNotMatch(homeSource, /className="[^"]*text-sm[^"]*leading-relaxed[^"]*text-text-secondary/)
+  assert.doesNotMatch(quizInfoSource, /className="[^"]*text-sm[^"]*leading-relaxed[^"]*text-text-secondary/)
+  assert.match(quizCardsSource, /text-\[15px\]/)
 })
 
 test('homepage latest news fetches a wider lightweight post pool', async () => {
@@ -425,4 +573,99 @@ test('mobile ad wrappers collapse empty ads instead of reserving large blank spa
   assert.doesNotMatch(inArticleSource, /min-h-\[250px\]/)
   assert.match(lazySource, /adStatus === 'empty'/)
   assert.match(lazySource, /min-h-16 md:min-h-\[120px\]/)
+})
+
+test('Google Ads configuration is static app configuration', async () => {
+  const {
+    AD_SLOTS,
+    GOOGLE_ADSENSE_CLIENT_ID,
+    GOOGLE_AD_SLOT_ID,
+    isAdSenseEnabled,
+    SITE_CONFIG,
+  } = await import('../lib/constants.js')
+  const layoutSource = await readFile(
+    new URL('../app/layout.jsx', import.meta.url),
+    'utf8'
+  )
+  const adsTxt = await readFile(
+    new URL('../public/ads.txt', import.meta.url),
+    'utf8'
+  )
+
+  assert.equal(GOOGLE_ADSENSE_CLIENT_ID, 'ca-pub-9444471613078101')
+  assert.equal(SITE_CONFIG.googleAdsenseId, GOOGLE_ADSENSE_CLIENT_ID)
+  assert.equal(GOOGLE_AD_SLOT_ID, '4789150646')
+  const previousNodeEnv = process.env.NODE_ENV
+  process.env.NODE_ENV = 'development'
+  assert.equal(isAdSenseEnabled(), false)
+  process.env.NODE_ENV = 'production'
+  assert.equal(isAdSenseEnabled(), true)
+  if (previousNodeEnv === undefined) {
+    delete process.env.NODE_ENV
+  } else {
+    process.env.NODE_ENV = previousNodeEnv
+  }
+  assert.deepEqual(
+    Object.values(AD_SLOTS),
+    Array(Object.values(AD_SLOTS).length).fill(GOOGLE_AD_SLOT_ID)
+  )
+  assert.match(adsTxt, /google\.com, pub-9444471613078101, DIRECT/)
+  assert.match(layoutSource, /isAdSenseEnabled\(\) &&/)
+  assert.match(layoutSource, /pagead2\.googlesyndication\.com/)
+  assert.doesNotMatch(layoutSource, /NEXT_PUBLIC_ADSENSE_ID/)
+  assert.doesNotMatch(layoutSource, /lazyOnload/)
+})
+
+test('Next image quality values are explicitly configured', async () => {
+  const nextConfigSource = await readFile(
+    new URL('../next.config.js', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(nextConfigSource, /qualities:\s*\[60,\s*70,\s*75\]/)
+  assert.match(nextConfigSource, /formats:\s*\['image\/avif',\s*'image\/webp'\]/)
+})
+
+test('WordPress-backed image components bypass Vercel image proxy', async () => {
+  const featuredSource = await readFile(
+    new URL('../components/posts/FeaturedImage.jsx', import.meta.url),
+    'utf8'
+  )
+  const latestNewsSource = await readFile(
+    new URL('../components/home/LatestNewsGrid.jsx', import.meta.url),
+    'utf8'
+  )
+  const recentPostsSource = await readFile(
+    new URL('../components/widgets/RecentPosts.jsx', import.meta.url),
+    'utf8'
+  )
+  const headerSource = await readFile(
+    new URL('../components/layout/Header.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.equal((featuredSource.match(/\bunoptimized\b/g) || []).length, 2)
+  assert.match(latestNewsSource, /\bunoptimized\b/)
+  assert.match(recentPostsSource, /\bunoptimized\b/)
+  assert.match(headerSource, /\bpriority\b/)
+  assert.doesNotMatch(headerSource, /\bunoptimized\b/)
+  assert.doesNotMatch(latestNewsSource, /\bpriority=/)
+  assert.doesNotMatch(recentPostsSource, /\bpriority=/)
+})
+
+test('sitemap image output uses canonical media URLs', async () => {
+  const { renderUrlSitemap } = await import('../lib/sitemap.js')
+  const xml = renderUrlSitemap([
+    {
+      loc: 'https://teleanswertoday.pk/example',
+      lastmod: null,
+      images: [
+        'https://wp.teleanswertoday.pk/wp-content/uploads/example.webp',
+        '/_next/image?url=https%3A%2F%2Fwp.teleanswertoday.pk%2Fwp-content%2Fuploads%2Fbad.webp&w=750&q=75',
+      ],
+    },
+  ])
+
+  assert.match(xml, /https:\/\/wp\.teleanswertoday\.pk\/wp-content\/uploads\/example\.webp/)
+  assert.doesNotMatch(xml, /\/_next\/image/)
 })

@@ -8,7 +8,7 @@ import {
   wrapContentTables,
 } from '../lib/utils.js'
 
-test('body images replace supplied responsive markup with optimizer markup', () => {
+test('body images preserve canonical WordPress responsive markup', () => {
   const html =
     '<img src="https://example.com/photo.jpg" width="900" height="600" ' +
     'srcset="photo-450.jpg 450w, photo-900.jpg 900w" sizes="50vw">'
@@ -18,9 +18,9 @@ test('body images replace supplied responsive markup with optimizer markup', () 
   assert.match(result, /decoding="async"/)
   assert.match(result, /width="900"/)
   assert.match(result, /height="600"/)
-  assert.match(result, /\bsrc="\/_next\/image\?url=/)
-  assert.match(result, /\bsrcset="\/_next\/image\?url=/)
-  assert.doesNotMatch(result, /photo-450\.jpg/)
+  assert.match(result, /\bsrc="https:\/\/example\.com\/photo\.jpg"/)
+  assert.match(result, /\bsrcset="photo-450\.jpg 450w, photo-900\.jpg 900w"/)
+  assert.doesNotMatch(result, /\/_next\/image/)
   assert.equal((result.match(/\bsrcset=/g) || []).length, 1)
   assert.equal((result.match(/\bsizes=/g) || []).length, 1)
 })
@@ -33,18 +33,20 @@ test('body images infer dimensions from WordPress filenames', () => {
   assert.match(result, /width="683"/)
   assert.match(result, /height="1024"/)
   assert.match(result, /sizes="\(max-width: 768px\) 100vw, 768px"/)
-  assert.match(result, /\bsrcset="\/_next\/image\?url=/)
+  assert.match(result, /\bsrc="https:\/\/example\.com\/photo-683x1024\.webp"/)
+  assert.doesNotMatch(result, /\/_next\/image/)
 })
 
-test('body images receive fallback dimensions and optimizer sources', () => {
+test('body images receive fallback dimensions without proxying sources', () => {
   const result = optimizeContentImages(
     '<img src="https://example.com/photo.webp" alt="Example">'
   )
 
   assert.match(result, /width="800"/)
   assert.match(result, /height="450"/)
-  assert.match(result, /%3A%2F%2Fexample\.com%2Fphoto\.webp/)
-  assert.match(result, /750w/)
+  assert.match(result, /\bsrc="https:\/\/example\.com\/photo\.webp"/)
+  assert.doesNotMatch(result, /\/_next\/image/)
+  assert.doesNotMatch(result, /\bsrcset=/)
 })
 
 test('content h1 blocks are removed while lower headings remain', () => {

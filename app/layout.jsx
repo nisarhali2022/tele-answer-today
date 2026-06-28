@@ -2,7 +2,7 @@ import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { SITE_CONFIG } from '@/lib/constants'
+import { isAdSenseEnabled, SITE_CONFIG } from '@/lib/constants'
 import { serializeJsonLd } from '@/lib/schema'
 import '@/styles/globals.css'
 
@@ -43,9 +43,6 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  const hasAdSenseClient =
-    SITE_CONFIG.googleAdsenseId &&
-    !SITE_CONFIG.googleAdsenseId.includes('XXXX')
   const organizationId = `${SITE_CONFIG.siteUrl}/#organization`
   const websiteId = `${SITE_CONFIG.siteUrl}/#website`
   const siteSchema = {
@@ -76,7 +73,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-PK" className={inter.variable}>
       <body className="font-body bg-white text-text-primary">
-        {hasAdSenseClient && (
+        {isAdSenseEnabled() && (
           <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE_CONFIG.googleAdsenseId}`}

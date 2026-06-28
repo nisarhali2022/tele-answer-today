@@ -1,7 +1,7 @@
 # Tele Answer Today Implementation Checklist
 
 Use this checklist for the migration after the first-priority config work.
-Status updated June 25, 2026.
+Status updated June 28, 2026.
 
 ## Current Corrections - June 25, 2026
 
@@ -17,6 +17,13 @@ Status updated June 25, 2026.
       space below the header.
 - [x] Wrap WordPress tables in `.wp-table-scroll` so wide tables scroll
       horizontally on mobile.
+- [x] Keep WordPress media canonical and avoid Vercel `/_next/image` proxy URLs
+      for WordPress-backed images.
+- [x] Configure Next image qualities `60`, `70`, and `75`.
+- [x] Disable real AdSense requests in local development while preserving
+      static production AdSense configuration.
+- [x] Add homepage `FAQPage` JSON-LD from the same visible capped FAQ list used
+      by the public FAQ UI.
 - [x] Verify with `npm.cmd run test`, `npm.cmd run lint`, and
       `npm.cmd run build`.
 
@@ -60,6 +67,8 @@ Status updated June 25, 2026.
 - [x] Use the six-hour-early SEO date for homepage metadata while keeping the
       visible H1/content on the normal Karachi date.
 - [x] Add homepage WebPage JSON-LD with the six-hour-early SEO `dateModified`.
+- [x] Add homepage FAQPage JSON-LD using only the visible FAQ items, capped at
+      six valid question/answer pairs.
 - [x] Keep latest-news query and visual layout stable.
 - [x] Add visible fallback text when no quiz questions parse.
 - [x] Keep the homepage intro, informational sections, and participation steps

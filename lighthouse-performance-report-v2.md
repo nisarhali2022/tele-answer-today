@@ -16,6 +16,11 @@
 > and WordPress tables now scroll horizontally inside `.wp-table-scroll`
 > wrappers. Re-run Lighthouse after deployment for updated mobile layout and
 > Core Web Vitals measurements.
+>
+> **Follow-up note, June 28, 2026:** WordPress-backed images now bypass Vercel
+> `/_next/image` proxying and keep canonical WordPress media URLs. Next image
+> qualities `60`, `70`, and `75` are explicitly configured, and AdSense is
+> disabled during local development to avoid localhost ad-request `403` noise.
 
 ---
 
@@ -310,8 +315,11 @@ Vitals:
 - Lower ads start loading before they enter the viewport using a generous
   `IntersectionObserver` root margin.
 - Reserved ad heights remain in place to avoid layout shift.
-- Global AdSense script loads with `lazyOnload`, so it does not compete as
-  aggressively with initial render.
+- Global AdSense script loads from static app configuration in the root layout
+  with native `<script async ...>`, avoiding the Next.js `data-nscript`
+  attribute warning while keeping the publisher ID controlled by the app.
+- Local development suppresses real AdSense requests; production keeps the
+  static publisher and slot IDs.
 
 Why this helps:
 
@@ -326,6 +334,6 @@ Next RPM/performance checks:
 1. Deploy the latest code to Vercel.
 2. Re-run PageSpeed on mobile after deployment.
 3. Check AdSense report by placement.
-4. If all placements currently use one ad slot, create separate AdSense ad
-   units for top, middle, sidebar, in-article, after-content, and bottom so RPM
-   can be measured per placement.
+4. If all placements currently use one ad slot, create separate static AdSense
+   ad units for top, middle, sidebar, in-article, after-content, and bottom so
+   RPM can be measured per placement.

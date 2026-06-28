@@ -52,7 +52,8 @@ tele-answer-today/
 | not found | `app/not-found.jsx` | None | Custom 404 |
 
 `app/layout.jsx` wraps every route with `Header`, `Footer`, one self-hosted
-Inter font, global CSS, metadata defaults, and the conditional AdSense script.
+Inter font, global CSS, metadata defaults, and the production-only AdSense
+script guard.
 
 `Header` is server-rendered and fixed at the top of the viewport. It renders
 desktop dropdowns from `NAV_LINKS.children`. `HeaderControls` is the small
@@ -470,8 +471,8 @@ with the implemented routes.
 Quality tooling now includes `eslint.config.mjs`, `npm run lint`, and 15 tests
 under `test/`. Shared quiz validation/escaping lives in `lib/quiz.js`.
 `optimizeContentImages()` preserves WordPress responsive markup and fills
-missing dimensions, optimizer `srcset`, `sizes`, loading, and decoding
-attributes.
+missing dimensions, `sizes`, loading, and decoding attributes without rewriting
+WordPress media to Vercel `/_next/image` proxy URLs.
 
 ## 9. Latest Structure Update - 2026-06-20
 
@@ -479,13 +480,14 @@ New or recently changed files and responsibilities:
 
 | File | Responsibility |
 | --- | --- |
-| `lib/constants.js` | Central static public IDs for Analytics, Search Console, AdSense, ad slots, site URL, and WordPress API URL configuration. |
-| `public/ads.txt` | Static AdSense seller authorization file served from `/ads.txt`. |
-| `app/layout.jsx` | Root metadata, Search Console verification meta tag, Google Analytics script, and global AdSense script. |
+| `lib/constants.js` | Central static public IDs for Analytics, Search Console, AdSense publisher `ca-pub-9444471613078101`, shared ad slot `4789150646`, site URL, and WordPress API URL configuration. |
+| `public/ads.txt` | Static AdSense seller authorization file served from `/ads.txt`; this remains repo-owned, not WordPress-managed. |
+| `app/layout.jsx` | Root metadata, Search Console verification meta tag, Google Analytics script, and global native AdSense script loaded from static app config. |
 | `components/ads/LazyAdSenseUnit.jsx` | Client-side ad loader that uses `IntersectionObserver` so below-fold ads load as the user approaches them. |
 | `components/ads/AdBanner.jsx` | Shared display ad wrapper; top placement is eager, lower placements are lazy. |
 | `components/ads/AdInArticle.jsx` | In-article ad placement using the same lazy AdSense loader. |
 | `components/home/LatestNewsGrid.jsx` | Client-side randomization for homepage Latest News cards. |
+| `lib/homeFaqs.js` | Shared homepage FAQ selection helper; keeps visible FAQ UI and `FAQPage` JSON-LD aligned and capped at six valid items. |
 | `components/widgets/RecentPosts.jsx` | Client-side randomization for Recent Posts while keeping server-fetched post data. |
 | `components/layout/Sidebar.jsx` | Fetches larger post pools for randomized Recent Posts and keeps popular-post fallback behavior. |
 | `components/layout/Footer.jsx` | Static footer copy and requested social links/icons. |
@@ -504,7 +506,16 @@ Important call flow updates:
   `LatestNewsGrid.jsx` shuffles it in the browser.
 - Sidebar server fetches recent posts once, then `RecentPosts.jsx` shuffles
   display order in the browser.
+- Google Ads configuration is static application configuration. WordPress
+  content must not manage or overwrite publisher IDs, slot IDs, script loading,
+  or `ads.txt`.
+- Local development suppresses AdSense script/ad-unit rendering; production
+  keeps static Google Ads IDs and native script loading.
 - Ad containers render reserved layout space first; `LazyAdSenseUnit.jsx`
   initializes AdSense when the placement is eager or near the viewport.
+- WordPress-backed media components render with `unoptimized` so public pages
+  use canonical WordPress media URLs instead of Vercel image proxy URLs.
+- Homepage `FAQPage` JSON-LD is generated from the same visible FAQ list used by
+  `FaqSection`, capped at six valid question/answer pairs.
 - WordPress-rendered content is normalized before public rendering so users do
   not see backend URLs in ordinary page text.

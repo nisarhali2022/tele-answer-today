@@ -146,9 +146,9 @@ domain references.
 
 **Implemented result:** Metadata text now passes through the same public
 content rewriting used for rendered WordPress content before HTML stripping.
-Legacy `telenorquiztoday.com.pk` public links are rewritten to
-`https://teleanswertoday.pk`, backend contact text is rewritten, and WordPress
-system/media paths remain available for technical media use.
+Legacy public-domain links are rewritten to `https://teleanswertoday.pk`,
+backend contact text is rewritten, and WordPress system/media paths remain
+available for technical media use.
 
 **Verification:** Generated metadata for `/privacy-policy`, `/about-us`, and
 `/contact-us` was checked for backend or legacy domain leakage. Regression
@@ -175,9 +175,8 @@ server-rendered payload even when not visible to users.
 queries and detail queries. List views fetch compact post data; detail views
 and pages still fetch full content when rendering an article/page body.
 
-**Verification:** Build output no longer contains
-`telenorquiztoday.com.pk` in checked generated pages. Tests, lint, and
-production build passed.
+**Verification:** Build output no longer contains legacy public-domain links in
+checked generated pages. Tests, lint, and production build passed.
 
 ### BF-01: Homepage does not explicitly fetch the daily quiz
 
@@ -540,8 +539,9 @@ valid.
 Ad units correctly return `null` when the client ID contains `XXXX`, but the
 global AdSense script is still requested with the invalid placeholder ID.
 
-**Fix:** Render the `<Script>` only when a real AdSense client ID is configured.
-Prefer an environment variable for deployment-specific IDs.
+**Fix:** Render the AdSense script only from static app configuration and only
+outside local development. Google Ads IDs remain app-owned constants, not
+environment-managed values.
 
 **Implemented result:** Placeholder publisher IDs and slots render neither the
 global script nor empty ad containers.
@@ -985,16 +985,16 @@ quiz content server-side.
 **Status:** Resolved on June 15, 2026.
 
 `AdBanner` now maps `top`, `mid`, `bottom`, and `after-content` positions to
-validated slots. Slot values can be configured through public environment
-variables.
+validated slots. Current slot values are static application configuration in
+`lib/constants.js`.
 
 ### IMP-04: Placeholder AdSense configuration still loads the script
 
 **Status:** Resolved on June 15, 2026.
 
-The client ID now reads `NEXT_PUBLIC_ADSENSE_ID`. Placeholder clients and
-slots render neither the global script nor empty ad containers. Configured ad
-containers reserve height to reduce layout shift.
+The client ID and slot IDs are static application configuration in
+`lib/constants.js`; WordPress and Vercel environment variables do not manage
+them. Configured ad containers reserve height to reduce layout shift.
 
 ### IMP-05: Font configuration is inconsistent
 
@@ -1064,9 +1064,10 @@ Completed during the June 15, 2026 performance pass:
 - Zero-hydration global header navigation using native HTML controls.
 - Removed global pathname/scroll listeners and router-backed header search.
 - Removed the unused Merriweather font family.
-- Added validated environment-backed ad slots and stable ad dimensions.
+- Added validated static ad slots and stable ad dimensions.
 - Removed blank ad spacing while AdSense is not configured.
-- Added AVIF/WebP image negotiation and a one-day optimized-image cache.
+- Added AVIF/WebP image negotiation, explicit image qualities, and a one-day
+  optimized-image cache.
 - Selected smaller WordPress media variants for news and sidebar cards.
 - Added accurate responsive `sizes` for post-card images.
 - Deferred below-fold informational rendering with `content-visibility`.
@@ -1137,7 +1138,13 @@ Completed fixes:
 - Kept `/sitemap_index.xml` as the preferred sitemap structure for Google
   Search Console.
 - Added static `ads.txt` for AdSense authorization.
-- Switched AdSense script loading to `lazyOnload` for performance.
+- Documented AdSense as static app configuration: publisher ID, slot IDs,
+  global script loading, and `ads.txt` are controlled by the Next.js project,
+  not WordPress.
+- The global AdSense script uses native `<script async ...>` in the root layout
+  to avoid the Next.js `data-nscript` attribute warning.
+- Local development intentionally suppresses AdSense script/ad-unit rendering
+  to avoid localhost Google ad-request `403` console noise.
 - Added eager top ad loading and near-viewport lazy loading for lower ad
   placements.
 - Randomized Homepage Latest News cards on refresh/client render.
@@ -1160,4 +1167,36 @@ Recommended next checks after deploy:
 4. Run PageSpeed again after ads have been live for a few hours.
 5. In AdSense, create separate ad units for top, middle, sidebar, in-article,
    after-content, and bottom placements if RPM testing requires per-placement
-   reporting.
+   reporting. Future ad unit IDs should still remain static application
+   configuration.
+
+## 10. Latest Fixes - 2026-06-28
+
+Completed homepage content and SEO/AEO fixes:
+
+- Added GSC-driven keyword coverage to the homepage using the supplied
+  three-month Search Console query list.
+- Added original sections for quick summary, today's quiz questions and
+  answers, quiz categories, PC/app guidance, and different-question handling.
+- Cleaned awkward homepage grammar and normalized wording for `My Telenor App`,
+  `Telenor Quiz Today`, `Test Your Skills`, and `Play & Win`.
+- Updated fallback FAQ copy to better answer high-impression search queries.
+- Added homepage `FAQPage` JSON-LD from the same visible capped FAQ list used
+  by the public FAQ UI.
+- Updated homepage TOC entries for all new H2 sections.
+- Added tests to guard the new TOC items, keyword coverage, and unchanged quiz
+  data flow.
+
+Completed public quiz-card UI fix:
+
+- Updated homepage quiz cards with a white rounded card, blue `Question N`
+  header, bordered question box, responsive option grid, A/B/C/D markers,
+  green correct-answer state, and green answer box.
+- Preserved `/admin/quiz`, the `daily-quiz` WordPress source, parser behavior,
+  metadata/schema, ads, Latest News, and WordPress API behavior.
+
+Verification:
+
+- `npm.cmd run test` passed 55 tests.
+- `npm.cmd run lint` passed.
+- `npm.cmd run build` passed and generated 30 routes.

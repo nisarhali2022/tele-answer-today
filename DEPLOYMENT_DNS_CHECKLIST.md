@@ -50,8 +50,15 @@ WP_ADMIN_PASS
 ADMIN_SECRET
 REVALIDATE_SECRET
 CRON_SECRET
-NEXT_PUBLIC_ADSENSE_ID
 ```
+
+Google Ads/AdSense IDs are not Vercel environment variables. They are static
+application configuration in `lib/constants.js`, and `public/ads.txt` is kept
+in the repo.
+
+Local development intentionally disables AdSense requests to avoid localhost
+Google ad `403` console noise. Production keeps the static publisher and slot
+IDs.
 
 - [ ] Vercel Domains settings includes:
 
@@ -274,6 +281,12 @@ Expected results:
 - Wide WordPress-rendered tables scroll horizontally inside the table area on
   mobile, while the page itself has no horizontal scroll.
 - Homepage static React content remains unchanged after quiz updates.
+- Homepage emits `FAQPage` JSON-LD only for the same visible FAQ items shown to
+  users, capped at six valid question/answer pairs.
+- WordPress media should load from canonical `wp.teleanswertoday.pk` media URLs,
+  not Vercel `/_next/image` proxy URLs.
+- Next image qualities `60`, `70`, and `75` are configured to match current
+  component usage.
 
 ## WordPress Update Revalidation Webhook
 

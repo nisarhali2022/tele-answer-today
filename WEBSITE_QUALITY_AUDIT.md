@@ -1,6 +1,6 @@
 # Tele Answer Today Website Quality Audit
 
-Audit date: June 25, 2026  
+Audit date: June 28, 2026  
 Site: `https://teleanswertoday.pk`  
 Repo: `tele-answer-today`
 
@@ -18,6 +18,14 @@ Local tests, lint, and build pass, but production URLs, PageSpeed values,
 redirect behavior, rich-result validation, and broken-link crawling still need
 to be checked after deployment.
 
+Latest content update: on June 28, 2026, homepage copy was expanded with
+original SEO/AEO sections based on the supplied Google Search Console keyword
+list. The implementation added direct-answer content, quiz-topic coverage, app
+guidance, different-question handling, improved fallback FAQ wording, and
+homepage `FAQPage` JSON-LD for the same visible capped FAQ list while
+preserving quiz data flow, admin behavior, parser logic, metadata date logic,
+ads, and WordPress API behavior.
+
 ## Priority Rules
 
 | Priority | Meaning |
@@ -32,7 +40,7 @@ to be checked after deployment.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| `npm.cmd run test` | Pass | 36 tests passed. |
+| `npm.cmd run test` | Pass | 55 tests passed. |
 | `npm.cmd run lint` | Pass | ESLint completed with no errors. |
 | `npm.cmd run build` | Pass | Next.js generated 30 routes successfully. |
 | Old-domain scan | Pass with expected exceptions | Old domain appears only in rewrite support/tests/docs history, not current public config. |
@@ -59,7 +67,7 @@ warnings appear in Vercel production logs.
 | Image alt text | Pass | - | Logo, step images, featured images, recent posts, latest news, and author images provide alt text or decorative empty alt. | Check WordPress media alt text quality during editorial workflow. |
 | Open Graph and Twitter tags | Pass | - | `buildMetadata()` outputs Open Graph and Twitter metadata; default OG image exists in `public/assets`. | Validate with social preview tools after deploy. |
 | Breadcrumb navigation | Pass | - | `Breadcrumbs` component renders visible breadcrumbs and `BreadcrumbList` JSON-LD. | No action. |
-| Keyword-optimized content | Pass with editorial review recommended | Medium | Homepage has detailed Telenor quiz sections and live H1/date content. | Continue improving grammar, keyword naturalness, and topical depth in static homepage sections and WordPress articles. |
+| Keyword-optimized content | Pass with monitoring recommended | Medium | Homepage was expanded on June 28, 2026 using supplied GSC keyword data, with new quick-summary, quiz-guide, category, PC/app, and different-question sections. | Monitor Search Console query movement and avoid future keyword stuffing. |
 
 ## 2. Technical SEO
 
@@ -83,7 +91,7 @@ warnings appear in Vercel production logs.
 | WebSite schema | Pass | - | `app/layout.jsx` emits WebSite JSON-LD with `inLanguage: en-PK`. | No action. |
 | LocalBusiness schema | Not Applicable | - | Site is an informational/blog/quiz site, not a physical local business page. | Add only if a real business address, phone, hours, and local service area are published. |
 | Article schema | Pass | - | Article route emits Article JSON-LD with author, publisher, dates, and image. | Validate representative article in Rich Results Test. |
-| FAQ schema | Needs Fix / Enhancement | Medium | Homepage renders FAQ UI, but current code inspection found homepage WebPage schema only, not FAQPage JSON-LD. | Add FAQPage JSON-LD for the six parsed homepage FAQs if parser output is stable. |
+| FAQ schema | Pass | - | Homepage emits `FAQPage` JSON-LD from the same visible FAQ list rendered by `FaqSection`, capped at six valid question/answer pairs. | Validate homepage in Rich Results Test after deployment. |
 | Breadcrumb schema | Pass | - | `Breadcrumbs` emits `BreadcrumbList`. | No action. |
 | Product schema | Not Applicable | - | No eCommerce product pages. | Do not add unless product/service pages become transactional. |
 | Review/Rating schema | Not Applicable | - | No first-party review/rating system. | Do not add fake ratings; add only with real review data. |
@@ -93,7 +101,7 @@ warnings appear in Vercel production logs.
 
 | Item | Status | Priority | Evidence | Recommended Fix |
 | --- | --- | --- | --- | --- |
-| Image compression | Pass | - | Assets use WebP where available; Next image optimization is configured. | Continue uploading compressed WordPress images. |
+| Image compression | Pass | - | Assets use WebP where available; local assets can use Next image optimization, while WordPress media stays canonical and bypasses `/_next/image` proxying. | Continue uploading compressed WordPress images. |
 | Next-gen formats | Pass | - | `next.config.js` enables AVIF and WebP. | No action. |
 | Minified CSS/JS | Pass | - | Next production build handles minification. | No action. |
 | Lazy loading images | Pass | - | `next/image` is used for app-owned images; WordPress body images receive lazy loading in utilities. | Confirm important LCP image is not lazy if it becomes the LCP element. |
@@ -142,7 +150,7 @@ warnings appear in Vercel production logs.
 | Bing Webmaster Tools | Recommended | Low | No Bing verification found. | Add Bing verification if Bing traffic matters. |
 | Conversion tracking | Recommended | Low | No conversion events found. | Define conversions first, such as quiz copy clicks or outbound app clicks. |
 | Event tracking | Recommended | Medium | GA4 base pageview tracking exists; custom events not found. | Add events for quiz interactions, search, outbound links, and CTA clicks if needed. |
-| AdSense | Pass | - | Client `ca-pub-9444471613078101`, slot `4789150646`, and `ads.txt` are configured. | Monitor AdSense fill/403/unfilled status in production. |
+| AdSense | Pass | - | Client `ca-pub-9444471613078101`, shared slot `4789150646`, native production script loading, local-development suppression, and static `public/ads.txt` are configured in the Next.js app. | Keep Google Ads IDs static in app config; monitor fill/403/unfilled status in production and create separate static slots later for RPM reporting. |
 
 ## 8. Security
 
@@ -166,7 +174,7 @@ warnings appear in Vercel production logs.
 | Contact Us | Pass | - | `/contact-us` route exists; `/contact` redirects. | Verify live form/contact details. |
 | Privacy Policy | Pass | - | `/privacy-policy` route exists and is indexable. | Keep updated for ads/analytics. |
 | Terms & Conditions | Needs Fix | Medium | Live homepage footer links to Terms of Service, but no `app/terms-of-service` route was found in repo. | Add WordPress-backed `/terms-of-service` or update footer link to an existing page. |
-| FAQ | Pass on homepage | - | Homepage FAQ section exists and parser caps to six FAQs. | Add FAQPage JSON-LD as an SEO enhancement. |
+| FAQ | Pass on homepage | - | Homepage FAQ section exists, visible items are capped to six, and matching `FAQPage` JSON-LD is emitted. | Validate homepage FAQ schema after deployment. |
 | Blog | Pass | - | `/blog` route exists. | Verify live pagination/canonical. |
 | Sitemap page/XML | Pass locally, live pending | High | XML sitemap routes exist. | Manually verify live sitemap XML endpoints. |
 
@@ -186,7 +194,7 @@ warnings appear in Vercel production logs.
 | --- | --- | --- | --- |
 | SEO optimized | Pass locally | - | Final live crawl still required. |
 | Mobile responsive | Pass locally | High | Verify live mobile pages, especially homepage, article, table page, and admin. |
-| Schema markup implemented | Pass with FAQ enhancement | Medium | Validate schema; add FAQPage if desired. |
+| Schema markup implemented | Pass locally, validation pending | High | Validate Organization, WebSite, WebPage, FAQPage, Article, Breadcrumb, and Person schema live. |
 | Fast performance | Needs Live Verification | High | Run PageSpeed mobile/desktop. |
 | Core Web Vitals passed | Needs Live Verification | High | Check PageSpeed and Search Console. |
 | Google Analytics configured | Pass | - | Confirm realtime traffic after deploy. |
@@ -210,8 +218,8 @@ warnings appear in Vercel production logs.
 4. **High:** Run a broken-link crawl on production.
 5. **Medium:** Add or confirm a real `/terms-of-service` page because the live
    footer links to Terms of Service.
-6. **Medium:** Add FAQPage JSON-LD for homepage FAQs if the parsed six-FAQ
-   output remains stable.
+6. **Medium:** Validate homepage `FAQPage` JSON-LD in Rich Results Test and
+   Schema.org validator.
 7. **Medium:** Review WordPress/Hostinger backups, malware scanning, and spam
    protection outside the Next.js repo.
 

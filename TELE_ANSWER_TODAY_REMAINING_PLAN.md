@@ -19,6 +19,9 @@ The first-priority foundation migration has been completed:
 - Google Search Console verification uses `Umy1DY5Vngn0XLt29V2gpg8Y7unQq6oF4tiW_fhoGnA`.
 - Google AdSense client uses `ca-pub-9444471613078101`.
 - Ad slots use `4789150646`.
+- Google Ads/AdSense configuration is static app configuration in the Next.js
+  project. WordPress content must not manage or overwrite the publisher ID,
+  slot IDs, global script loading, or `public/ads.txt`.
 - Public contact/domain references were updated to Tele Answer Today.
 - Docs were updated for the new public and WordPress domains.
 
@@ -27,6 +30,12 @@ Answer assets, responsive header, live-style submenus, duplicate-H1 SEO fixes,
 mobile ad collapse, and responsive WordPress table scroll fixes have now been
 implemented. This file remains as a status record plus the remaining
 production-deployment checklist.
+
+Current verification baseline:
+
+- `npm.cmd run test` passes 55 tests.
+- `npm.cmd run lint` passes.
+- `npm.cmd run build` passes and generates 30 routes.
 
 ## Current Active Source Model
 
@@ -39,8 +48,16 @@ production-deployment checklist.
   and page listings where appropriate.
 - Wide WordPress tables are wrapped in `.wp-table-scroll` by
   `prepareWordPressContent()` for mobile horizontal scrolling.
+- WordPress-backed images use canonical WordPress media URLs and bypass Vercel
+  `/_next/image` proxying to avoid image optimization quota/payment failures.
 - Empty or unfilled AdSense slots collapse on mobile so the top ad cannot leave
   a large blank area below the header.
+- AdSense is static app configuration in production and intentionally disabled
+  during local development to avoid localhost Google ad `403` console noise.
+- Future separate AdSense units per placement are recommended for better RPM
+  reporting, but those IDs should also remain static app config.
+- Homepage `FAQPage` JSON-LD uses only the visible FAQ items rendered on the
+  homepage, capped at six valid question/answer pairs.
 
 ## Superseded Notes
 
