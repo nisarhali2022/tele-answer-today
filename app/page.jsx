@@ -29,10 +29,10 @@ function tocItem(text, level) {
 
 function buildHomeToc(todayLabel) {
   return [
-    tocItem(`My Telenor Answer Today ${todayLabel} - Latest Telenor Quiz Today`, 1),
+    tocItem(`Telenor Quiz Today ${todayLabel} - Latest Telenor Answer today`, 1),
     tocItem('Quick Summary: My Telenor Answer Today', 2),
     tocItem(`Today Telenor Answer ${todayLabel}`, 2),
-    tocItem("Today's Telenor Quiz Questions and Answers - Quick Guide", 2),
+    tocItem("Today Telenor Quiz Questions and Answers - Quick Guide", 2),
     tocItem('Latest News', 2),
     tocItem('What is the Telenor Daily Quiz?', 2),
     tocItem('Today Telenor Quiz Categories', 2),
@@ -97,7 +97,7 @@ export async function generateMetadata() {
   );
   const seoDateLabel = getKarachiSeoDateLabel();
 
-  const title = `Telenor Quiz Today ${seoDateLabel} - Latest My Telenor Answer Today`;
+  const title = `Telenor Quiz Today ${seoDateLabel} - Latest Telenor Answer Today`;
   const description = `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
   const ogImage =
     page?._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
@@ -131,7 +131,7 @@ export default async function HomePage() {
   const visibleFaqs = getVisibleHomeFaqs(faqs);
 
   const todayLabel = getKarachiDateLabel();
-  const h1Text = `My Telenor Answer Today ${todayLabel} - Latest Telenor Quiz Today`;
+  const h1Text = `Telenor Quiz Today ${todayLabel} - Latest Telenor Answer today`;
   const quizHeading = `Today Telenor Answer ${todayLabel}`;
   const homeToc = buildHomeToc(todayLabel);
   const seoDateLabel = getKarachiSeoDateLabel();
@@ -141,7 +141,7 @@ export default async function HomePage() {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     '@id': `${SITE_CONFIG.siteUrl}/#homepage`,
-    name: `Telenor Quiz Today ${seoDateLabel} - Latest My Telenor Answer Today`,
+    name: `Telenor Quiz Today ${seoDateLabel} - Latest Telenor Answer Today`,
     description: homepageDescription,
     url: SITE_CONFIG.siteUrl,
     isPartOf: { '@id': `${SITE_CONFIG.siteUrl}/#website` },
@@ -240,15 +240,15 @@ export default async function HomePage() {
             </section>
 
             <section
-              id={homeAnchorId("Today's Telenor Quiz Questions and Answers - Quick Guide")}
+              id={homeAnchorId("Today Telenor Quiz Questions and Answers - Quick Guide")}
               className="my-6"
             >
               <h2 className="mb-4 font-heading text-xl font-bold text-text-primary">
-                Today&apos;s Telenor Quiz Questions and Answers - Quick Guide
+                Today Telenor Quiz Questions and Answers - Quick Guide
               </h2>
               <div className="space-y-3 leading-relaxed text-text-secondary">
                 <p>
-                  Today&apos;s Telenor quiz questions and answers help you check the five daily questions before submitting your attempt in the My Telenor App. Read each question carefully, match it with the correct option, and submit only when you are confident.
+                  Today Telenor quiz questions and answers help you check the five daily questions before submitting your attempt in the My Telenor App. Read each question carefully, match it with the correct option, and submit only when you are confident.
                 </p>
                 <p>
                   The most common searches, including today My Telenor question answer, Telenor question today, and Telenor quiz today answer, all have the same user goal: finding the correct answer quickly without wasting the daily attempt.

@@ -19,10 +19,9 @@ export default function Header() {
                 <Image
                   src={SITE_CONFIG.logoUrl}
                   alt={SITE_CONFIG.name}
-                  width={220}
-                  height={50}
-                  className="h-10 w-auto max-w-[calc(100vw-8rem)] object-contain sm:h-11 sm:max-w-none"
-                  style={{ width: 'auto' }}
+                  width={240}
+                  height={55}
+                  className="h-auto w-[180px] sm:w-[250px] object-contain"
                   priority
                 />
               </Link>
