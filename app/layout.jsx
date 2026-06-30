@@ -20,8 +20,19 @@ export const metadata = {
   },
   description: SITE_CONFIG.description,
   icons: {
-    icon: SITE_CONFIG.faviconUrl,
-    shortcut: SITE_CONFIG.faviconUrl,
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+      {
+        url: SITE_CONFIG.faviconUrl,
+        type: 'image/png',
+        sizes: '512x512',
+      },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [
+      { url: '/apple-touch-icon.png', type: 'image/png', sizes: '180x180' },
+    ],
   },
   openGraph: {
     siteName: SITE_CONFIG.name,
@@ -45,6 +56,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   const organizationId = `${SITE_CONFIG.siteUrl}/#organization`
   const websiteId = `${SITE_CONFIG.siteUrl}/#website`
+  const organizationLogoUrl = new URL('/icon.png', SITE_CONFIG.siteUrl).toString()
   const siteSchema = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -55,7 +67,9 @@ export default function RootLayout({ children }) {
         url: SITE_CONFIG.siteUrl,
         logo: {
           '@type': 'ImageObject',
-          url: SITE_CONFIG.logoUrl,
+          url: organizationLogoUrl,
+          width: 512,
+          height: 512,
         },
       },
       {

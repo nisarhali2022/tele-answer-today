@@ -624,6 +624,22 @@ test('Google Ads configuration is static app configuration', async () => {
   assert.doesNotMatch(layoutSource, /lazyOnload/)
 })
 
+test('root layout exposes Google-friendly favicon metadata and absolute organization logo', async () => {
+  const layoutSource = await readFile(
+    new URL('../app/layout.jsx', import.meta.url),
+    'utf8'
+  )
+
+  assert.match(layoutSource, /url: '\/favicon\.ico'/)
+  assert.match(layoutSource, /url: '\/icon\.png'/)
+  assert.match(layoutSource, /url: SITE_CONFIG\.faviconUrl/)
+  assert.match(layoutSource, /url: '\/apple-touch-icon\.png'/)
+  assert.match(layoutSource, /new URL\('\/icon\.png', SITE_CONFIG\.siteUrl\)\.toString\(\)/)
+  assert.match(layoutSource, /width: 512/)
+  assert.match(layoutSource, /height: 512/)
+  assert.doesNotMatch(layoutSource, /url: SITE_CONFIG\.logoUrl/)
+})
+
 test('AdSense placements use display-friendly sizing and top ad remains stable', async () => {
   const bannerSource = await readFile(
     new URL('../components/ads/AdBanner.jsx', import.meta.url),
