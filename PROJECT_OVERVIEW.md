@@ -405,6 +405,8 @@ Latest completed work:
 - Local development intentionally disables the AdSense script and ad units so
   localhost does not generate Google ad-request `403` console noise. Production
   keeps the static publisher and slot IDs.
+- Production AdSense can be paused without removing the integration by setting
+  `DISABLE_ADSENSE=true`; removing that env value enables ads again.
 - `next.config.js` explicitly allows image qualities `60`, `70`, and `75`,
   matching the app's card, featured-image, and fallback image usage.
 - Top ad placement loads eagerly; lower, sidebar, and in-article ad placements

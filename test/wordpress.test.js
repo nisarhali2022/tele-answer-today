@@ -597,14 +597,23 @@ test('Google Ads configuration is static app configuration', async () => {
   assert.equal(SITE_CONFIG.googleAdsenseId, GOOGLE_ADSENSE_CLIENT_ID)
   assert.equal(GOOGLE_AD_SLOT_ID, '4789150646')
   const previousNodeEnv = process.env.NODE_ENV
+  const previousDisableAdsense = process.env.DISABLE_ADSENSE
   process.env.NODE_ENV = 'development'
+  delete process.env.DISABLE_ADSENSE
   assert.equal(isAdSenseEnabled(), false)
   process.env.NODE_ENV = 'production'
   assert.equal(isAdSenseEnabled(), true)
+  process.env.DISABLE_ADSENSE = 'true'
+  assert.equal(isAdSenseEnabled(), false)
   if (previousNodeEnv === undefined) {
     delete process.env.NODE_ENV
   } else {
     process.env.NODE_ENV = previousNodeEnv
+  }
+  if (previousDisableAdsense === undefined) {
+    delete process.env.DISABLE_ADSENSE
+  } else {
+    process.env.DISABLE_ADSENSE = previousDisableAdsense
   }
   assert.deepEqual(
     Object.values(AD_SLOTS),

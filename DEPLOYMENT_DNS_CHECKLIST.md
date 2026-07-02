@@ -60,6 +60,15 @@ Local development intentionally disables AdSense requests to avoid localhost
 Google ad `403` console noise. Production keeps the static publisher and slot
 IDs.
 
+To temporarily pause production AdSense without removing the integration, set
+this optional Vercel environment variable:
+
+```env
+DISABLE_ADSENSE=true
+```
+
+Remove it, or set it to any value other than `true`, to enable AdSense again.
+
 - [ ] Vercel Domains settings includes:
 
 ```text
