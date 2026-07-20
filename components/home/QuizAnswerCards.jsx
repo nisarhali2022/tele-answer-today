@@ -33,7 +33,7 @@ export default function QuizAnswerCards({ questions }) {
                 <p className="text-sm font-bold uppercase tracking-wide text-text-primary">
                   Options
                 </p>
-                <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                   {q.options.map((opt, j) => {
                     const correct =
                       opt.toLowerCase().trim() === q.answer.toLowerCase().trim()

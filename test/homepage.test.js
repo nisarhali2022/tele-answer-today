@@ -120,6 +120,13 @@ test('Latest News keeps the newest two cards fixed and chooses only older cards 
   assert.ok(selected.slice(2).every((post) => posts.indexOf(post) >= 2))
 })
 
+test('public quiz options stay full-width on mobile and use two columns from tablet', async () => {
+  const source = await readSource('../components/home/QuizAnswerCards.jsx')
+
+  assert.match(source, /className="grid grid-cols-1 gap-2 md:grid-cols-2"/)
+  assert.doesNotMatch(source, /min-\[360px\]:grid-cols-2/)
+})
+
 test('legacy tag URLs redirect to the CMS blog archive', async () => {
   const source = await readSource('../app/tag/[slug]/page.jsx')
 
