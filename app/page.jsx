@@ -6,6 +6,14 @@ import { getKarachiDateLabel, getKarachiSeoDateLabel, getKarachiSeoDayStartISO }
 import { buildMetadata } from '@/lib/seo';
 import { serializeJsonLd } from '@/lib/schema';
 import { homeAnchorId } from '@/lib/homeAnchors';
+import {
+  ensureSingleHomeH1,
+  formatHomeTemplate,
+  prepareHomeContent,
+  removeHomeFaqSection,
+  removeInitialDuplicateLatestNews,
+  splitHomeContentAtQuizHeading,
+} from '@/lib/homeContent';
 
 import Sidebar from '@/components/layout/Sidebar';
 import AdBanner from '@/components/ads/AdBanner';
@@ -16,8 +24,6 @@ import TableOfContents from '@/components/posts/TableOfContents';
 import QuizAnswerCards from '@/components/home/QuizAnswerCards';
 import LatestNewsGrid from '@/components/home/LatestNewsGrid';
 import StepsSection from '@/components/home/StepsSection';
-import FaqSection from '@/components/home/FaqSection';
-import { getVisibleHomeFaqs } from '@/lib/homeFaqs';
 import QuizInfoSections from '@/components/home/QuizInfoSections';
 
 export const revalidate = 3600;
@@ -31,8 +37,8 @@ function buildHomeToc(todayLabel) {
     tocItem(`Telenor Quiz Today ${todayLabel} - Latest Telenor Answer today`, 1),
     tocItem('Quick Summary: My Telenor Answer Today', 2),
     tocItem(`Today Telenor Answer ${todayLabel}`, 2),
-    tocItem("Today Telenor Quiz Questions and Answers - Quick Guide", 2),
     tocItem('Latest News', 2),
+    tocItem("Today Telenor Quiz Questions and Answers - Quick Guide", 2),
     tocItem('What is the Telenor Daily Quiz?', 2),
     tocItem('Today Telenor Quiz Categories', 2),
     tocItem('How to Find the Correct My Telenor Quiz Answers Today Quickly?', 2),
@@ -75,7 +81,6 @@ function buildHomeToc(todayLabel) {
     tocItem('Navigate to the "Play & Win" Section', 3),
     tocItem('Answer 5 Quiz Questions', 3),
     tocItem('Claim Your Reward', 3),
-    tocItem('FAQs - My Telenor Answers Today', 2),
   ];
 }
 
@@ -96,10 +101,14 @@ export async function generateMetadata() {
   );
   const seoDateLabel = getKarachiSeoDateLabel();
 
-  const title = `Telenor Quiz Today ${seoDateLabel} - Latest Telenor Answer Today`;
-  const description = `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
+  const title =
+    formatHomeTemplate(page?.seo?.title, seoDateLabel) ||
+    `Telenor Quiz Today ${seoDateLabel} - Latest Telenor Answer Today`;
+  const description =
+    formatHomeTemplate(page?.seo?.description, seoDateLabel) ||
+    `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
   const ogImage =
-    page?.ogImage?.url ||
+    page?.featuredImage?.url ||
     `${SITE_CONFIG.siteUrl}${SITE_CONFIG.defaultOgImage}`;
 
   return buildMetadata({
@@ -124,74 +133,83 @@ export default async function HomePage() {
 
   const newsPosts = newsData?.posts || [];
   const quizQuestions = Array.isArray(quiz?.questions) ? quiz.questions : [];
-  const faqs = Array.isArray(homepageTemplate?.contentData?.faqs)
-    ? homepageTemplate.contentData.faqs.map((faq) => ({
-        q: faq?.q || faq?.question || '',
-        a: faq?.a || faq?.answer || '',
-      }))
-    : [];
-  const visibleFaqs = getVisibleHomeFaqs(faqs);
 
   const todayLabel = getKarachiDateLabel();
   const h1Text = `Telenor Quiz Today ${todayLabel} - Latest Telenor Answer today`;
   const quizHeading = `Today Telenor Answer ${todayLabel}`;
-  const homeToc = buildHomeToc(todayLabel);
+  const cmsHeroText = String(
+    homepageTemplate?.contentData?.heroText ||
+    homepageTemplate?.contentData?.bodyHtml ||
+    ''
+  ).trim();
+  const usesCmsHomeContent = Boolean(cmsHeroText);
+  const formattedCmsHome = usesCmsHomeContent
+    ? ensureSingleHomeH1(formatHomeTemplate(cmsHeroText, todayLabel), h1Text)
+    : '';
+  const cmsHomeWithoutFaqs = removeHomeFaqSection(formattedCmsHome);
+  const { beforeHtml, quizHeadingHtml, afterHtml } = splitHomeContentAtQuizHeading(cmsHomeWithoutFaqs);
+  const usedCmsAnchorIds = new Set([homeAnchorId('Latest News')]);
+  const beforeCmsContent = prepareHomeContent(beforeHtml, usedCmsAnchorIds);
+  const quizCmsContent = prepareHomeContent(
+    quizHeadingHtml || `<h2>${quizHeading}</h2>`,
+    usedCmsAnchorIds
+  );
+  const afterCmsContent = prepareHomeContent(
+    removeInitialDuplicateLatestNews(afterHtml),
+    usedCmsAnchorIds
+  );
+  const homeToc = usesCmsHomeContent
+    ? [
+        ...beforeCmsContent.headings,
+        ...quizCmsContent.headings,
+        tocItem('Latest News', 2),
+        ...afterCmsContent.headings,
+      ]
+    : buildHomeToc(todayLabel);
   const seoDateLabel = getKarachiSeoDateLabel();
   const seoDateModified = getKarachiSeoDayStartISO();
-  const homepageDescription = `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
+  const homepageTitle =
+    formatHomeTemplate(homepageTemplate?.seo?.title, seoDateLabel) ||
+    `Telenor Quiz Today ${seoDateLabel} - Latest Telenor Answer Today`;
+  const homepageDescription =
+    formatHomeTemplate(homepageTemplate?.seo?.description, seoDateLabel) ||
+    `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
   const homepageSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     '@id': `${SITE_CONFIG.siteUrl}/#homepage`,
-    name: `Telenor Quiz Today ${seoDateLabel} - Latest Telenor Answer Today`,
+    name: homepageTitle,
     description: homepageDescription,
     url: SITE_CONFIG.siteUrl,
     isPartOf: { '@id': `${SITE_CONFIG.siteUrl}/#website` },
     dateModified: seoDateModified,
   };
-  const faqSchema =
-    visibleFaqs.length > 0
-      ? {
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: visibleFaqs.map((faq) => ({
-            '@type': 'Question',
-            name: faq.q,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: faq.a,
-            },
-          })),
-        }
-      : null;
-
   return (
     <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(homepageSchema) }}
       />
-      {faqSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqSchema) }}
-        />
-      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8">
 
           {/* Main Content */}
           <article className="min-w-0">
-            {/* Title */}
-      
-            <h1
-              id={homeAnchorId(h1Text)}
-              className="font-heading font-bold text-2xl sm:text-3xl text-text-primary leading-tight mb-4"
-            >
-              {h1Text}</h1>
+            {usesCmsHomeContent ? (
+              <div
+                className="article-content prose prose-lg max-w-none mb-6 prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm"
+                dangerouslySetInnerHTML={{ __html: beforeCmsContent.html }}
+              />
+            ) : (
+              <>
+                <h1
+                  id={homeAnchorId(h1Text)}
+                  className="font-heading font-bold text-2xl sm:text-3xl text-text-primary leading-tight mb-4"
+                >
+                  {h1Text}
+                </h1>
 
-            {/* Intro */}
-            <div className="text-text-secondary leading-relaxed space-y-3 mb-6">
+                <div className="text-text-secondary leading-relaxed space-y-3 mb-6">
               <p>
                 <strong>
                   <Link href="/" className="text-accent font-bold underline decoration-2">My Telenor Answer Today</Link>
@@ -209,56 +227,45 @@ export default async function HomePage() {
                 <a href="https://www.ufone.com/" target="_blank" rel="noopener noreferrer" className="text-accent font-bold underline decoration-2">Ufone</a>{' '}
                 you can still participate with your Telenor SIM in the secondary slot. This makes the quiz convenient and accessible for almost everyone.
               </p>
-            </div>
+                </div>
 
-            <section
-              id={homeAnchorId('Quick Summary: My Telenor Answer Today')}
-              className="my-6 rounded-lg border border-primary/15 bg-primary/5 px-4 py-4"
-            >
-              <h2 className="mb-3 font-heading text-xl font-bold text-text-primary">
-                Quick Summary: My Telenor Answer Today
-              </h2>
-              <div className="space-y-2 leading-relaxed text-text-secondary">
-                <p>
-                  My Telenor Answer Today gives you the latest daily quiz help for the My Telenor App, including the today My Telenor answer, question details, correct option guidance, and reward information.
-                </p>
-                <p>
-                  If you searched for Telenor answer today, today Telenor quiz answers, or my Telenor app answer today, use the quiz cards below first, then read the guide sections for playing, troubleshooting, and understanding possible rewards.
-                </p>
-              </div>
-            </section>
+                <section
+                  id={homeAnchorId('Quick Summary: My Telenor Answer Today')}
+                  className="my-6 rounded-lg border border-primary/15 bg-primary/5 px-4 py-4"
+                >
+                  <h2 className="mb-3 font-heading text-xl font-bold text-text-primary">
+                    Quick Summary: My Telenor Answer Today
+                  </h2>
+                  <div className="space-y-2 leading-relaxed text-text-secondary">
+                    <p>
+                      My Telenor Answer Today gives you the latest daily quiz help for the My Telenor App, including the today My Telenor answer, question details, correct option guidance, and reward information.
+                    </p>
+                    <p>
+                      If you searched for Telenor answer today, today Telenor quiz answers, or my Telenor app answer today, use the quiz cards below first, then read the guide sections for playing, troubleshooting, and understanding possible rewards.
+                    </p>
+                  </div>
+                </section>
+              </>
+            )}
 
             <TableOfContents toc={homeToc} />
 
             {/* Top Ad */}
             <AdBanner position="top" />
 
-            {/* Quiz Answers */}
-            <section className="my-6" id={homeAnchorId(quizHeading)}>
-              <h2 className="font-heading font-bold text-xl text-text-primary mb-4">
-                {quizHeading}
-              </h2>
+            {usesCmsHomeContent ? (
+              <div
+                className="article-content prose prose-lg max-w-none mb-4 prose-headings:font-heading prose-headings:text-text-primary"
+                dangerouslySetInnerHTML={{ __html: quizCmsContent.html }}
+              />
+            ) : null}
+            <section className="my-6" id={usesCmsHomeContent ? undefined : homeAnchorId(quizHeading)}>
+              {!usesCmsHomeContent && (
+                <h2 className="font-heading font-bold text-xl text-text-primary mb-4">
+                  {quizHeading}
+                </h2>
+              )}
               <QuizAnswerCards questions={quizQuestions} />
-            </section>
-
-            <section
-              id={homeAnchorId("Today Telenor Quiz Questions and Answers - Quick Guide")}
-              className="my-6"
-            >
-              <h2 className="mb-4 font-heading text-xl font-bold text-text-primary">
-                Today Telenor Quiz Questions and Answers - Quick Guide
-              </h2>
-              <div className="space-y-3 leading-relaxed text-text-secondary">
-                <p>
-                  Today Telenor quiz questions and answers help you check the five daily questions before submitting your attempt in the My Telenor App. Read each question carefully, match it with the correct option, and submit only when you are confident.
-                </p>
-                <p>
-                  The most common searches, including today My Telenor question answer, Telenor question today, and Telenor quiz today answer, all have the same user goal: finding the correct answer quickly without wasting the daily attempt.
-                </p>
-                <p>
-                  Rewards can vary by account, SIM type, location, or campaign. The quiz commonly offers free MBs, but the final reward shown inside the app should always be treated as the official result.
-                </p>
-              </div>
             </section>
 
             {/* In-Article Ad */}
@@ -267,17 +274,42 @@ export default async function HomePage() {
             {/* Latest News */}
             <LatestNewsGrid posts={newsPosts} />
 
-            {/* Static info sections */}
-            <QuizInfoSections />
+            {!usesCmsHomeContent && (
+              <section
+                id={homeAnchorId("Today Telenor Quiz Questions and Answers - Quick Guide")}
+                className="my-6"
+              >
+                <h2 className="mb-4 font-heading text-xl font-bold text-text-primary">
+                  Today Telenor Quiz Questions and Answers - Quick Guide
+                </h2>
+                <div className="space-y-3 leading-relaxed text-text-secondary">
+                  <p>
+                    Today Telenor quiz questions and answers help you check the five daily questions before submitting your attempt in the My Telenor App. Read each question carefully, match it with the correct option, and submit only when you are confident.
+                  </p>
+                  <p>
+                    The most common searches, including today My Telenor question answer, Telenor question today, and Telenor quiz today answer, all have the same user goal: finding the correct answer quickly without wasting the daily attempt.
+                  </p>
+                  <p>
+                    Rewards can vary by account, SIM type, location, or campaign. The quiz commonly offers free MBs, but the final reward shown inside the app should always be treated as the official result.
+                  </p>
+                </div>
+              </section>
+            )}
 
-            {/* Steps */}
-            <StepsSection />
+            {usesCmsHomeContent ? (
+              <div
+                className="article-content prose prose-lg max-w-none mt-8 prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm"
+                dangerouslySetInnerHTML={{ __html: afterCmsContent.html }}
+              />
+            ) : (
+              <>
+                <QuizInfoSections />
+                <StepsSection />
+              </>
+            )}
 
             {/* Mid Ad */}
             <AdBanner position="mid" />
-
-            {/* FAQs */}
-            <FaqSection faqs={visibleFaqs} />
 
             {/* Bottom Ad */}
             <AdBanner position="bottom" />

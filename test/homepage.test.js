@@ -6,23 +6,96 @@ async function readSource(path) {
   return readFile(new URL(path, import.meta.url), 'utf8')
 }
 
-test('homepage reads the global CMS quiz and CMS homepage FAQs separately', async () => {
+test('homepage reads the global CMS quiz and homepage template separately', async () => {
   const source = await readSource('../app/page.jsx')
 
   assert.match(source, /getCurrentQuiz/)
   assert.match(source, /getHomeTemplate/)
   assert.match(source, /Array\.isArray\(quiz\?\.questions\)/)
-  assert.match(source, /homepageTemplate\?\.contentData\?\.faqs/)
+  assert.match(source, /removeHomeFaqSection/)
 })
 
-test('homepage retains one H1 and visible-only FAQPage schema', async () => {
+test('homepage supports a CMS-authored Home template while retaining a static fallback', async () => {
+  const [source, helperSource] = await Promise.all([
+    readSource('../app/page.jsx'),
+    readSource('../lib/homeContent.js'),
+  ])
+
+  assert.match(source, /contentData\?\.heroText/)
+  assert.match(source, /usesCmsHomeContent/)
+  assert.match(source, /QuizAnswerCards questions=\{quizQuestions\}/)
+  assert.match(source, /LatestNewsGrid posts=\{newsPosts\}/)
+  assert.match(helperSource, /formatHomeTemplate/)
+  assert.match(helperSource, /ensureSingleHomeH1/)
+})
+
+test('CMS homepage content receives one H1, readable anchors, and a quiz insertion point', async () => {
+  const {
+    ensureSingleHomeH1,
+    formatHomeTemplate,
+    prepareHomeContent,
+    removeHomeFaqSection,
+    splitHomeContentAtQuizHeading,
+  } = await import('../lib/homeContent.js')
+  const html = formatHomeTemplate(
+    '<h1>My Telenor Answer {date}</h1><p>Intro</p><h2>Today Telenor Answer {date}</h2><h2>Guide</h2>',
+    '20 July 2026'
+  )
+  const normalized = ensureSingleHomeH1(html, 'Fallback H1')
+  const split = splitHomeContentAtQuizHeading(normalized)
+  const before = prepareHomeContent(split.beforeHtml)
+  const quiz = prepareHomeContent(split.quizHeadingHtml, new Set(before.headings.map((item) => item.id)))
+
+  assert.equal((normalized.match(/<h1\b/gi) || []).length, 1)
+  assert.match(before.html, /id="My-Telenor-Answer-20-July-2026"/)
+  assert.equal(quiz.headings[0].text, 'Today Telenor Answer 20 July 2026')
+
+  const formattedHeading = splitHomeContentAtQuizHeading(
+    '<h1>Intro</h1><h2><strong>Today Telenor Answer 20 July 2026</strong></h2><p>After</p>'
+  )
+  assert.match(formattedHeading.beforeHtml, /Intro/)
+  assert.match(formattedHeading.quizHeadingHtml, /Today Telenor Answer 20 July 2026/)
+  assert.match(formattedHeading.afterHtml, /After/)
+
+  const withoutFaqs = removeHomeFaqSection(
+    '<h2>Guide</h2><p>Keep this.</p><h2>FAQs - My Telenor Answers Today</h2><p>Remove this.</p>'
+  )
+  assert.match(withoutFaqs, /Keep this\./)
+  assert.doesNotMatch(withoutFaqs, /FAQs - My Telenor Answers Today|Remove this\./)
+})
+
+test('Terms and Disclaimer use dedicated CMS legal page layouts', async () => {
+  const [terms, disclaimer, legal] = await Promise.all([
+    readSource('../app/terms-of-service/page.jsx'),
+    readSource('../app/disclaimer/page.jsx'),
+    readSource('../components/pages/LegalPage.jsx'),
+  ])
+
+  assert.match(terms, /LegalPage/)
+  assert.match(disclaimer, /LegalPage/)
+  assert.match(legal, /prepareContent\(page\.content\)/)
+})
+
+test('homepage retains one H1 and does not render FAQ output', async () => {
   const source = await readSource('../app/page.jsx')
-  const faqSource = await readSource('../lib/homeFaqs.js')
 
   assert.equal((source.match(/<h1\b/g) || []).length, 1)
-  assert.match(source, /'@type': 'FAQPage'/)
-  assert.match(source, /mainEntity: visibleFaqs\.map/)
-  assert.match(faqSource, /slice\(0, 6\)/)
+  assert.doesNotMatch(source, /FAQPage/)
+  assert.doesNotMatch(source, /<FaqSection\b/)
+  assert.doesNotMatch(source, /getVisibleHomeFaqs/)
+})
+
+test('homepage order places quiz and Latest News before the static guide', async () => {
+  const source = await readSource('../app/page.jsx')
+  const tocIndex = source.indexOf('<TableOfContents toc={homeToc} />')
+  const quizIndex = source.indexOf('<QuizAnswerCards questions={quizQuestions} />')
+  const latestNewsIndex = source.indexOf('<LatestNewsGrid posts={newsPosts} />')
+  const guideIndex = source.indexOf('id={homeAnchorId("Today Telenor Quiz Questions and Answers - Quick Guide")}')
+
+  assert.ok(tocIndex < quizIndex)
+  assert.ok(quizIndex < latestNewsIndex)
+  assert.ok(latestNewsIndex < guideIndex)
+  assert.doesNotMatch(source, /FAQs - My Telenor Answers Today/)
 })
 
 test('homepage TOC has readable anchors for main article headings', async () => {

@@ -80,6 +80,15 @@ test('legacy public content links are rewritten to the current public site', () 
   assert.doesNotMatch(result, /telenorquiztoday\.com\.pk/)
 })
 
+test('legacy WordPress subdomain references are rewritten in CMS page content', () => {
+  const result = normalizeContentLinks(
+    '<p>Visit https://wp.teleanswertoday.pk/ <a href="https://wp.teleanswertoday.pk/terms/">Terms</a></p>'
+  )
+
+  assert.match(result, /https:\/\/teleanswertoday\.pk\//)
+  assert.doesNotMatch(result, /wp\.teleanswertoday\.pk/)
+})
+
 test('prepared content removes h1 before rendering', () => {
   const result = prepareContent('<h1>Privacy Policy</h1><p>About</p>')
 

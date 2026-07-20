@@ -35,10 +35,12 @@ endpoint remains available.
 | Pages and policies | Website-scoped pages/templates | Existing public page routes and metadata |
 | Authors and categories | Website-scoped CMS records | Existing author/category routes and sitemap |
 | Images | Public `cms-media` Storage URLs | Direct public image URLs; no Vercel proxy for remote media |
-| Homepage static React sections | Public repository | Preserved during cutover; FAQ data may be supplied by the CMS Home template |
+| Homepage content | Website CMS Home template | The optional `heroText` HTML is rendered around the dynamic quiz and Latest News blocks; the current React content remains a fallback until the template is populated |
 | Homepage FAQ schema | CMS Home template FAQ data, or existing fallback | Only the visible first six valid items are rendered and included in JSON-LD |
 | Daily quiz | Global CMS quiz | One published quiz serves every connected public website |
 | Ads | Website CMS settings | Publisher ID, enabled flag, slots, and `ads.txt` are CMS-managed |
+
+See [CMS_HOME_TEMPLATE.md](CMS_HOME_TEMPLATE.md) for the Home template editor contract.
 
 ## Required Vercel Variables
 
