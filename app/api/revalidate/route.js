@@ -1,36 +1,29 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
-import { getRevalidationPaths } from '../../../lib/revalidation';
+import {
+  normalizeCmsRevalidationPayload,
+  verifyCmsRevalidationSecret,
+} from '../../../lib/cms/revalidation';
 
 export async function POST(request) {
-  const secret = request.headers.get('x-revalidate-secret');
-  if (secret !== process.env.REVALIDATE_SECRET) {
+  if (!verifyCmsRevalidationSecret(request, process.env.CMS_REVALIDATION_SECRET)) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const body = await request.json().catch(() => ({}));
-    const { slug, type, path, category } = body;
-    const paths = getRevalidationPaths({ path, slug, category });
-    const tags = [];
-
-    for (const revalidateTarget of paths) {
-      revalidatePath(revalidateTarget);
-    }
-
-    if (type === 'quiz') {
-      revalidateTag('quiz');
-      tags.push('quiz');
-    }
+    const payload = normalizeCmsRevalidationPayload(
+      await request.json().catch(() => ({}))
+    );
+    const paths = payload.paths.length > 0
+      ? payload.paths
+      : ['/', '/blog', '/sitemap_index.xml'];
+    for (const path of paths) revalidatePath(path);
+    revalidateTag('cms');
 
     return NextResponse.json({
       revalidated: true,
-      slug,
-      category,
-      path,
       paths,
-      tags,
-      type,
+      event: payload.event,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

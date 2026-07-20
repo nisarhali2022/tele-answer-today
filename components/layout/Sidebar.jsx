@@ -1,4 +1,4 @@
-import { getCategories, getLatestPosts, getMostCommentedPosts } from '@/lib/wordpress'
+import { getCategories, getLatestPosts, getMostCommentedPosts } from '@/lib/cms'
 import CategoryList from '@/components/widgets/CategoryList'
 import RecentPosts from '@/components/widgets/RecentPosts'
 import PopularPosts from '@/components/widgets/PopularPosts'

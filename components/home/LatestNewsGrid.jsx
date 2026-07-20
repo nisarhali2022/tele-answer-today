@@ -32,7 +32,7 @@ export default function LatestNewsGrid({ posts, limit = 6 }) {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {visiblePosts.map((post) => {
           const img = getFeaturedImageUrl(post, 'medium_large')
-          const category = post._embedded?.['wp:term']?.[0]?.[0] || null
+          const category = post.category || null
           const categorySlug = category?.slug || 'uncategorized'
 
           return (
@@ -69,7 +69,7 @@ export default function LatestNewsGrid({ posts, limit = 6 }) {
               <div className="flex flex-1 flex-col p-4">
                 <h3
                   className="line-clamp-2 font-heading text-sm font-bold leading-snug text-text-primary transition-colors group-hover:text-accent"
-                  dangerouslySetInnerHTML={{ __html: post.title?.rendered }}
+                  dangerouslySetInnerHTML={{ __html: post.title }}
                 />
               </div>
             </Link>

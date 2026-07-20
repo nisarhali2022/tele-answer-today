@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
-import { getPageBySlug } from '@/lib/wordpress'
+import { getPageBySlug } from '@/lib/cms'
 import {
-  prepareWordPressContent,
+  prepareContent,
   toPlainText,
   truncateText,
 } from '@/lib/utils'
@@ -13,11 +13,11 @@ export const revalidate = 3600
 
 export async function generateMetadata() {
   const page = await getPageBySlug('about-us')
-  const title = page?.title?.rendered
-    ? toPlainText(page.title.rendered)
+  const title = page?.title
+    ? toPlainText(page.title)
     : 'About Us'
-  const description = page?.excerpt?.rendered
-    ? truncateText(page.excerpt.rendered, 160)
+  const description = page?.excerpt
+    ? truncateText(page.excerpt, 160)
     : `Learn more about ${SITE_CONFIG.name}.`
 
   return buildMetadata({ title, description, path: '/about-us' })
@@ -39,13 +39,13 @@ export default async function AboutPage() {
             About
           </p>
           <h1 className="font-heading font-bold text-3xl sm:text-4xl text-text-primary">
-            {toPlainText(page.title?.rendered)}
+            {toPlainText(page.title)}
           </h1>
         </header>
         <div
           className="prose prose-lg max-w-none px-5 py-6 sm:px-8 prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:text-text-secondary"
           dangerouslySetInnerHTML={{
-            __html: prepareWordPressContent(page.content?.rendered),
+            __html: prepareContent(page.content),
           }}
         />
       </article>

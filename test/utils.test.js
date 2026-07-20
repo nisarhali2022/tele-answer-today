@@ -1,14 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  normalizeWordPressContentLinks,
+  normalizeContentLinks,
   optimizeContentImages,
-  prepareWordPressContent,
+  prepareContent,
   removeContentH1Blocks,
   wrapContentTables,
 } from '../lib/utils.js'
 
-test('body images preserve canonical WordPress responsive markup', () => {
+test('body images preserve canonical responsive markup', () => {
   const html =
     '<img src="https://example.com/photo.jpg" width="900" height="600" ' +
     'srcset="photo-450.jpg 450w, photo-900.jpg 900w" sizes="50vw">'
@@ -25,7 +25,7 @@ test('body images preserve canonical WordPress responsive markup', () => {
   assert.equal((result.match(/\bsizes=/g) || []).length, 1)
 })
 
-test('body images infer dimensions from WordPress filenames', () => {
+test('body images infer dimensions from image filenames', () => {
   const result = optimizeContentImages(
     '<img src="https://example.com/photo-683x1024.webp">'
   )
@@ -36,7 +36,6 @@ test('body images infer dimensions from WordPress filenames', () => {
   assert.match(result, /\bsrc="https:\/\/example\.com\/photo-683x1024\.webp"/)
   assert.doesNotMatch(result, /\/_next\/image/)
 })
-
 test('body images receive fallback dimensions without proxying sources', () => {
   const result = optimizeContentImages(
     '<img src="https://example.com/photo.webp" alt="Example">'
@@ -69,22 +68,8 @@ test('gutenberg h1 heading comments are removed with the heading', () => {
   assert.match(result, /<p>Body<\/p>/)
 })
 
-test('wordpress backend content links are rewritten to the public site', () => {
-  process.env.WORDPRESS_API_URL =
-    'https://wp.teleanswertoday.pk/wp-json/wp/v2'
-
-  const result = normalizeWordPressContentLinks(
-    '<p>Also Read: <a href="https://wp.teleanswertoday.pk/telecom/example-post/">Example</a></p>'
-  )
-
-  assert.match(
-    result,
-    /href="https:\/\/teleanswertoday\.pk\/telecom\/example-post\/"/
-  )
-})
-
 test('legacy public content links are rewritten to the current public site', () => {
-  const result = normalizeWordPressContentLinks(
+  const result = normalizeContentLinks(
     '<p>Also Read: <a href="https://telenorquiztoday.com.pk/telecom/example-post/">Example</a></p>'
   )
 
@@ -95,20 +80,15 @@ test('legacy public content links are rewritten to the current public site', () 
   assert.doesNotMatch(result, /telenorquiztoday\.com\.pk/)
 })
 
-test('prepared wordpress content removes h1 before rendering', () => {
-  process.env.WORDPRESS_API_URL =
-    'https://wp.teleanswertoday.pk/wp-json/wp/v2'
-
-  const result = prepareWordPressContent(
-    '<h1>Privacy Policy</h1><p><a href="https://wp.teleanswertoday.pk/about-us/">About</a></p>'
-  )
+test('prepared content removes h1 before rendering', () => {
+  const result = prepareContent('<h1>Privacy Policy</h1><p>About</p>')
 
   assert.doesNotMatch(result, /<h1\b/i)
-  assert.match(result, /href="https:\/\/teleanswertoday\.pk\/about-us\/"/)
+  assert.match(result, /<p>About<\/p>/)
 })
 
-test('prepared wordpress content wraps tables for mobile horizontal scroll', () => {
-  const result = prepareWordPressContent(
+test('prepared content wraps tables for mobile horizontal scroll', () => {
+  const result = prepareContent(
     '<p>Before</p><table><tbody><tr><td>One</td><td>Two</td></tr></tbody></table><p>After</p>'
   )
 
@@ -129,28 +109,4 @@ test('table wrapping leaves non-table content unchanged', () => {
   const html = '<p>Simple paragraph</p><ul><li>Item</li></ul>'
 
   assert.equal(wrapContentTables(html), html)
-})
-
-test('wordpress system links are not rewritten', () => {
-  process.env.WORDPRESS_API_URL =
-    'https://wp.teleanswertoday.pk/wp-json/wp/v2'
-
-  const result = normalizeWordPressContentLinks(
-    '<a href="https://wp.teleanswertoday.pk/wp-content/uploads/file.webp">File</a>'
-  )
-
-  assert.match(result, /href="https:\/\/wp\.teleanswertoday\.pk\/wp-content\/uploads\/file\.webp"/)
-})
-
-test('visible wordpress backend contact text is rewritten', () => {
-  process.env.WORDPRESS_API_URL =
-    'https://wp.teleanswertoday.pk/wp-json/wp/v2'
-
-  const result = normalizeWordPressContentLinks(
-    '<p>Email: info@wp.teleanswertoday.pk</p><p>Contact Page: https://wp.teleanswertoday.pk/contact</p>'
-  )
-
-  assert.match(result, /info@teleanswertoday\.pk/)
-  assert.match(result, /https:\/\/teleanswertoday\.pk\/contact/)
-  assert.doesNotMatch(result, /wp\.teleanswertoday\.pk/)
 })

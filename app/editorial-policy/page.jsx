@@ -1,6 +1,6 @@
-import { getPageBySlug } from '@/lib/wordpress'
+import { getPageBySlug } from '@/lib/cms'
 import {
-  prepareWordPressContent,
+  prepareContent,
   toPlainText,
   truncateText,
 } from '@/lib/utils'
@@ -25,11 +25,11 @@ const FALLBACK_CONTENT = `
 
 export async function generateMetadata() {
   const page = await getPageBySlug(PAGE_SLUG)
-  const title = page?.title?.rendered
-    ? toPlainText(page.title.rendered)
+  const title = page?.title
+    ? toPlainText(page.title)
     : PAGE_LABEL
-  const description = page?.excerpt?.rendered
-    ? truncateText(page.excerpt.rendered, 160)
+  const description = page?.excerpt
+    ? truncateText(page.excerpt, 160)
     : FALLBACK_DESCRIPTION
 
   return buildMetadata({ title, description, path: `/${PAGE_SLUG}` })
@@ -37,8 +37,8 @@ export async function generateMetadata() {
 
 export default async function EditorialPolicyPage() {
   const page = await getPageBySlug(PAGE_SLUG)
-  const pageTitle = toPlainText(page?.title?.rendered) || PAGE_LABEL
-  const content = page?.content?.rendered || FALLBACK_CONTENT
+  const pageTitle = toPlainText(page?.title) || PAGE_LABEL
+  const content = page?.content || FALLBACK_CONTENT
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -50,7 +50,7 @@ export default async function EditorialPolicyPage() {
         <h1>{pageTitle}</h1>
         <div
           dangerouslySetInnerHTML={{
-            __html: prepareWordPressContent(content),
+            __html: prepareContent(content),
           }}
         />
       </article>

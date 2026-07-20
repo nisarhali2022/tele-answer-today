@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
-import { getPageBySlug } from '@/lib/wordpress';
+import { getPageBySlug } from '@/lib/cms';
 import { SITE_CONFIG } from '@/lib/constants';
 import {
-  prepareWordPressContent,
+  prepareContent,
   toPlainText,
   truncateText,
 } from '@/lib/utils';
@@ -13,11 +13,11 @@ export const revalidate = 3600;
 
 export async function generateMetadata() {
   const page = await getPageBySlug('privacy-policy');
-  const title = page?.title?.rendered
-    ? toPlainText(page.title.rendered)
+  const title = page?.title
+    ? toPlainText(page.title)
     : 'Privacy Policy';
-  const description = page?.excerpt?.rendered
-    ? truncateText(page.excerpt.rendered, 160)
+  const description = page?.excerpt
+    ? truncateText(page.excerpt, 160)
     : `Read the privacy policy for ${SITE_CONFIG.siteName}`;
 
   return buildMetadata({
@@ -43,7 +43,7 @@ export default async function PrivacyPolicyPage() {
 
       <article>
         <h1 className="font-heading font-bold text-3xl sm:text-4xl text-text-primary mt-2 mb-8">
-          {toPlainText(page.title?.rendered)}
+          {toPlainText(page.title)}
         </h1>
 
         <div
@@ -57,7 +57,7 @@ export default async function PrivacyPolicyPage() {
             prose-th:bg-surface prose-th:text-text-primary
             prose-td:border-border"
           dangerouslySetInnerHTML={{
-            __html: prepareWordPressContent(page.content?.rendered),
+            __html: prepareContent(page.content),
           }}
         />
 

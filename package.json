@@ -7,10 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "tsx --test",
-    "wp:h1:dry-run": "node scripts/wordpress-h1-cleanup.mjs",
-    "wp:h1:apply": "node scripts/wordpress-h1-cleanup.mjs --apply",
-    "wp:h1:show-titles": "node scripts/wordpress-show-titles.mjs"
+    "test": "tsx --test"
   },
   "browserslist": [
     "Chrome >= 111",

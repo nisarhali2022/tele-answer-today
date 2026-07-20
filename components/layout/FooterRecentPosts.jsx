@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getLatestPosts } from '@/lib/wordpress'
+import { getLatestPosts } from '@/lib/cms'
 import { getFirstCategory, toPlainText } from '@/lib/utils'
 
 export default async function FooterRecentPosts() {
@@ -19,7 +19,7 @@ export default async function FooterRecentPosts() {
               href={`/${categorySlug}/${post.slug}`}
               className="text-gray-300 group-hover:text-white text-sm leading-snug transition-colors line-clamp-2"
             >
-              {toPlainText(post.title?.rendered)}
+              {toPlainText(post.title)}
             </Link>
           </li>
         )

@@ -1,11 +1,9 @@
+'use client'
+
 import LazyAdSenseUnit from './LazyAdSenseUnit'
-import {
-  AD_PLACEMENTS,
-  AD_SLOTS,
-  hasConfiguredAdSlot,
-  isAdSenseEnabled,
-  SITE_CONFIG,
-} from '@/lib/constants'
+import { AD_PLACEMENTS, hasConfiguredAdSlot, isAdSenseEnabled } from '@/lib/constants'
+import { getAdSenseSettings, getAdSenseSlot } from '@/lib/cms/adsense'
+import { useAdSettings } from './AdSettingsProvider'
 
 export default function AdBanner({
   position = 'top',
@@ -13,12 +11,14 @@ export default function AdBanner({
   className = '',
   eager,
 }) {
+  const settings = useAdSettings()
+  const adsense = getAdSenseSettings(settings)
   const placement = AD_PLACEMENTS[position] || AD_PLACEMENTS.top
-  const resolvedSlot = slot || placement.slot || AD_SLOTS.TOP_LEADERBOARD
+  const resolvedSlot = slot || getAdSenseSlot(settings, position)
   const shouldLoadEagerly = eager ?? placement.eager ?? position === 'top'
   const isConfigured =
     isAdSenseEnabled() &&
-    SITE_CONFIG.googleAdsenseId &&
+    adsense.enabled &&
     hasConfiguredAdSlot(resolvedSlot)
 
   if (!isConfigured) return null
@@ -28,8 +28,9 @@ export default function AdBanner({
       className={`my-6 w-full overflow-hidden ${placement.wrapperClassName || ''} ${className}`.trim()}
       aria-label="Advertisement"
     >
-      <LazyAdSenseUnit
-        slot={resolvedSlot}
+        <LazyAdSenseUnit
+          slot={resolvedSlot}
+          publisherId={adsense.publisherId}
         format={placement.format || 'auto'}
         eager={shouldLoadEagerly}
         loadingClassName={placement.loadingClassName}

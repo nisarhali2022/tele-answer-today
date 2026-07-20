@@ -1,39 +1,25 @@
-const DEFAULT_WORDPRESS_API_URL =
-  'https://wp.teleanswertoday.pk/wp-json/wp/v2'
-
-function getWordPressImagePattern() {
-  const apiUrl =
-    process.env.WORDPRESS_API_URL ||
-    process.env.NEXT_PUBLIC_WORDPRESS_API_URL ||
-    DEFAULT_WORDPRESS_API_URL
-
-  if (!apiUrl) return []
+function getSupabaseImagePattern() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  if (!supabaseUrl) return []
 
   try {
-    const { protocol, hostname } = new URL(apiUrl)
-
-    return [
-      {
-        protocol: protocol.replace(':', ''),
-        hostname,
-        pathname: '/wp-content/uploads/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'teleanswertoday.pk',
-        pathname: '/wp-content/uploads/**',
-      },
-    ]
+    const { protocol, hostname } = new URL(supabaseUrl)
+    return [{
+      protocol: protocol.replace(':', ''),
+      hostname,
+      pathname: '/storage/v1/object/public/cms-media/**',
+    }]
   } catch {
     return []
   }
 }
 
-const wordpressImagePatterns = getWordPressImagePattern()
+const supabaseImagePatterns = getSupabaseImagePattern()
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   trailingSlash: false,
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -41,7 +27,7 @@ const nextConfig = {
     imageSizes: [32, 48, 64, 96, 128, 160, 256, 384],
     qualities: [60, 70, 75],
     minimumCacheTTL: 86400,
-    remotePatterns: wordpressImagePatterns,
+    remotePatterns: supabaseImagePatterns,
   },
   async headers() {
     return [

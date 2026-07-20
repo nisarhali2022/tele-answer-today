@@ -69,7 +69,7 @@ test('parseQuizTables handles table questions without a question mark', () => {
   ])
 })
 
-test('parseQuizTables handles numbered WordPress page format', () => {
+test('parseQuizTables handles numbered legacy table format', () => {
   const html = `
     <h2>Today Telenor Answer</h2>
     <p>1. Which app has the quiz</p>

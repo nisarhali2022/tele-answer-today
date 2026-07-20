@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { searchPosts } from '@/lib/wordpress';
+import { searchPosts } from '@/lib/cms';
 import { SITE_CONFIG } from '@/lib/constants';
 import PostGrid from '@/components/posts/PostGrid';
 import Sidebar from '@/components/layout/Sidebar';

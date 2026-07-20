@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { SITE_CONFIG } from '@/lib/constants'
 
 export default function AdSenseUnit({
   slot,
+  publisherId,
   format = 'auto',
   className = '',
   onStatusChange,
@@ -73,7 +73,7 @@ export default function AdSenseUnit({
         ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client={SITE_CONFIG.googleAdsenseId}
+        data-ad-client={publisherId}
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive="true"

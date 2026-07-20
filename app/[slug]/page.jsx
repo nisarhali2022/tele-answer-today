@@ -5,8 +5,8 @@ import {
   getPageBySlug,
   getPostsByCategory,
   getAllCategorySlugs,
-} from '@/lib/wordpress';
-import { LEGACY_HOME_REDIRECT_SLUGS, SITE_CONFIG } from '@/lib/constants';
+} from '@/lib/cms';
+import { HOME_CONTENT_REDIRECT_SLUGS, SITE_CONFIG } from '@/lib/constants';
 import PostGrid from '@/components/posts/PostGrid';
 import Sidebar from '@/components/layout/Sidebar';
 import Pagination from '@/components/navigation/Pagination';
@@ -22,7 +22,7 @@ import AdInArticle from '@/components/ads/AdInArticle';
 import ShareButtons from '@/components/ui/ShareButtons';
 import {
   injectAdAfterFirstParagraph,
-  prepareWordPressContent,
+  prepareContent,
   toPlainText,
   truncateText,
 } from '@/lib/utils';
@@ -43,7 +43,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params, searchParams }) {
   const { slug } = await params;
-  if (LEGACY_HOME_REDIRECT_SLUGS.includes(slug)) {
+  if (HOME_CONTENT_REDIRECT_SLUGS.includes(slug)) {
     return buildMetadata({
       title: SITE_CONFIG.siteName,
       description: SITE_CONFIG.description,
@@ -73,12 +73,12 @@ export async function generateMetadata({ params, searchParams }) {
   // 2. Is it a page?
   const page = await getPageBySlug(slug);
   if (page) {
-    const yoast = page.yoast_head_json;
-    const title = yoast?.title || page.title?.rendered;
+    const seo = page.seo;
+    const title = seo?.title || page.title;
     const description =
-      yoast?.description ||
-      truncateText(page.excerpt?.rendered || page.content?.rendered || '', 160);
-    const imageUrl = page._embedded?.['wp:featuredmedia']?.[0]?.source_url || `${SITE_CONFIG.siteUrl}${SITE_CONFIG.defaultOgImage}`;
+      seo?.description ||
+      truncateText(page.excerpt || page.content || '', 160);
+    const imageUrl = page.featuredImage?.url || `${SITE_CONFIG.siteUrl}${SITE_CONFIG.defaultOgImage}`;
     return buildMetadata({
       title,
       description,
@@ -87,7 +87,7 @@ export async function generateMetadata({ params, searchParams }) {
       image: imageUrl,
       publishedTime: page.date,
       modifiedTime: page.modified,
-      absoluteTitle: Boolean(yoast?.title),
+      absoluteTitle: Boolean(seo?.title),
     });
   }
 
@@ -96,7 +96,7 @@ export async function generateMetadata({ params, searchParams }) {
 
 export default async function SlugPage({ params, searchParams }) {
   const { slug } = await params;
-  if (LEGACY_HOME_REDIRECT_SLUGS.includes(slug)) {
+  if (HOME_CONTENT_REDIRECT_SLUGS.includes(slug)) {
     permanentRedirect('/');
   }
 
@@ -144,15 +144,15 @@ export default async function SlugPage({ params, searchParams }) {
   // 2. Check if Page
   const page = await getPageBySlug(slug);
   if (page) {
-    const preparedHtml = prepareWordPressContent(page.content?.rendered);
+    const preparedHtml = prepareContent(page.content);
     const { modifiedHtml, toc } = generateTocAndInjectIds(preparedHtml);
-    const titleText = toPlainText(page.title?.rendered);
+    const titleText = toPlainText(page.title);
     const tocWithTitle = [{ id: 'article-title', text: titleText, level: 1 }, ...toc];
     const adMarker = '<!--AD_IN_ARTICLE-->';
     const contentWithAd = injectAdAfterFirstParagraph(modifiedHtml, adMarker);
     const [beforeAd, afterAd] = contentWithAd.split(adMarker);
     
-    const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: toPlainText(page.title?.rendered) }];
+    const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: toPlainText(page.title) }];
 
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -172,7 +172,7 @@ export default async function SlugPage({ params, searchParams }) {
             <AdInArticle />
             {afterAd && <div className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm" dangerouslySetInnerHTML={{ __html: afterAd }} />}
             <div className="mt-8"><AdBanner position="after-content" /></div>
-            <ShareButtons title={toPlainText(page.title?.rendered)} url={`${SITE_CONFIG.siteUrl}/${slug}`} />
+            <ShareButtons title={toPlainText(page.title)} url={`${SITE_CONFIG.siteUrl}/${slug}`} />
           </article>
           <Suspense fallback={<LoadingSpinner size="lg" className="py-10" />}><Sidebar /></Suspense>
         </div>

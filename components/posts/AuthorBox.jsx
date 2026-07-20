@@ -5,11 +5,8 @@ export default function AuthorBox({ post }) {
   const author = getPostAuthor(post)
   if (!author?.name) return null
 
-  const description = toPlainText(author.description || '').trim()
-  const avatarUrl =
-    author.avatar_urls?.['96'] ||
-    author.avatar_urls?.['48'] ||
-    author.avatar_urls?.['24']
+  const description = toPlainText(author.bio || '').trim()
+  const avatarUrl = author.avatarUrl
 
   return (
     <section

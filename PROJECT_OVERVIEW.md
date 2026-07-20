@@ -1,5 +1,12 @@
 # Tele Answer Today Project Overview
 
+> **Current architecture:** this project is being cut over to the shared
+> Supabase Admin CMS. The authoritative current setup, environment variables,
+> revalidation contract, CMS-managed Ads settings, and rollback checklist are
+> documented in [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md). The
+> The older integration notes below are historical records only. They must not
+> be used for publishing, credentials, or runtime configuration.
+
 ## 1. Purpose
 
 This repository contains a content-focused website for daily Telenor quiz

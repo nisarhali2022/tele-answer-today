@@ -1,18 +1,19 @@
+'use client'
+
 import LazyAdSenseUnit from './LazyAdSenseUnit'
-import {
-  AD_PLACEMENTS,
-  AD_SLOTS,
-  hasConfiguredAdSlot,
-  isAdSenseEnabled,
-  SITE_CONFIG,
-} from '@/lib/constants'
+import { AD_PLACEMENTS, hasConfiguredAdSlot, isAdSenseEnabled } from '@/lib/constants'
+import { getAdSenseSettings, getAdSenseSlot } from '@/lib/cms/adsense'
+import { useAdSettings } from './AdSettingsProvider'
 
 export default function AdInArticle() {
+  const settings = useAdSettings()
+  const adsense = getAdSenseSettings(settings)
   const placement = AD_PLACEMENTS['in-article']
+  const slot = getAdSenseSlot(settings, 'in-article')
   const isConfigured =
     isAdSenseEnabled() &&
-    SITE_CONFIG.googleAdsenseId &&
-    hasConfiguredAdSlot(placement?.slot || AD_SLOTS.IN_ARTICLE)
+    adsense.enabled &&
+    hasConfiguredAdSlot(slot)
 
   if (!isConfigured) return null
 
@@ -22,7 +23,8 @@ export default function AdInArticle() {
       aria-label="Advertisement"
     >
       <LazyAdSenseUnit
-        slot={placement.slot}
+        slot={slot}
+        publisherId={adsense.publisherId}
         format={placement.format}
         loadingClassName={placement.loadingClassName}
         emptyTimeout={placement.emptyTimeout}

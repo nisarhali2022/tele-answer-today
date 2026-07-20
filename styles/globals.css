@@ -192,7 +192,7 @@
     font-weight: 700;
   }
 
-  /* Prevent WordPress inline fonts and unify all rendered body content to Inter */
+  /* Keep CMS-rendered body content on the site typeface. */
   .prose * {
     font-family: var(--font-inter), system-ui, sans-serif !important;
   }

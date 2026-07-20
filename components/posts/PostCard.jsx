@@ -46,7 +46,7 @@ export default function PostCard({
             className={`font-heading font-bold text-text-primary group-hover:text-primary transition-colors leading-snug line-clamp-3 ${
               isLarge ? 'text-xl' : 'text-base'
             }`}
-            dangerouslySetInnerHTML={{ __html: post.title.rendered }}
+            dangerouslySetInnerHTML={{ __html: post.title }}
           />
         </Link>
 

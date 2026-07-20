@@ -1,10 +1,9 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { getDailyQuizPost, getHomepageQuizPage, getPosts } from '@/lib/wordpress';
+import { getCurrentQuiz, getHomeTemplate, getPosts } from '@/lib/cms';
 import { EXCLUDED_CONTENT_SLUGS, SITE_CONFIG } from '@/lib/constants';
 import { getKarachiDateLabel, getKarachiSeoDateLabel, getKarachiSeoDayStartISO } from '@/lib/date';
 import { buildMetadata } from '@/lib/seo';
-import { parseQuizTables, parseFaqs } from '@/lib/quizParser';
 import { serializeJsonLd } from '@/lib/schema';
 import { homeAnchorId } from '@/lib/homeAnchors';
 
@@ -91,8 +90,8 @@ async function optionalHomeData(promise, context, fallback) {
 
 export async function generateMetadata() {
   const page = await optionalHomeData(
-    getHomepageQuizPage(),
-    'Unable to fetch homepage metadata source',
+    getHomeTemplate(),
+    'Unable to fetch CMS homepage metadata source',
     null
   );
   const seoDateLabel = getKarachiSeoDateLabel();
@@ -100,7 +99,7 @@ export async function generateMetadata() {
   const title = `Telenor Quiz Today ${seoDateLabel} - Latest Telenor Answer Today`;
   const description = `Telenor Quiz Today ${seoDateLabel} Get all correct answers. Check daily updated questions and My Telenor answers today to boost your score and win rewards.`;
   const ogImage =
-    page?._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
+    page?.ogImage?.url ||
     `${SITE_CONFIG.siteUrl}${SITE_CONFIG.defaultOgImage}`;
 
   return buildMetadata({
@@ -113,9 +112,9 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const [quizPage, homepagePage, newsData] = await Promise.all([
-    optionalHomeData(getDailyQuizPost(), 'Unable to fetch daily quiz post', null),
-    optionalHomeData(getHomepageQuizPage(), 'Unable to fetch homepage content page', null),
+  const [quiz, homepageTemplate, newsData] = await Promise.all([
+    optionalHomeData(getCurrentQuiz(), 'Unable to fetch CMS global quiz', null),
+    optionalHomeData(getHomeTemplate(), 'Unable to fetch CMS homepage template', null),
     optionalHomeData(
       getPosts({ page: 1, perPage: 60, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
       'Unable to fetch homepage news posts',
@@ -124,10 +123,13 @@ export default async function HomePage() {
   ]);
 
   const newsPosts = newsData?.posts || [];
-  const quizContent = quizPage?.content?.rendered || '';
-  const homepageContent = homepagePage?.content?.rendered || '';
-  const quizQuestions = parseQuizTables(quizContent);
-  const faqs = parseFaqs(homepageContent);
+  const quizQuestions = Array.isArray(quiz?.questions) ? quiz.questions : [];
+  const faqs = Array.isArray(homepageTemplate?.contentData?.faqs)
+    ? homepageTemplate.contentData.faqs.map((faq) => ({
+        q: faq?.q || faq?.question || '',
+        a: faq?.a || faq?.answer || '',
+      }))
+    : [];
   const visibleFaqs = getVisibleHomeFaqs(faqs);
 
   const todayLabel = getKarachiDateLabel();

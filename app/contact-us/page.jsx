@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getPageBySlug } from '@/lib/wordpress'
+import { getPageBySlug } from '@/lib/cms'
 import {
   toPlainText,
   truncateText,
@@ -12,11 +12,11 @@ export const revalidate = 3600
 
 export async function generateMetadata() {
   const page = await getPageBySlug('contact-us')
-  const title = page?.title?.rendered
-    ? toPlainText(page.title.rendered)
+  const title = page?.title
+    ? toPlainText(page.title)
     : 'Contact Us'
-  const description = page?.excerpt?.rendered
-    ? truncateText(page.excerpt.rendered, 160)
+  const description = page?.excerpt
+    ? truncateText(page.excerpt, 160)
     : `Contact the ${SITE_CONFIG.name} team.`
 
   return buildMetadata({ title, description, path: '/contact-us' })
@@ -25,7 +25,7 @@ export async function generateMetadata() {
 export default async function ContactPage() {
   const page = await getPageBySlug('contact-us')
   if (!page) notFound()
-  const pageTitle = toPlainText(page.title?.rendered) || 'Contact Us'
+  const pageTitle = toPlainText(page.title) || 'Contact Us'
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

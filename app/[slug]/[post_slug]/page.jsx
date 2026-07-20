@@ -1,6 +1,6 @@
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { getPostBySlug, getRelatedPosts } from '@/lib/wordpress';
+import { getPostBySlug, getRelatedPosts } from '@/lib/cms';
 import { SITE_CONFIG } from '@/lib/constants';
 import {
   getFirstCategory,
@@ -9,7 +9,7 @@ import {
   getAuthorPath,
   getFeaturedImageUrl,
   getPostAuthor,
-  prepareWordPressContent,
+  prepareContent,
   toPlainText,
 } from '@/lib/utils';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
@@ -35,12 +35,12 @@ export async function generateMetadata({ params }) {
   if (!post) return { title: 'Not Found | ' + SITE_CONFIG.siteName };
 
   const categorySlug = getFirstCategory(post)?.slug || 'uncategorized';
-  const yoast = post.yoast_head_json;
-  const title = yoast?.title || post.title?.rendered;
+  const seo = post.seo;
+  const title = seo?.title || post.title;
   const description =
-    yoast?.description ||
-    truncateText(post.excerpt?.rendered || post.content?.rendered || '', 160);
-  const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url || `${SITE_CONFIG.siteUrl}${SITE_CONFIG.defaultOgImage}`;
+    seo?.description ||
+    truncateText(post.excerpt || post.content || '', 160);
+  const imageUrl = post.featuredImage?.url || `${SITE_CONFIG.siteUrl}${SITE_CONFIG.defaultOgImage}`;
   return buildMetadata({
     title,
     description,
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }) {
     image: imageUrl,
     publishedTime: post.date,
     modifiedTime: post.modified,
-    absoluteTitle: Boolean(yoast?.title),
+    absoluteTitle: Boolean(seo?.title),
   });
 }
 
@@ -70,9 +70,9 @@ export default async function PostPage({ params }) {
 
   const postUrl = `${SITE_CONFIG.siteUrl}/${categorySlug}/${post_slug}`;
 
-  const preparedHtml = prepareWordPressContent(post.content?.rendered);
+  const preparedHtml = prepareContent(post.content);
   const { modifiedHtml, toc } = generateTocAndInjectIds(preparedHtml);
-  const titleText = toPlainText(post.title?.rendered);
+  const titleText = toPlainText(post.title);
   const tocWithTitle = [{ id: 'article-title', text: titleText, level: 1 }, ...toc];
   const adMarker = '<!--AD_IN_ARTICLE-->';
   const contentWithAd = injectAdAfterFirstParagraph(modifiedHtml, adMarker);
@@ -82,7 +82,7 @@ export default async function PostPage({ params }) {
   const authorPath = getAuthorPath(author);
   const imageUrl = getFeaturedImageUrl(post);
   const description = truncateText(
-    post.excerpt?.rendered || post.content?.rendered || '',
+    post.excerpt || post.content || '',
     160
   );
   const articleSchema = {
@@ -90,7 +90,7 @@ export default async function PostPage({ params }) {
     '@type': 'Article',
     '@id': `${postUrl}#article`,
     mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
-    headline: toPlainText(post.title?.rendered),
+    headline: toPlainText(post.title),
     description,
     datePublished: post.date,
     dateModified: post.modified,
@@ -116,7 +116,7 @@ export default async function PostPage({ params }) {
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
     ...(category ? [{ label: category.name, href: `/${categorySlug}` }] : []),
-    { label: toPlainText(post.title?.rendered) },
+    { label: toPlainText(post.title) },
   ];
 
   return (
@@ -146,7 +146,7 @@ export default async function PostPage({ params }) {
             {afterAd && <div className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm" dangerouslySetInnerHTML={{ __html: afterAd }} />}
             <AuthorBox post={post} />
             <div className="mt-8"><AdBanner position="after-content" /></div>
-            <ShareButtons title={toPlainText(post.title?.rendered)} url={postUrl} />
+            <ShareButtons title={toPlainText(post.title)} url={postUrl} />
             {relatedPosts.length > 0 && (
               <section className="mt-10">
                 <h2 className="font-heading font-bold text-xl text-text-primary mb-5">Related Posts</h2>

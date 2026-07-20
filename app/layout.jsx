@@ -3,6 +3,9 @@ import Script from 'next/script'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { isAdSenseEnabled, SITE_CONFIG } from '@/lib/constants'
+import { getSiteSettings } from '@/lib/cms'
+import { getAdSenseSettings } from '@/lib/cms/adsense'
+import { AdSettingsProvider } from '@/components/ads/AdSettingsProvider'
 import { serializeJsonLd } from '@/lib/schema'
 import '@/styles/globals.css'
 
@@ -53,7 +56,14 @@ export const metadata = {
   },
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  let siteSettings = null
+  try {
+    siteSettings = await getSiteSettings()
+  } catch (error) {
+    console.error('Unable to fetch CMS site settings', error)
+  }
+  const adsense = getAdSenseSettings(siteSettings)
   const organizationId = `${SITE_CONFIG.siteUrl}/#organization`
   const websiteId = `${SITE_CONFIG.siteUrl}/#website`
   const organizationLogoUrl = new URL('/icon.png', SITE_CONFIG.siteUrl).toString()
@@ -87,10 +97,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-PK" className={inter.variable}>
       <body className="font-body bg-white text-text-primary">
-        {isAdSenseEnabled() && (
+        {isAdSenseEnabled() && adsense.enabled && (
           <script
             async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE_CONFIG.googleAdsenseId}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense.publisherId}`}
             crossOrigin="anonymous"
           />
         )}
@@ -98,11 +108,13 @@ export default function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(siteSchema) }}
         />
-        <Header />
-        <main id="main" className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
+        <AdSettingsProvider settings={siteSettings}>
+          <Header />
+          <main id="main" className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+        </AdSettingsProvider>
         <Script
           async
           src={`https://www.googletagmanager.com/gtag/js?id=${SITE_CONFIG.googleAnalyticsId}`}

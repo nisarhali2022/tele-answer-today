@@ -1,5 +1,11 @@
 # Deployment DNS Checklist
 
+> **CMS cutover note:** the public site now reads the shared Supabase Admin CMS.
+> Use [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md) for the current Vercel
+> environment variables, signed revalidation webhook, CMS-managed AdSense, and
+> content-import steps. The older instructions below are historical reference
+> only and must not be used for runtime configuration or publishing.
+
 ## Goal
 
 Move the public website to Vercel while keeping WordPress on Hostinger as the

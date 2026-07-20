@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import {
   getAuthorBySlug,
   getPostsByAuthor,
-} from '@/lib/wordpress'
+} from '@/lib/cms'
 import {
   buildMetadata,
   canonicalPath,
@@ -29,7 +29,7 @@ export async function generateMetadata({ params, searchParams }) {
   return buildMetadata({
     title: currentPage > 1 ? `${name} - Page ${currentPage}` : name,
     description:
-      toPlainText(author.description) ||
+      toPlainText(author.bio) ||
       `Articles written by ${name} for ${SITE_CONFIG.name}.`,
     path: `/author/${slug}`,
     page: currentPage,
@@ -53,11 +53,8 @@ export default async function AuthorPage({ params, searchParams }) {
   if (isInvalidArchivePage(archive, currentPage)) notFound()
 
   const name = toPlainText(author.name)
-  const description = toPlainText(author.description)
-  const avatar =
-    author.avatar_urls?.['96'] ||
-    author.avatar_urls?.['48'] ||
-    author.avatar_urls?.['24']
+  const description = toPlainText(author.bio)
+  const avatar = author.avatarUrl
   const authorUrl = `${SITE_CONFIG.siteUrl}/author/${slug}`
   const schema = {
     '@context': 'https://schema.org',

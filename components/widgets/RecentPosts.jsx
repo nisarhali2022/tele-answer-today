@@ -58,7 +58,7 @@ export default function RecentPosts({ posts = [], limit = 5 }) {
               <div className="flex-1 min-w-0">
                 <p
                   className="text-sm font-medium text-text-primary group-hover:text-accent transition-colors line-clamp-2 leading-snug"
-                  dangerouslySetInnerHTML={{ __html: post.title?.rendered }}
+                  dangerouslySetInnerHTML={{ __html: post.title }}
                 />
               </div>
             </Link>

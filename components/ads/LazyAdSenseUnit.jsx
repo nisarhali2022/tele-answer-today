@@ -5,6 +5,7 @@ import AdSenseUnit from './AdSenseUnit'
 
 export default function LazyAdSenseUnit({
   slot,
+  publisherId,
   format = 'auto',
   className = '',
   eager = false,
@@ -53,6 +54,7 @@ export default function LazyAdSenseUnit({
       {shouldLoad ? (
         <AdSenseUnit
           slot={slot}
+          publisherId={publisherId}
           format={format}
           emptyTimeout={emptyTimeout}
           onStatusChange={setAdStatus}
