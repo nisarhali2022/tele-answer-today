@@ -97,6 +97,7 @@ test('global redirect RPC migration is domain-scoped and public-read-only', asyn
   )
 
   assert.match(source, /list_public_redirects\(domain text\)/)
+  assert.match(source, /drop function if exists public\.list_public_redirects\(text\)/i)
   assert.match(source, /r\.website_id = public\.cms_public_website_id\(domain\)/)
   assert.match(source, /revoke all on function public\.list_public_redirects\(text\) from public/i)
   assert.match(source, /grant execute on function public\.list_public_redirects\(text\) to anon, authenticated/i)

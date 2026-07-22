@@ -2,6 +2,10 @@
 -- frontend that consumes deployment-time CMS redirects.
 begin;
 
+-- PostgreSQL cannot change a function's return type with CREATE OR REPLACE.
+-- This drops only the existing RPC signature inside the same transaction.
+drop function if exists public.list_public_redirects(text);
+
 create or replace function public.list_public_redirects(domain text)
 returns table (
   from_path text,
