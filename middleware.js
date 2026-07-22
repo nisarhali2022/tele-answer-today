@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import { resolveCmsDomain } from '@/lib/cmsDomain'
-import { isExcludedRedirectPath, normalizeRedirectPath } from '@/lib/redirects'
+import {
+  isExcludedRedirectPath,
+  normalizeRedirectPath,
+  resolveRedirectDestination,
+} from '@/lib/redirects'
 
 function getDomain(request) {
   return resolveCmsDomain(
@@ -36,15 +40,12 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl
   if (isExcludedRedirectPath(pathname)) return NextResponse.next()
 
-  const match = await getRedirect(getDomain(request), pathname)
+  const domain = getDomain(request)
+  const match = await getRedirect(domain, pathname)
   if (!match?.toUrl) return NextResponse.next()
 
-  let destination
-  try {
-    destination = new URL(match.toUrl, request.url)
-  } catch {
-    return NextResponse.next()
-  }
+  const destination = resolveRedirectDestination(match.toUrl, request.url, domain)
+  if (!destination) return NextResponse.next()
 
   destination.search = request.nextUrl.search
   return NextResponse.redirect(destination, match.redirectType === 302 ? 302 : 301)

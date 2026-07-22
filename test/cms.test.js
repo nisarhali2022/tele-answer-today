@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 import { getAdSenseSettings, getAdSenseSlot } from '../lib/cms/adsense.js'
 import { normalizeCmsRevalidationPayload } from '../lib/cms/revalidation.js'
 import { resolveCmsDomain } from '../lib/cmsDomain.js'
+import { resolveRedirectDestination } from '../lib/redirects.js'
 
 test('CMS domain resolution uses the configured production site for local requests', () => {
   assert.equal(
@@ -79,4 +80,28 @@ test('CMS redirect middleware fails open when the redirect lookup is unavailable
 
   assert.match(source, /try \{[\s\S]*get_public_redirect/)
   assert.match(source, /catch \{[\s\S]*return null/)
+})
+
+test('CMS redirects keep final public paths and reject external destinations', () => {
+  const internal = resolveRedirectDestination(
+    '/telecom/new-post/',
+    'https://teleanswertoday.pk/global/old-post',
+    'teleanswertoday.pk'
+  )
+  const canonical = resolveRedirectDestination(
+    'http://www.teleanswertoday.pk/telecom/new-post/',
+    'https://teleanswertoday.pk/global/old-post',
+    'teleanswertoday.pk'
+  )
+
+  assert.equal(internal?.toString(), 'https://teleanswertoday.pk/telecom/new-post')
+  assert.equal(canonical?.toString(), 'https://teleanswertoday.pk/telecom/new-post')
+  assert.equal(
+    resolveRedirectDestination(
+      'https://outside.example/telecom/new-post',
+      'https://teleanswertoday.pk/global/old-post',
+      'teleanswertoday.pk'
+    ),
+    null
+  )
 })

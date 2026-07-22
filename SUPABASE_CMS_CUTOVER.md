@@ -19,6 +19,8 @@ Admin
 
 No retired CMS client, credential, editor, or maintenance script remains in
 this project. Publishing work must happen in the shared Supabase Admin CMS.
+WordPress and Hostinger are permanently retired from public delivery and must
+not be restored as a publishing or rollback path.
 
 ## AdSense And `ads.txt`
 
@@ -66,9 +68,9 @@ Use `.env.example` for local variable names. Do not commit `.env.local`.
    website record and confirm it is active.
 2. Set its primary domain to `teleanswertoday.pk`; add any preview/test domain
    only when intentionally needed.
-3. Import WordPress data only while the website is inactive. Review imported
-   posts, pages, authors, categories, media, SEO values, and redirects before
-   activation.
+3. The one-time WordPress import is complete. Review CMS posts, pages, authors,
+   categories, media, SEO values, and redirects before publishing future
+   changes.
 4. Publish the Home template and enter any CMS-managed FAQ items in
    `contentData.faqs` as `{ q, a }` pairs.
 5. Add/verify local asset references separately; the current logo, favicon,
@@ -159,8 +161,8 @@ only safe `/...` paths, and invalidates the shared `cms` cache tag.
    homepage quiz cards.
 6. Verify CMS AdSense settings control the production script, slots, and
    `/ads.txt` output.
-7. Keep WordPress available for a short rollback window, but do not accept new
-   editorial updates there after this verification succeeds.
+7. Keep recovery within the Supabase CMS and Vercel deployment history; do not
+   return editorial updates or public reads to WordPress or Hostinger.
 
 ## Open Cutover Items
 
@@ -175,9 +177,9 @@ only safe `/...` paths, and invalidates the shared `cms` cache tag.
   noindex, but a final cutover decision is still required: redirect useful tag
   URLs in the CMS redirect manager, then retire the remaining tag archive.
 
-## Rollback Window
+## Recovery
 
-If a serious cutover issue occurs, deactivate the CMS website record, point
-the public deployment back to the known WordPress data layer/commit, and
-revalidate affected routes. After the agreed rollback window, archive the
-WordPress import credentials and remove the legacy integration code.
+If a serious cutover issue occurs, restore the last known-good Vercel deployment
+that uses the same Supabase CMS contract, then revalidate the affected paths.
+Use Supabase backups and the CMS audit trail for content recovery. Do not point
+public traffic back to WordPress or Hostinger.

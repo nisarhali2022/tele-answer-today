@@ -24,7 +24,7 @@ import AdInArticle from '@/components/ads/AdInArticle';
 import ShareButtons from '@/components/ui/ShareButtons';
 import Sidebar from '@/components/layout/Sidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, notFoundMetadata } from '@/lib/seo';
 import { serializeJsonLd } from '@/lib/schema';
 
 export const revalidate = 3600;
@@ -32,7 +32,7 @@ export const revalidate = 3600;
 export async function generateMetadata({ params }) {
   const { post_slug } = await params;
   const post = await getPostBySlug(post_slug);
-  if (!post) return { title: 'Not Found | ' + SITE_CONFIG.siteName };
+  if (!post) return notFoundMetadata('Post Not Found');
 
   const categorySlug = getFirstCategory(post)?.slug || 'uncategorized';
   const seo = post.seo;

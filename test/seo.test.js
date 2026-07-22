@@ -1,8 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  buildMetadata,
   canonicalPath,
   isInvalidArchivePage,
+  notFoundMetadata,
+  normalizeRobots,
   parsePageNumber,
 } from '../lib/seo.js'
 
@@ -27,4 +30,32 @@ test('archive validation rejects invalid and out-of-range pages', () => {
   assert.equal(isInvalidArchivePage({ totalPages: 2 }, 2), false)
   assert.equal(isInvalidArchivePage({ totalPages: 2 }, 3), true)
   assert.equal(isInvalidArchivePage({ invalidPage: true }, 2), true)
+})
+
+test('metadata uses an absolute self-canonical URL without a trailing slash', () => {
+  const metadata = buildMetadata({
+    title: 'Example Article',
+    description: 'Example description',
+    path: '/telecom/example-article/',
+  })
+
+  assert.equal(
+    metadata.alternates.canonical,
+    'https://teleanswertoday.pk/telecom/example-article'
+  )
+  assert.equal(
+    metadata.openGraph.url,
+    'https://teleanswertoday.pk/telecom/example-article'
+  )
+})
+
+test('CMS robots directives and missing routes resolve to noindex metadata', () => {
+  assert.deepEqual(normalizeRobots('noindex, nofollow'), {
+    index: false,
+    follow: false,
+  })
+  assert.deepEqual(notFoundMetadata('Post Not Found').robots, {
+    index: false,
+    follow: true,
+  })
 })

@@ -7,6 +7,7 @@ import {
   buildMetadata,
   canonicalPath,
   isInvalidArchivePage,
+  notFoundMetadata,
   parsePageNumber,
 } from '@/lib/seo'
 import { serializeJsonLd } from '@/lib/schema'
@@ -23,7 +24,7 @@ export async function generateMetadata({ params, searchParams }) {
   const resolvedSearch = await searchParams
   const currentPage = parsePageNumber(resolvedSearch?.page) || 1
   const author = await getAuthorBySlug(slug)
-  if (!author) return { title: 'Author Not Found' }
+  if (!author) return notFoundMetadata('Author Not Found')
 
   const name = toPlainText(author.name)
   return buildMetadata({

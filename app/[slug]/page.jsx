@@ -31,6 +31,7 @@ import {
   canonicalPath,
   getCategoryDescription,
   isInvalidArchivePage,
+  notFoundMetadata,
   parsePageNumber,
 } from '@/lib/seo';
 
@@ -91,7 +92,7 @@ export async function generateMetadata({ params, searchParams }) {
     });
   }
 
-  return { title: 'Not Found | ' + SITE_CONFIG.siteName };
+  return notFoundMetadata();
 }
 
 export default async function SlugPage({ params, searchParams }) {

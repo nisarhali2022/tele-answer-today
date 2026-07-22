@@ -5,6 +5,10 @@
 > environment variables, signed revalidation webhook, CMS-managed AdSense, and
 > content-import steps. The older instructions below are historical reference
 > only and must not be used for runtime configuration or publishing.
+>
+> **Permanent retirement:** do not restore WordPress or Hostinger as a public
+> delivery, content, or rollback system. This document's old WordPress and
+> Hostinger steps are retained only as migration history.
 
 ## Goal
 

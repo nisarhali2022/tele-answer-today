@@ -6,6 +6,10 @@
 > documented in [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md). The
 > The older integration notes below are historical records only. They must not
 > be used for publishing, credentials, or runtime configuration.
+>
+> **Permanent retirement:** WordPress and Hostinger do not serve this website
+> and must not be restored as a public frontend, content source, or rollback
+> path. Any later WordPress references in this file describe the former system.
 
 ## 1. Purpose
 

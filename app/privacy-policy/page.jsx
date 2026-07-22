@@ -7,12 +7,13 @@ import {
   truncateText,
 } from '@/lib/utils';
 import Breadcrumbs from '@/components/navigation/Breadcrumbs';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, notFoundMetadata } from '@/lib/seo';
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
   const page = await getPageBySlug('privacy-policy');
+  if (!page) return notFoundMetadata('Privacy Policy Not Found');
   const title = page?.title
     ? toPlainText(page.title)
     : 'Privacy Policy';

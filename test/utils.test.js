@@ -1,12 +1,32 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  calculateReadingTime,
   normalizeContentLinks,
   optimizeContentImages,
   prepareContent,
   removeContentH1Blocks,
   wrapContentTables,
 } from '../lib/utils.js'
+
+test('reading time prefers the supplied CMS value', () => {
+  assert.equal(calculateReadingTime('<p>Short card excerpt</p>', 4), '4 min read')
+})
+
+test('supplied decimal reading times round up', () => {
+  assert.equal(calculateReadingTime('<p>Short card excerpt</p>', 2.1), '3 min read')
+})
+
+test('invalid or zero supplied values fall back to content calculation', () => {
+  const twoHundredOneWords = Array.from({ length: 201 }, () => 'word').join(' ')
+
+  assert.equal(calculateReadingTime(`<p>${twoHundredOneWords}</p>`, 0), '2 min read')
+  assert.equal(calculateReadingTime('<p>Short card excerpt</p>', 'invalid'), '1 min read')
+})
+
+test('empty content still has a one-minute minimum', () => {
+  assert.equal(calculateReadingTime('', 0), '1 min read')
+})
 
 test('body images preserve canonical responsive markup', () => {
   const html =
@@ -75,9 +95,26 @@ test('legacy public content links are rewritten to the current public site', () 
 
   assert.match(
     result,
-    /href="https:\/\/teleanswertoday\.pk\/telecom\/example-post\/"/
+    /href="https:\/\/teleanswertoday\.pk\/telecom\/example-post"/
   )
   assert.doesNotMatch(result, /telenorquiztoday\.com\.pk/)
+})
+
+test('CMS content rewrites localhost and non-canonical internal URLs', () => {
+  const result = normalizeContentLinks(
+    '<a href="http://localhost:3000/telenor/example-post/">Local</a>' +
+    '<a href="/telecom/example-post/?source=home">Relative</a>' +
+    '<a href="https://www.teleanswertoday.pk/tech/example-post/">WWW</a>' +
+    '<a href="https://old.hostingerapp.com/global/example-post/">Hostinger</a>'
+  )
+
+  assert.match(result, /href="https:\/\/teleanswertoday\.pk\/telenor\/example-post"/)
+  assert.match(result, /href="\/telecom\/example-post\?source=home"/)
+  assert.match(result, /href="https:\/\/teleanswertoday\.pk\/tech\/example-post"/)
+  assert.doesNotMatch(
+    result,
+    /localhost:3000|www\.teleanswertoday\.pk|hostingerapp\.com|example-post\//
+  )
 })
 
 test('legacy WordPress subdomain references are rewritten in CMS page content', () => {

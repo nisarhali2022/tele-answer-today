@@ -18,7 +18,10 @@ export default function PostMeta({
   const author = getPostAuthor(post)
   const category = getFirstCategory(post)
   const color = getCategoryColor(category?.slug || 'default')
-  const readingTime = calculateReadingTime(post?.content)
+  const readingTime = calculateReadingTime(
+    post?.content,
+    post?.readingTimeMinutes ?? post?.cms?.readingTimeMinutes
+  )
   const isSmall = size === 'small'
 
   return (

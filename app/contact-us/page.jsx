@@ -4,7 +4,7 @@ import {
   toPlainText,
   truncateText,
 } from '@/lib/utils'
-import { buildMetadata } from '@/lib/seo'
+import { buildMetadata, notFoundMetadata } from '@/lib/seo'
 import { SITE_CONFIG } from '@/lib/constants'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
 
@@ -12,6 +12,7 @@ export const revalidate = 3600
 
 export async function generateMetadata() {
   const page = await getPageBySlug('contact-us')
+  if (!page) return notFoundMetadata('Contact Us Not Found')
   const title = page?.title
     ? toPlainText(page.title)
     : 'Contact Us'

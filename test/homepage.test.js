@@ -152,3 +152,21 @@ test('CMS-backed image components bypass the Vercel image proxy', async () => {
   assert.match(latest, /\bunoptimized\b/)
   assert.match(recent, /\bunoptimized\b/)
 })
+
+test('robots protect administrative and preview routes while exposing the sitemap index', async () => {
+  const source = await readSource('../app/robots.js')
+
+  assert.match(source, /'\/admin\/'/)
+  assert.match(source, /'\/api\/'/)
+  assert.match(source, /'\/preview\/'/)
+  assert.match(source, /sitemap_index\.xml/)
+})
+
+test('post metadata prefers CMS reading time before body fallback', async () => {
+  const source = await readSource('../components/posts/PostMeta.jsx')
+
+  assert.match(
+    source,
+    /calculateReadingTime\(\s*post\?\.content,\s*post\?\.readingTimeMinutes\s*\?\?\s*post\?\.cms\?\.readingTimeMinutes/s
+  )
+})
