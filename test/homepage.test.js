@@ -110,6 +110,30 @@ test('homepage order places quiz and Latest News before the static guide', async
   assert.doesNotMatch(source, /FAQs - My Telenor Answers Today/)
 })
 
+test('homepage defers only informational content after Latest News', async () => {
+  const [home, info, steps, styles] = await Promise.all([
+    readSource('../app/page.jsx'),
+    readSource('../components/home/QuizInfoSections.jsx'),
+    readSource('../components/home/StepsSection.jsx'),
+    readSource('../styles/globals.css'),
+  ])
+
+  const latestNewsIndex = home.indexOf('<LatestNewsGrid posts={newsPosts} />')
+  const guideDeferredIndex = home.indexOf('className="home-section-deferred my-6"')
+  const cmsDeferredIndex = home.indexOf('className="home-content-deferred article-content')
+
+  assert.ok(latestNewsIndex >= 0)
+  assert.ok(guideDeferredIndex > latestNewsIndex)
+  assert.ok(cmsDeferredIndex > latestNewsIndex)
+  assert.match(info, /className=\{`home-section-deferred my-8/)
+  assert.doesNotMatch(info, /<div className="render-deferred">/)
+  assert.match(steps, /className="home-content-deferred my-8"/)
+  assert.match(styles, /\.home-section-deferred\s*\{[\s\S]*?content-visibility:\s*auto/)
+  assert.match(styles, /\.home-content-deferred\s*\{[\s\S]*?content-visibility:\s*auto/)
+  assert.equal((styles.match(/\.home-section-deferred\s*\{/g) || []).length, 2)
+  assert.equal((styles.match(/\.home-content-deferred\s*\{/g) || []).length, 2)
+})
+
 test('homepage TOC has readable anchors for main article headings', async () => {
   const { homeAnchorId } = await import('../lib/homeAnchors.js')
   const tocSource = await readSource('../components/posts/TableOfContents.jsx')

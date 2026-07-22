@@ -10,6 +10,30 @@
 > delivery, content, or rollback system. This document's old WordPress and
 > Hostinger steps are retained only as migration history.
 
+## Current Deployment Verification - 2026-07-22
+
+The public site is deployed from Vercel and connected only to the shared
+Supabase Admin CMS. The old `WORDPRESS_API_URL`, WordPress credentials, and
+Hostinger routing instructions below are retired and must not be added to
+Vercel.
+
+Verified after deployment:
+
+- `https://teleanswertoday.pk/` returned `200` with its self-canonical public
+  URL, exactly one H1, and no empty H2 elements.
+- The first homepage response was prerendered and a later response returned
+  `X-Vercel-Cache: HIT`, confirming public CDN/ISR caching.
+- Response headers include `X-Frame-Options`, `X-Content-Type-Options`,
+  `Referrer-Policy`, and `Permissions-Policy`.
+- CMS content and quiz updates remain immediate after a valid signed CMS
+  revalidation webhook; they do not require waiting for the one-hour cache.
+- The shared CMS redirect feed is built into Vercel redirects. Add a redirect
+  in CMS and redeploy to publish it.
+
+Use [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md) as the current
+deployment checklist. The remaining sections are retained only for historical
+DNS migration reference.
+
 ## Goal
 
 Move the public website to Vercel while keeping WordPress on Hostinger as the

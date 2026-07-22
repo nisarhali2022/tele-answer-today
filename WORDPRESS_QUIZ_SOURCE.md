@@ -1,5 +1,10 @@
 # WordPress Quiz Source Safety Note
 
+> **Retired architecture (2026-07-22):** The current global daily quiz is
+> supplied by the shared Supabase Admin CMS. This file is historical only and
+> must not be used for current quiz publishing or runtime configuration. See
+> [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md).
+
 ## Current Source Split
 
 - Static homepage content is app-owned React content and should not be changed

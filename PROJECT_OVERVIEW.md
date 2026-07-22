@@ -3,13 +3,32 @@
 > **Current architecture:** this project is being cut over to the shared
 > Supabase Admin CMS. The authoritative current setup, environment variables,
 > revalidation contract, CMS-managed Ads settings, and rollback checklist are
-> documented in [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md). The
-> The older integration notes below are historical records only. They must not
+> documented in [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md). The older
+> integration notes below are historical records only. They must not
 > be used for publishing, credentials, or runtime configuration.
 >
 > **Permanent retirement:** WordPress and Hostinger do not serve this website
 > and must not be restored as a public frontend, content source, or rollback
 > path. Any later WordPress references in this file describe the former system.
+
+## Current Deployment Update - 2026-07-22
+
+The current production architecture is Next.js on Vercel plus the shared
+Supabase Admin CMS. Public content, media, settings, ads, and the global daily
+quiz are CMS-managed. WordPress and Hostinger are not called by public routes.
+
+- `CMS_SITE_DOMAIN` fixes public reads to `teleanswertoday.pk`, allowing
+  one-hour ISR/CDN caching for public CMS pages.
+- Signed CMS webhooks call `revalidateTag('cms')` and `revalidatePath()` for
+  changed routes, so a successful quiz or content update remains immediate.
+- Active CMS redirects are validated and compiled at build time through the
+  shared `list_public_redirects(domain)` RPC; redirect changes need redeploy.
+- The deployed site includes Referrer and Permissions policies and removes
+  empty CMS H1-H4 elements before homepage rendering and TOC generation.
+
+For the complete current contract, see
+[SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md). Do not use the legacy
+WordPress details below as implementation instructions.
 
 ## 1. Purpose
 

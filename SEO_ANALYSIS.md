@@ -1,5 +1,28 @@
 # Detailed SEO Analysis
 
+> **Current architecture update (2026-07-22):** This is a historical SEO
+> analysis of the former WordPress build. The live public frontend now uses
+> Next.js plus the shared Supabase Admin CMS only. Do not follow later
+> WordPress or Hostinger instructions as current configuration. See
+> [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md) and
+> [WEBSITE_QUALITY_AUDIT.md](WEBSITE_QUALITY_AUDIT.md) for the current state.
+
+## Latest Deployment SEO Update - 2026-07-22
+
+- Public CMS pages now use a fixed `CMS_SITE_DOMAIN`, enabling one-hour
+  ISR/CDN caching without request-specific rendering.
+- CMS content and global quiz updates remain immediate after a valid signed
+  revalidation webhook invalidates the `cms` cache tag and affected paths.
+- Empty CMS H1-H4 elements are removed before homepage rendering and TOC
+  generation; production verification found one homepage H1 and no empty H2.
+- Production responses now include Referrer and Permissions policies.
+- Active CMS redirects are validated during `next build` and emitted as native
+  Next/Vercel redirects. Add a CMS redirect and redeploy to test a live record.
+
+Remaining SEO validation is external: Google Search Console sitemap/URL
+inspection, Rich Results validation, a broken-link crawl, and PageSpeed/Core
+Web Vitals measurements.
+
 ## 1. Audit Scope
 
 Audit date: June 19, 2026.

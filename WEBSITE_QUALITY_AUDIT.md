@@ -4,6 +4,30 @@ Audit date: June 28, 2026
 Site: `https://teleanswertoday.pk`  
 Repo: `tele-answer-today`
 
+> **Current-state update (July 22, 2026):** This audit originally described
+> the former WordPress implementation. The public site now uses the shared
+> Supabase Admin CMS only. The deployment update below supersedes any older
+> statement that WordPress or Hostinger is a live public dependency.
+
+## Deployment Update - 2026-07-22
+
+The current cache, security-header, empty-heading, and redirect changes are
+deployed and verified on `https://teleanswertoday.pk/`.
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| Supabase-only public content | Pass | Public routes use CMS RPCs and public CMS media; no WordPress/Hostinger runtime source remains. |
+| Public ISR/CDN cache | Pass | First homepage response was `X-Vercel-Cache: PRERENDER`; the next response was `X-Vercel-Cache: HIT`. |
+| Immediate quiz/content updates | Pass | Signed CMS webhook invalidates `cms` and affected paths, overriding the one-hour default cache for changed content. |
+| Empty CMS headings | Pass | Homepage verification found one H1 and no empty H2 elements. |
+| Security headers | Pass with CSP deferred | `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy` are live. A Content-Security-Policy remains a future hardening task. |
+| CMS redirect feed | Pass with active-record test pending | Shared `list_public_redirects(domain)` is validated at build time and generates native redirects. This website currently has zero active CMS redirect records, so an end-to-end redirect needs testing after one is added and redeployed. |
+
+Remaining live-only work: run Google PageSpeed/Lighthouse and Rich Results
+tests, crawl for broken links, submit/inspect the sitemap in Search Console,
+and test a real active CMS redirect after deployment. These checks require
+external Google/browser measurements and are not proof that code is broken.
+
 ## Executive Summary
 
 Project readiness score: **86/100**
@@ -57,14 +81,14 @@ warnings appear in Vercel production logs.
 | Item | Status | Priority | Evidence | Recommended Fix |
 | --- | --- | --- | --- | --- |
 | Unique title tag on every page | Pass | - | `generateMetadata()` exists on homepage, blog, category/page, article, author, search, policy routes; shared `buildMetadata()` sanitizes output. | No action. |
-| Meta description | Pass | - | `SITE_CONFIG.description`, route metadata, category descriptions, tag descriptions, and post/page excerpts are used. | Continue reviewing WordPress excerpts for quality. |
-| Proper heading structure | Pass | - | Templates render one page-level H1; `prepareWordPressContent()` removes embedded WordPress H1 blocks; tests cover H1 removal. | Periodically crawl production pages for duplicate H1 after CMS edits. |
+| Meta description | Pass | - | `SITE_CONFIG.description`, route metadata, category descriptions, and CMS post/page excerpts are used. | Continue reviewing CMS excerpts for quality. |
+| Proper heading structure | Pass | - | Templates render one page-level H1; empty CMS headings are removed before homepage rendering and TOC generation. | Periodically crawl production pages for duplicate H1 after CMS edits. |
 | SEO-friendly URLs | Pass | - | Clean App Router paths: `/blog`, `/tech`, `/<category>/<post>`, `/author/<slug>`. `trailingSlash: false`. | No action. |
 | Internal linking | Pass | - | Header, footer, breadcrumbs, TOC, latest news, related/sidebar widgets, and homepage content links exist. | Add a periodic broken-link crawl after content updates. |
 | XML sitemap | Pass locally, live pending | High | App routes generate `/sitemap_index.xml`, `/post-sitemap.xml`, `/page-sitemap.xml`, `/category-sitemap.xml`; build includes sitemap routes. | Manually verify live XML endpoints and submit sitemap index in Search Console. |
 | Robots.txt | Pass locally, live pending | High | `app/robots.js` allows public pages, disallows `/api/`, and points to sitemap index. | Manually verify `https://teleanswertoday.pk/robots.txt`. |
 | Canonical URLs | Pass | - | `lib/seo.js` uses `SITE_CONFIG.siteUrl` and `canonicalPath()` for route metadata. | No action. |
-| Image alt text | Pass | - | Logo, step images, featured images, recent posts, latest news, and author images provide alt text or decorative empty alt. | Check WordPress media alt text quality during editorial workflow. |
+| Image alt text | Pass | - | Logo, step images, featured images, recent posts, latest news, and author images provide alt text or decorative empty alt. | Check CMS media alt text quality during editorial workflow. |
 | Open Graph and Twitter tags | Pass | - | `buildMetadata()` outputs Open Graph and Twitter metadata; default OG image exists in `public/assets`. | Validate with social preview tools after deploy. |
 | Breadcrumb navigation | Pass | - | `Breadcrumbs` component renders visible breadcrumbs and `BreadcrumbList` JSON-LD. | No action. |
 | Keyword-optimized content | Pass with monitoring recommended | Medium | Homepage was expanded on June 28, 2026 using supplied GSC keyword data, with new quick-summary, quiz-guide, category, PC/app, and different-question sections. | Monitor Search Console query movement and avoid future keyword stuffing. |
@@ -101,15 +125,15 @@ warnings appear in Vercel production logs.
 
 | Item | Status | Priority | Evidence | Recommended Fix |
 | --- | --- | --- | --- | --- |
-| Image compression | Pass | - | Assets use WebP where available; local assets can use Next image optimization, while WordPress media stays canonical and bypasses `/_next/image` proxying. | Continue uploading compressed WordPress images. |
+| Image compression | Pass | - | Assets use WebP where available; local assets can use Next image optimization, while CMS media stays canonical and bypasses `/_next/image` proxying. | Continue uploading compressed CMS images. |
 | Next-gen formats | Pass | - | `next.config.js` enables AVIF and WebP. | No action. |
 | Minified CSS/JS | Pass | - | Next production build handles minification. | No action. |
-| Lazy loading images | Pass | - | `next/image` is used for app-owned images; WordPress body images receive lazy loading in utilities. | Confirm important LCP image is not lazy if it becomes the LCP element. |
+| Lazy loading images | Pass | - | `next/image` is used for app-owned images; CMS-rendered body images receive lazy loading in utilities. | Confirm important LCP image is not lazy if it becomes the LCP element. |
 | Browser caching | Pass | - | Next/Vercel caching and `minimumCacheTTL: 86400`; ISR is configured. | Confirm Vercel response headers after deploy. |
 | CDN integration | Pass when deployed on Vercel | - | App is built for Vercel public frontend. | Verify production is served by Vercel edge. |
 | Remove unused CSS/JS | Pass locally, monitor | Medium | Small route bundles in build output; no heavy UI library. | Re-run Lighthouse coverage if PageSpeed score is low. |
-| Database optimization | Not Applicable to Next app | - | Next app has no database; WordPress backend owns database health. | Optimize WordPress database/Hostinger separately. |
-| Server response time | Needs Live Verification | High | WordPress fetches are cached/revalidated; build sandbox had backend fetch `EACCES` warnings. | Check TTFB on live pages and Vercel logs for WordPress failures. |
+| Database optimization | Managed by CMS | - | Next.js has no application database; the shared Supabase CMS owns database health. | Monitor database health and indexes in Supabase/CMS operations. |
+| Server response time | Pass with Core Web Vitals verification pending | High | Public CMS reads use ISR/CDN caching; production showed a subsequent Vercel cache hit. | Check live TTFB and PageSpeed/Core Web Vitals. |
 | Code splitting | Pass | - | App Router build splits routes; homepage route-specific JS is 1.74 kB. | No action. |
 
 ## 5. Responsiveness and User Experience
@@ -135,7 +159,7 @@ warnings appear in Vercel production logs.
 | Relevant keywords | Pass | - | Homepage targets Telenor quiz/date/answer terms. | Avoid keyword stuffing; keep natural language. |
 | Strong internal linking | Pass | - | Header, footer, TOC, sidebar, latest news, related posts, and contextual links exist. | Use crawl data to find orphan pages. |
 | Quality backlinks | Needs external work | Low | Cannot be verified from repo. | Handle through off-site SEO campaign, not code. |
-| Regular content updates | Pass operationally | - | Daily quiz source and latest news flow are dynamic from WordPress. | Keep editorial publishing schedule. |
+| Regular content updates | Pass operationally | - | Global daily quiz and latest-news flow are dynamic from the shared CMS. | Keep editorial publishing schedule. |
 | User engagement metrics | Needs Live Verification | Medium | GA4 is configured but engagement data is external. | Review GA4 after launch. |
 | Low bounce rate | Needs Live Verification | Medium | Depends on real analytics. | Review GA4 landing-page engagement. |
 | Good Core Web Vitals | Needs Live Verification | High | Requires production field/lab data. | Run PageSpeed and monitor Search Console CWV. |
@@ -157,12 +181,12 @@ warnings appear in Vercel production logs.
 | Item | Status | Priority | Evidence | Recommended Fix |
 | --- | --- | --- | --- | --- |
 | SSL certificate | Needs Live Verification | Critical | HTTPS homepage fetch succeeded. | Confirm root and `www` SSL in browser and SSL checker. |
-| Security headers | Pass with enhancement recommended | Medium | `X-Frame-Options: DENY` and `X-Content-Type-Options: nosniff` configured. | Consider adding Referrer-Policy, Permissions-Policy, and a tested CSP later. |
-| Spam protection | Needs external/WordPress review | Medium | Contact form appears app-rendered; WordPress forms/plugins not audited. | Add CAPTCHA/honeypot/rate limiting if forms submit anywhere. |
-| Regular backups | Needs Hostinger/WordPress review | High | Not visible in repo. | Confirm daily WordPress files/database backups. |
-| Malware protection | Needs Hostinger/WordPress review | High | Not visible in repo. | Confirm WordPress security plugin, malware scans, and plugin update process. |
-| Secure forms | Pass for static contact UI, review needed if submissions are added | Medium | Contact page is not exposing backend WordPress content directly. | If form submission is implemented, add validation, rate limiting, and spam control. |
-| Admin area protection | Pass | - | `/admin` is noindexed; quiz admin uses signed session cookie and secret. | Keep `ADMIN_SECRET`, `WP_ADMIN_USER`, and `WP_ADMIN_PASS` private in Vercel env. |
+| Security headers | Pass with CSP deferred | Medium | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and `Permissions-Policy` are live. | Add and test a Content-Security-Policy as a separate hardening change. |
+| Spam protection | Needs CMS/form review | Medium | Contact workflow is CMS/application-owned; WordPress forms are retired. | Add CAPTCHA/honeypot/rate limiting if a form submits data. |
+| Regular backups | Needs Supabase/CMS operations review | High | Not visible in the public frontend repository. | Confirm Supabase database and CMS media backup/retention policy. |
+| Malware protection | Needs CMS/Vercel operations review | High | Not visible in the public frontend repository. | Confirm CMS access controls, dependency update process, and operational monitoring. |
+| Secure forms | Pass for static contact UI, review needed if submissions are added | Medium | Contact page does not expose a retired backend. | If form submission is implemented, add validation, rate limiting, and spam control. |
+| Admin area protection | Pass | - | Public `/admin` is noindexed; editorial actions belong to the shared CMS. | Keep CMS credentials and revalidation secret private. |
 
 ## 9. Essential Pages
 
@@ -173,7 +197,7 @@ warnings appear in Vercel production logs.
 | Services/Products | Not Applicable / Optional | Low | Site is informational, not a service/product catalog. | Add only if business model needs it. |
 | Contact Us | Pass | - | `/contact-us` route exists; `/contact` redirects. | Verify live form/contact details. |
 | Privacy Policy | Pass | - | `/privacy-policy` route exists and is indexable. | Keep updated for ads/analytics. |
-| Terms & Conditions | Needs Fix | Medium | Live homepage footer links to Terms of Service, but no `app/terms-of-service` route was found in repo. | Add WordPress-backed `/terms-of-service` or update footer link to an existing page. |
+| Terms & Conditions | Needs CMS verification | Medium | The route must resolve to the published CMS Terms of Service page. | Confirm the CMS page is published and linked at `/terms-of-service`. |
 | FAQ | Pass on homepage | - | Homepage FAQ section exists, visible items are capped to six, and matching `FAQPage` JSON-LD is emitted. | Validate homepage FAQ schema after deployment. |
 | Blog | Pass | - | `/blog` route exists. | Verify live pagination/canonical. |
 | Sitemap page/XML | Pass locally, live pending | High | XML sitemap routes exist. | Manually verify live sitemap XML endpoints. |
@@ -204,7 +228,7 @@ warnings appear in Vercel production logs.
 | SSL enabled | Needs Live Verification | Critical | Confirm root and `www`. |
 | Internal linking added | Pass | - | Run broken-link crawl after deploy. |
 | Canonical URLs configured | Pass | - | Spot-check rendered live pages. |
-| Security measures implemented | Pass with hosting tasks pending | Medium | Add/check backups, malware scanning, Referrer-Policy, Permissions-Policy. |
+| Security measures implemented | Pass with operations tasks pending | Medium | Confirm Supabase/CMS backups and monitoring; CSP remains deferred. |
 | Accessibility standards followed | Pass with manual review pending | Medium | Run keyboard and screen-reader spot checks. |
 
 ## Highest-Priority Next Actions
@@ -220,8 +244,8 @@ warnings appear in Vercel production logs.
    footer links to Terms of Service.
 6. **Medium:** Validate homepage `FAQPage` JSON-LD in Rich Results Test and
    Schema.org validator.
-7. **Medium:** Review WordPress/Hostinger backups, malware scanning, and spam
-   protection outside the Next.js repo.
+7. **Medium:** Review Supabase/CMS backups, operational monitoring, and spam
+   protection outside the public frontend repository.
 
 ## Cross-References
 

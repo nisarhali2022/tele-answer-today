@@ -5,7 +5,7 @@ function Section({ title, children, highlight = false }) {
   return (
     <section
       id={homeAnchorId(title)}
-      className={`my-8 ${highlight ? 'rounded-xl border border-primary/20 bg-primary/5 p-6' : ''}`}
+      className={`home-section-deferred my-8 ${highlight ? 'rounded-xl border border-primary/20 bg-primary/5 p-6' : ''}`}
     >
       <h2 className="mb-4 font-heading text-xl font-bold text-text-primary">
         {title}
@@ -19,7 +19,7 @@ function Section({ title, children, highlight = false }) {
 
 export default function QuizInfoSections() {
   return (
-    <div className="render-deferred">
+    <div>
       <Section title="What is the Telenor Daily Quiz?">
         <p>
           When Telenor first launched the <b>Test Your Skills</b> feature inside its

@@ -70,6 +70,26 @@
     contain-intrinsic-size: auto 1800px;
   }
 
+  .home-section-deferred {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+
+  .home-content-deferred {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 4800px;
+  }
+
+  @media (min-width: 768px) {
+    .home-section-deferred {
+      contain-intrinsic-size: auto 480px;
+    }
+
+    .home-content-deferred {
+      contain-intrinsic-size: auto 3000px;
+    }
+  }
+
   .article-content {
     font-size: 1rem;
   }

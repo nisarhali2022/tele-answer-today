@@ -1,5 +1,21 @@
 # Tele Answer Today Project Structure
 
+> **Historical reference:** the detailed WordPress module and route map below
+> describes the former implementation. The current public architecture is
+> Next.js on Vercel backed only by the shared Supabase Admin CMS. Use
+> [SUPABASE_CMS_CUTOVER.md](SUPABASE_CMS_CUTOVER.md) for current data flows.
+
+## Current Structure Update - 2026-07-22
+
+- Public CMS reads use `CMS_SITE_DOMAIN` and one-hour ISR/CDN caching.
+- Signed CMS webhooks revalidate the `cms` tag and affected paths immediately.
+- Redirect middleware was removed. Build-time CMS redirect records are now
+  validated and compiled into Next/Vercel redirects through
+  `lib/staticRedirects.cjs` and `list_public_redirects(domain)`.
+- Empty CMS H1-H4 nodes are filtered before homepage rendering and TOC output.
+- The current migration is
+  [20260722_list_public_redirects.sql](supabase/migrations/20260722_list_public_redirects.sql).
+
 ## 1. Top-Level Layout
 
 ```text

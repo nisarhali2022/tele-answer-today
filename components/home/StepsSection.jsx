@@ -36,7 +36,7 @@ const STEPS = [
 
 export default function StepsSection() {
   return (
-    <section id={homeAnchorId('Steps to Participate')} className="my-8">
+    <section id={homeAnchorId('Steps to Participate')} className="home-content-deferred my-8">
       <h2 className="font-heading font-bold text-xl text-text-primary mb-6">
         Steps to Participate
       </h2>

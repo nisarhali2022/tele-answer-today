@@ -1203,3 +1203,34 @@ Verification:
 - `npm.cmd run test` passed 55 tests.
 - `npm.cmd run lint` passed.
 - `npm.cmd run build` passed and generated 30 routes.
+
+## 11. Latest Fixes - 2026-07-22
+
+Completed Supabase deployment hardening:
+
+- Removed request-header-based CMS website resolution from public data reads.
+  `CMS_SITE_DOMAIN` now selects the website consistently and restores
+  one-hour ISR/CDN caching for public CMS routes.
+- Kept quiz and content updates immediate: the signed CMS webhook continues to
+  invalidate `cms` and the relevant paths after a successful publish.
+- Removed empty CMS H1-H4 elements before homepage rendering and Table of
+  Contents generation.
+- Added `Referrer-Policy: strict-origin-when-cross-origin` and a restrictive
+  `Permissions-Policy` response header.
+- Replaced visitor-time Supabase redirect lookups with a generic shared
+  `list_public_redirects(domain)` RPC fetched at build time. Valid records are
+  compiled into native Next/Vercel redirects; CMS redirect edits require a
+  redeploy.
+- Removed the redirect middleware because it is no longer needed for public
+  visitor requests.
+
+Deployment verification:
+
+- Production homepage returned `200`, one H1, no empty H2 elements, and the
+  self-canonical `https://teleanswertoday.pk` URL.
+- The first response was `X-Vercel-Cache: PRERENDER`; a subsequent response
+  returned `X-Vercel-Cache: HIT`.
+- `npm.cmd run test` passed 63 tests; `npm.cmd run lint` and
+  `npm.cmd run build` passed.
+- No active CMS redirect records currently exist for this website. Add one and
+  redeploy to perform the final end-to-end redirect verification.

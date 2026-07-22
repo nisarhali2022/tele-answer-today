@@ -277,7 +277,7 @@ export default async function HomePage() {
             {!usesCmsHomeContent && (
               <section
                 id={homeAnchorId("Today Telenor Quiz Questions and Answers - Quick Guide")}
-                className="my-6"
+                className="home-section-deferred my-6"
               >
                 <h2 className="mb-4 font-heading text-xl font-bold text-text-primary">
                   Today Telenor Quiz Questions and Answers - Quick Guide
@@ -298,7 +298,7 @@ export default async function HomePage() {
 
             {usesCmsHomeContent ? (
               <div
-                className="article-content prose prose-lg max-w-none mt-8 prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm"
+                className="home-content-deferred article-content prose prose-lg max-w-none mt-8 prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm"
                 dangerouslySetInnerHTML={{ __html: afterCmsContent.html }}
               />
             ) : (
