@@ -71,7 +71,7 @@ main-thread rendering/hydration work.
 
 ## Task 1: Defer Below-the-Fold Rendering
 
-Status: `Implemented Locally`
+Status: `Complete`
 
 Approval date: 2026-07-23
 
@@ -115,26 +115,64 @@ Files changed: app/page.jsx, components/home/QuizInfoSections.jsx,
   test/homepage.test.js
 Tests added: Homepage deferred-content placement/source coverage
 Test result: 64/64 tests passed; lint passed; production build passed
-Deployment date: Pending
+Deployment date: 2026-07-23
 Before mobile performance: 59-96
 Before mobile LCP: 2.5-3.3s
 Before mobile TBT: 160-3,100ms
-After metrics: Pending deployment
-Observed regressions: None in automated verification; manual production check pending
-Final status: Implemented Locally; deployment and monitoring pending
+After mobile run 1: Performance 74; FCP 1.3s; LCP 2.2s;
+  TBT 1,260ms; CLS 0.004; Speed Index 2.4s
+After diagnostic run 1: Main-thread work 4.6s; style/layout 659ms;
+  script evaluation 2,493ms
+Observed regressions: None; lower homepage sections and direct TOC hash links
+  were manually verified in production
+Final status: Complete; repeated mobile scores remained in the 60s, with the
+  detailed run scoring 74
 Notes: The normal .next directory was locked by the active local Next process,
   so the successful verification build used isolated NEXT_DIST_DIR output.
-  Task 2 must not start until production measurement is reviewed.
+  The first deployed run improved substantially over the earlier slow mobile
+  run: Performance 59 to 74, FCP 2.2s to 1.3s, LCP 3.3s to 2.2s, TBT 3,100ms
+  to 1,260ms, Speed Index 4.1s to 2.4s, main-thread work 10.1s to 4.6s, and
+  style/layout work 2,810ms to 659ms. The large style/layout reduction aligns
+  with Task 1's intended effect, but third-party variation remains significant:
+  this run still recorded about 1,305ms Google Ads CPU, 546ms Google Tag
+  Manager CPU, and 532ms Funding Choices CPU. Additional mobile runs scored in
+  the 60s. The site owner confirmed that lower sections and direct TOC links
+  display correctly and approved continuing to Task 2.
 ```
 
 ## Task 2: Convert TOC to Native Disclosure
 
-Status: `Planned`
+Status: `Implemented Locally`
+
+Approval date: 2026-07-23
 
 Replace the React state toggle with semantic `<details>` and `<summary>` while
 preserving hierarchy, anchors, styling, accessibility, and fixed-header offset.
 
 Expected impact: small JavaScript/hydration reduction and slight INP benefit.
+
+### Implementation Record
+
+```text
+Implementation date: 2026-07-23
+Files changed: components/posts/TableOfContents.jsx, test/homepage.test.js,
+  CORE_WEB_VITALS_OPTIMIZATION_TRACKER.md
+Tests added: Native disclosure, no client directive/state/click handler,
+  default-expanded support, and disclosure icon state
+Test result: 65/65 tests passed; lint passed; production build passed
+Deployment date: Pending
+Before homepage route / First Load JS: 2.04kB / 117kB
+After homepage route / First Load JS: 1.52kB / 116kB
+After Lighthouse metrics: Pending deployment
+Observed regressions: None in automated verification; production TOC expand,
+  collapse, anchor, and keyboard checks remain pending
+Final status: Implemented Locally; deployment and monitoring pending
+Notes: The TOC is now a Server Component using native details/summary markup.
+  All full-title anchor links, indentation, defaultExpanded behavior, and the
+  fixed-header anchor offset remain unchanged. The normal .next directory was
+  locked by the active local dev process, so the successful build used the
+  isolated .next-task2-verify directory.
+```
 
 ## Task 3: Move Random Posts to Server Cache
 

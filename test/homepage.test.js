@@ -145,6 +145,18 @@ test('homepage TOC has readable anchors for main article headings', async () => 
   assert.match(tocSource, /href=\{`#\$\{item\.id\}`\}/)
 })
 
+test('TOC uses a native disclosure without client state or hydration', async () => {
+  const tocSource = await readSource('../components/posts/TableOfContents.jsx')
+
+  assert.match(tocSource, /<details/)
+  assert.match(tocSource, /<summary/)
+  assert.match(tocSource, /open=\{defaultExpanded\}/)
+  assert.match(tocSource, /group-open:rotate-0/)
+  assert.doesNotMatch(tocSource, /['"]use client['"]/)
+  assert.doesNotMatch(tocSource, /useState|onClick/)
+  assert.doesNotMatch(tocSource, /<button/)
+})
+
 test('Latest News keeps the newest two cards fixed and chooses only older cards randomly', async () => {
   const { selectLatestNewsPosts } = await import('../lib/latestNews.js')
   const posts = Array.from({ length: 10 }, (_, index) => ({ id: index + 1 }))
