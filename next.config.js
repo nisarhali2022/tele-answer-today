@@ -1,3 +1,5 @@
+const { fetchCmsStaticRedirects } = require('./lib/staticRedirects.cjs')
+
 function getSupabaseImagePattern() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
   if (!supabaseUrl) return []
@@ -15,6 +17,16 @@ function getSupabaseImagePattern() {
 }
 
 const supabaseImagePatterns = getSupabaseImagePattern()
+
+async function getCmsBuildRedirects() {
+  if (process.env.NODE_ENV !== 'production') return []
+
+  return fetchCmsStaticRedirects({
+    domain: process.env.CMS_SITE_DOMAIN,
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  })
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -42,9 +54,17 @@ const nextConfig = {
         headers: [
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), geolocation=(), microphone=(), payment=(), usb=()',
+          },
         ],
       },
     ]
+  },
+  async redirects() {
+    return getCmsBuildRedirects()
   },
 }
 

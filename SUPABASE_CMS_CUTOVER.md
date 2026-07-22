@@ -148,6 +148,20 @@ a payload such as:
 The endpoint rejects missing or mismatched secrets with HTTP 401, revalidates
 only safe `/...` paths, and invalidates the shared `cms` cache tag.
 
+## CMS Redirects
+
+The shared CMS owns redirect records in `cms_redirects`. The public site uses
+the read-only `list_public_redirects(domain)` RPC during a Vercel production
+build, generating static redirects for the configured `CMS_SITE_DOMAIN` only.
+The function is generic and can serve every connected CMS website, but each
+frontend receives only its own website-scoped records.
+
+Apply [20260722_list_public_redirects.sql](supabase/migrations/20260722_list_public_redirects.sql)
+in the Supabase SQL Editor before deploying a frontend that uses static CMS
+redirects. A redirect added or changed in CMS becomes public after that
+frontend's next Vercel deployment. No visitor request queries Supabase solely
+to check redirects.
+
 ## Cutover Verification
 
 1. Confirm posts, pages, authors, categories, media, Home template, and

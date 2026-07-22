@@ -64,6 +64,18 @@ test('CMS homepage content receives one H1, readable anchors, and a quiz inserti
   assert.doesNotMatch(withoutFaqs, /FAQs - My Telenor Answers Today|Remove this\./)
 })
 
+test('empty CMS headings are removed from homepage HTML and the TOC', async () => {
+  const { prepareHomeContent } = await import('../lib/homeContent.js')
+  const prepared = prepareHomeContent(
+    '<h2></h2><h3>&nbsp;</h3><h2>Visible section</h2><p>Body</p>'
+  )
+
+  assert.doesNotMatch(prepared.html, /<h2>\s*<\/h2>|<h3>&nbsp;<\/h3>/)
+  assert.deepEqual(prepared.headings, [
+    { id: 'Visible-section', level: 2, text: 'Visible section' },
+  ])
+})
+
 test('Terms and Disclaimer use dedicated CMS legal page layouts', async () => {
   const [terms, disclaimer, legal] = await Promise.all([
     readSource('../app/terms-of-service/page.jsx'),

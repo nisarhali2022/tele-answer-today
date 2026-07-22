@@ -4,7 +4,6 @@ import { readFile } from 'node:fs/promises'
 import { getAdSenseSettings, getAdSenseSlot } from '../lib/cms/adsense.js'
 import { normalizeCmsRevalidationPayload } from '../lib/cms/revalidation.js'
 import { resolveCmsDomain } from '../lib/cmsDomain.js'
-import { resolveRedirectDestination } from '../lib/redirects.js'
 
 test('CMS domain resolution uses the configured production site for local requests', () => {
   assert.equal(
@@ -75,33 +74,39 @@ test('public CMS data layer uses only the Supabase anon key and global quiz RPC'
   assert.doesNotMatch(source, /SUPABASE_SERVICE_ROLE_KEY/)
 })
 
-test('CMS redirect middleware fails open when the redirect lookup is unavailable', async () => {
-  const source = await readFile(new URL('../middleware.js', import.meta.url), 'utf8')
+test('public CMS reads use the configured domain without request headers', async () => {
+  const source = await readFile(new URL('../lib/cms/index.js', import.meta.url), 'utf8')
 
-  assert.match(source, /try \{[\s\S]*get_public_redirect/)
-  assert.match(source, /catch \{[\s\S]*return null/)
+  assert.match(source, /CMS_SITE_DOMAIN is required for public CMS reads/)
+  assert.match(source, /const CACHE_SECONDS = 3600/)
+  assert.doesNotMatch(source, /next\/headers|await headers\(/)
 })
 
-test('CMS redirects keep final public paths and reject external destinations', () => {
-  const internal = resolveRedirectDestination(
-    '/telecom/new-post/',
-    'https://teleanswertoday.pk/global/old-post',
-    'teleanswertoday.pk'
-  )
-  const canonical = resolveRedirectDestination(
-    'http://www.teleanswertoday.pk/telecom/new-post/',
-    'https://teleanswertoday.pk/global/old-post',
-    'teleanswertoday.pk'
+test('CMS revalidation keeps the homepage and shared CMS tag fresh after quiz saves', async () => {
+  const source = await readFile(new URL('../app/api/revalidate/route.js', import.meta.url), 'utf8')
+
+  assert.match(source, /revalidatePath\(path\)/)
+  assert.match(source, /revalidateTag\('cms'\)/)
+  assert.match(source, /'\/', '\/blog', '\/sitemap_index\.xml'/)
+})
+
+test('global redirect RPC migration is domain-scoped and public-read-only', async () => {
+  const source = await readFile(
+    new URL('../supabase/migrations/20260722_list_public_redirects.sql', import.meta.url),
+    'utf8'
   )
 
-  assert.equal(internal?.toString(), 'https://teleanswertoday.pk/telecom/new-post')
-  assert.equal(canonical?.toString(), 'https://teleanswertoday.pk/telecom/new-post')
-  assert.equal(
-    resolveRedirectDestination(
-      'https://outside.example/telecom/new-post',
-      'https://teleanswertoday.pk/global/old-post',
-      'teleanswertoday.pk'
-    ),
-    null
-  )
+  assert.match(source, /list_public_redirects\(domain text\)/)
+  assert.match(source, /r\.website_id = public\.cms_public_website_id\(domain\)/)
+  assert.match(source, /revoke all on function public\.list_public_redirects\(text\) from public/i)
+  assert.match(source, /grant execute on function public\.list_public_redirects\(text\) to anon, authenticated/i)
+})
+
+test('global security headers include referrer and permissions policies', async () => {
+  const source = await readFile(new URL('../next.config.js', import.meta.url), 'utf8')
+
+  assert.match(source, /Referrer-Policy/)
+  assert.match(source, /strict-origin-when-cross-origin/)
+  assert.match(source, /Permissions-Policy/)
+  assert.match(source, /camera=\(\), geolocation=\(\), microphone=\(\), payment=\(\), usb=\(\)/)
 })
