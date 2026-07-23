@@ -271,7 +271,7 @@ Notes: Latest News is selected during homepage ISR generation and remains
 
 ## Task 4: Delay Google Analytics Until Browser Idle
 
-Status: `Temporarily Rolled Back for Production Test`
+Status: `Rollback Deployed - Result Review`
 
 Approval date: 2026-07-23
 
@@ -312,6 +312,8 @@ Notes: The external gtag script and inline dataLayer configuration now load
 ```text
 Rollback approval date: 2026-07-23
 Rollback implementation date: 2026-07-23
+Rollback deployment date: 2026-07-23
+Rollback commit: 737ff10
 Rollback change: Both GA scripts restored from lazyOnload to afterInteractive
 AdSense changes: None
 GA4 ID: G-Q6NJ8N20FV (unchanged)
@@ -323,7 +325,14 @@ CMS diagnostic before rollback: AdSense enabled with publisher ID and
   autoAdsEnabled=true; no manual placement slots were present
 Purpose: Determine whether the Task 4 timing change indirectly affected
   Google Auto Ads behavior
-Rollback test result: Pending deployment and multi-session production checks
+Production verification: The deployed GA scripts report
+  data-nscript="afterInteractive" and retain G-Q6NJ8N20FV
+Post-rollback ad samples: Two desktop sessions and one 375px mobile session
+  returned an unfilled in-page Auto Ad; the mobile session also prepared a
+  filled vignette, confirming that AdSense remained active
+Preliminary result: Restoring afterInteractive did not restore in-page image
+  ads, so current evidence does not support Task 4 as the direct cause
+GA4 Realtime verification: Requires confirmation in the site's GA4 account
 Decision rule: Keep the rollback if image ads consistently return; otherwise
   restore lazyOnload and address missing CMS placement slots separately
 Task 5 gate: Do not begin until this rollback result is reviewed
