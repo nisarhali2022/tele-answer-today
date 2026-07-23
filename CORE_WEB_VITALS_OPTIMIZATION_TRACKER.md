@@ -401,7 +401,7 @@ impressions, viewability, RPM, and page RPM for seven days after deployment.
 
 ## Task 6: Add Responsive Supabase Image Variants
 
-Status: `Planned`
+Status: `Implemented Locally - Verification Pending`
 
 Add thumbnail, card, and featured-image variants through the CMS/Supabase media
 flow. Use responsive variant URLs without restoring Vercel `/_next/image`
@@ -419,6 +419,35 @@ Target variants:
 
 Expected impact: approximately 675KB potential transfer reduction on the
 measured homepage and faster image rendering.
+
+### Implementation Record
+
+```text
+Implementation date: 2026-07-23
+Scope: Tele Answer Today only; current and future CMS uploads
+CMS storage: Immutable WebP derivatives stored as thumbnail (160px), card
+  (400px), and mobile (640px) only when smaller than the original
+CMS control: Website Settings now contains a per-site responsive image
+  variants switch; it remains off for all other sites by default
+CMS media UI: Original media remains one item; generated derivatives are shown
+  read-only underneath it and are never separately selectable
+Backfill: One Media Library action runs safe five-image server batches until
+  complete, is resumable after interruption, skips existing variants, and
+  revalidates CMS content after each successful batch
+Frontend: Sidebar uses thumbnail, content cards use card, and article/page
+  featured images use mobile on screens up to 640px with the original above it
+Preserved: Original image URLs remain canonical for metadata, social images,
+  schema, and sitemaps; inline article/page images remain unchanged; remote
+  CMS media continues to bypass Vercel /_next/image
+Verification: Pending CMS migration, automated checks, deployment, backfill,
+  and production PageSpeed comparison
+Automated checks: Tele Answer frontend 68/68 tests passed, lint passed, and
+  isolated production build passed with homepage First Load JS still 113kB.
+  CMS 120/120 tests passed, lint passed, and responsive-media modules passed
+  direct Node syntax checks. Its normal production build could not complete
+  locally because the active CMS dev server holds the shared .next output;
+  rerun that build after stopping the local CMS dev server or in CI.
+```
 
 ## Task 7: Isolate CMS Ad Settings From the Page Shell
 

@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { homeAnchorId } from '@/lib/homeAnchors'
+import ResponsiveCmsImage from '@/components/posts/ResponsiveCmsImage'
 import {
   getCategoryColor,
-  getFeaturedImageAlt,
   getFeaturedImageUrl,
 } from '@/lib/utils'
 
@@ -31,14 +30,11 @@ export default function LatestNewsGrid({ posts, limit = 6 }) {
             >
               <div className="relative aspect-video w-full overflow-hidden bg-surface">
                 {img ? (
-                  <Image
-                    src={img}
-                    alt={getFeaturedImageAlt(post)}
+                  <ResponsiveCmsImage
+                    post={post}
+                    mode="card"
                     fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 273px"
-                    quality={60}
-                    unoptimized
+                    className="transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
                   <div

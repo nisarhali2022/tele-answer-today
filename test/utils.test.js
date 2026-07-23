@@ -2,12 +2,42 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   calculateReadingTime,
+  getFeaturedImageDimensions,
+  getFeaturedImageUrl,
   normalizeContentLinks,
   optimizeContentImages,
   prepareContent,
   removeContentH1Blocks,
   wrapContentTables,
 } from '../lib/utils.js'
+
+test('featured images select responsive CMS variants with an original fallback', () => {
+  const post = {
+    featuredImage: {
+      url: 'https://cdn.example.com/original.webp',
+      width: 1200,
+      height: 675,
+      variants: {
+        thumbnail: {
+          url: 'https://cdn.example.com/thumbnail.webp',
+          width: 160,
+          height: 90,
+        },
+        card: {
+          url: 'https://cdn.example.com/card.webp',
+          width: 400,
+          height: 225,
+        },
+      },
+    },
+  }
+
+  assert.equal(getFeaturedImageUrl(post, 'thumbnail'), 'https://cdn.example.com/thumbnail.webp')
+  assert.equal(getFeaturedImageUrl(post, 'medium_large'), 'https://cdn.example.com/card.webp')
+  assert.equal(getFeaturedImageUrl(post, 'mobile'), 'https://cdn.example.com/original.webp')
+  assert.equal(getFeaturedImageUrl(post), 'https://cdn.example.com/original.webp')
+  assert.deepEqual(getFeaturedImageDimensions(post, 'card'), { width: 400, height: 225 })
+})
 
 test('reading time prefers the supplied CMS value', () => {
   assert.equal(calculateReadingTime('<p>Short card excerpt</p>', 4), '4 min read')

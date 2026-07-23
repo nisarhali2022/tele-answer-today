@@ -235,16 +235,23 @@ test('retired local quiz endpoint does not expose an editor', async () => {
   assert.match(source, /Supabase Admin CMS/)
 })
 
-test('CMS-backed image components bypass the Vercel image proxy', async () => {
-  const [featured, latest, recent] = await Promise.all([
+test('CMS-backed image components use direct responsive Storage media without rewriting body images', async () => {
+  const [featured, latest, recent, responsiveImage, utils] = await Promise.all([
     readSource('../components/posts/FeaturedImage.jsx'),
     readSource('../components/home/LatestNewsGrid.jsx'),
     readSource('../components/widgets/RecentPosts.jsx'),
+    readSource('../components/posts/ResponsiveCmsImage.jsx'),
+    readSource('../lib/utils.js'),
   ])
 
-  assert.match(featured, /\bunoptimized\b/)
-  assert.match(latest, /\bunoptimized\b/)
-  assert.match(recent, /\bunoptimized\b/)
+  assert.match(featured, /ResponsiveCmsImage/)
+  assert.match(latest, /mode="card"/)
+  assert.match(recent, /mode="thumbnail"/)
+  assert.match(responsiveImage, /<picture/)
+  assert.match(responsiveImage, /media="\(max-width: 640px\)"/)
+  assert.doesNotMatch(responsiveImage, /next\/image|\/_next\/image/)
+  assert.match(utils, /optimizeContentImages/)
+  assert.doesNotMatch(utils, /responsive-(?:thumbnail|card|mobile)/)
 })
 
 test('robots protect administrative and preview routes while exposing the sitemap index', async () => {

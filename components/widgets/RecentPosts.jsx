@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import ResponsiveCmsImage from '@/components/posts/ResponsiveCmsImage';
 import {
-  getFeaturedImageAlt,
   getFeaturedImageUrl,
   getFirstCategory,
 } from '@/lib/utils';
@@ -23,13 +22,11 @@ export default function RecentPosts({ posts = [], limit = 5 }) {
             >
               <div className="relative w-16 h-14 flex-shrink-0 rounded overflow-hidden bg-surface">
                 {imageUrl ? (
-                  <Image
-                    src={imageUrl}
-                    alt={getFeaturedImageAlt(post)}
+                  <ResponsiveCmsImage
+                    post={post}
+                    mode="thumbnail"
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-200"
-                    sizes="64px"
-                    unoptimized
+                    className="group-hover:scale-105 transition-transform duration-200"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-primary to-accent" />

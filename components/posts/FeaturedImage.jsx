@@ -1,16 +1,14 @@
-import Image from 'next/image'
-import { getFeaturedImageUrl, getFeaturedImageAlt, getCategoryColor, getFirstCategory } from '@/lib/utils'
+import ResponsiveCmsImage from './ResponsiveCmsImage'
+import { getFeaturedImageUrl, getCategoryColor, getFirstCategory } from '@/lib/utils'
 
 export default function FeaturedImage({
   post,
   priority = false,
   fill = false,
+  mode = 'article',
   className = '',
-  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 800px',
-  quality = 70,
 }) {
   const src = getFeaturedImageUrl(post)
-  const alt = getFeaturedImageAlt(post)
   const category = getFirstCategory(post)
   const fallbackColor = getCategoryColor(category?.slug || 'default')
 
@@ -25,33 +23,8 @@ export default function FeaturedImage({
   }
 
   if (fill) {
-    return (
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority={priority}
-        fetchPriority={priority ? 'high' : undefined}
-        className={`object-cover ${className}`}
-        sizes={sizes}
-        quality={quality}
-        unoptimized
-      />
-    )
+    return <ResponsiveCmsImage post={post} mode={mode} priority={priority} fill className={className} />
   }
 
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      width={800}
-      height={450}
-      priority={priority}
-      fetchPriority={priority ? 'high' : undefined}
-      className={`w-full h-auto object-cover ${className}`}
-      sizes={sizes}
-      quality={quality}
-      unoptimized
-    />
-  )
+  return <ResponsiveCmsImage post={post} mode={mode} priority={priority} className={className} />
 }
