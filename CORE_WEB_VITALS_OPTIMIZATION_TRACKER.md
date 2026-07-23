@@ -201,7 +201,7 @@ Notes: The TOC is now a Server Component using native details/summary markup.
 
 ## Task 3: Move Random Posts to Server Cache
 
-Status: `Implemented Locally`
+Status: `Monitoring`
 
 Approval date: 2026-07-23
 
@@ -224,35 +224,86 @@ Tests added: Fixed-first Latest News selection, unique random selections,
   short post pools, server-only post components, CMS-tagged sidebar cache,
   and newest-first Popular Posts preservation
 Test result: 66/66 tests passed; lint passed; production build passed
-Deployment date: Pending
+Deployment date: 2026-07-23
 Before homepage First Load JS: 116kB
 After homepage First Load JS: 113kB
 Before category/article First Load JS: 116kB
 After category/article First Load JS: 115kB
 Before Blog / Search First Load JS: 115kB / 113kB
 After Blog / Search First Load JS: 113kB / 111kB
-After Lighthouse metrics: Pending deployment
+After mobile run A: Performance 28; FCP 7.8s; LCP 11.5s; TBT 1,730ms;
+  CLS 0.004; Speed Index 11.7s
+After run A diagnostics: Initial navigation 227ms; main-thread work 11.4s;
+  script evaluation 6,346ms; style/layout 1,345ms; first-party CPU 2,319ms;
+  Google Ads CPU 3,857ms; Funding Choices CPU 1,235ms; GTM CPU 1,223ms
+After mobile run B: Performance 70; FCP 1.2s; LCP 2.2s; TBT 2,260ms;
+  CLS 0; Speed Index 3.0s
+After run B diagnostics: TTFB 60ms; LCP render delay 440ms;
+  main-thread work 6.8s; script evaluation 3,826ms; style/layout 469ms;
+  first-party CPU 1,668ms; Google Ads CPU 1,666ms;
+  Funding Choices CPU 1,145ms; GTM CPU 642ms
+After mobile run C: Performance 70; FCP 1.3s; LCP 2.0s; TBT 2,540ms;
+  CLS 0.004; Speed Index 2.9s
+After run C diagnostics: TTFB 60ms; LCP render delay 390ms;
+  main-thread work 8.2s; script evaluation 4,627ms; style/layout 1,503ms;
+  first-party CPU 1,907ms; Google Ads CPU 3,596ms;
+  Funding Choices CPU 1,039ms; GTM CPU 548ms
+Three-run middle result: Performance 70; FCP 1.3s; LCP 2.2s;
+  TBT 2,260ms; CLS 0.004; Speed Index 3.0s; first-party CPU 1,907ms
 Observed regressions: None in automated verification; production card
   stability and CMS revalidation checks remain pending
-Final status: Implemented Locally; deployment and monitoring pending
+Final status: Deployed and monitoring; three-run measurement is complete and
+  card stability/CMS revalidation checks remain before completion
 Notes: Latest News is selected during homepage ISR generation and remains
   newest two plus four unique older posts. Sidebar Recent Posts are selected
   from a one-hour unstable_cache entry tagged with cms and
   sidebar-post-selection. Popular Posts remain the newest five. The existing
   signed webhook's revalidateTag('cms') refreshes the sidebar selection without
   a new RPC or database change. The active dev server locked .next/trace, so
-  the successful verification build used .next-task3-verify.
+  the successful verification build used .next-task3-verify. Compared with the
+  Task 2 median, Task 3 improved Performance 67 to 70, FCP 1.5s to 1.3s, LCP
+  2.6s to 2.2s, TBT 2,670ms to 2,260ms, and median first-party CPU from about
+  2,552ms to 1,907ms. Speed Index remained effectively unchanged. Run A was an
+  advertising outlier whose critical dependency chain included Google ad/video
+  scripts with about 3,776ms latency. Run C loaded with #google_vignette. These
+  ad-format differences remain much larger than the post-widget optimization.
 ```
 
 ## Task 4: Delay Google Analytics Until Browser Idle
 
-Status: `Planned`
+Status: `Implemented Locally`
+
+Approval date: 2026-07-23
 
 Keep the static GA4 ID but use an idle/lazy loading strategy. Verify Realtime
 reporting after deployment.
 
 Expected impact: medium reduction in early JavaScript competition. Very short
 visits may occasionally end before analytics initializes.
+
+### Implementation Record
+
+```text
+Implementation date: 2026-07-23
+Files changed: app/layout.jsx, test/homepage.test.js,
+  CORE_WEB_VITALS_OPTIMIZATION_TRACKER.md
+Tests added: Both GA scripts use lazyOnload, afterInteractive is absent,
+  dataLayer/gtag initialization remains, and the static GA4 ID is unchanged
+Test result: 67/67 tests passed; lint passed; production build passed
+Deployment date: Pending
+Before script strategy: afterInteractive
+After script strategy: lazyOnload
+Before / after homepage First Load JS: 113kB / 113kB
+After Lighthouse metrics: Pending deployment
+Analytics verification: Pending GA4 Realtime and seven-day comparison
+Observed regressions: None in automated verification
+Final status: Implemented Locally; deployment and monitoring pending
+Notes: The external gtag script and inline dataLayer configuration now load
+  after window load during browser idle time. Publisher IDs, AdSense, Funding
+  Choices, CMS settings, and GA event configuration were not changed. The
+  active dev server locked .next/trace, so the successful verification build
+  used .next-task4-verify.
+```
 
 ## Task 5: Balanced Mobile AdSense Delay
 

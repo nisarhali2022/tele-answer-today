@@ -157,6 +157,21 @@ test('TOC uses a native disclosure without client state or hydration', async () 
   assert.doesNotMatch(tocSource, /<button/)
 })
 
+test('Google Analytics stays static and loads during browser idle time', async () => {
+  const [layout, constants] = await Promise.all([
+    readSource('../app/layout.jsx'),
+    readSource('../lib/constants.js'),
+  ])
+
+  assert.equal((layout.match(/strategy="lazyOnload"/g) || []).length, 2)
+  assert.doesNotMatch(layout, /strategy="afterInteractive"/)
+  assert.match(layout, /window\.dataLayer = window\.dataLayer \|\| \[\]/)
+  assert.match(layout, /gtag\('js', new Date\(\)\)/)
+  assert.match(layout, /gtag\('config', '\$\{SITE_CONFIG\.googleAnalyticsId\}'\)/)
+  assert.match(constants, /googleAnalyticsId:\s*'G-Q6NJ8N20FV'/)
+  assert.doesNotMatch(constants, /NEXT_PUBLIC_GOOGLE_ANALYTICS|GA_MEASUREMENT_ID/)
+})
+
 test('server post selectors keep fixed news posts and return unique cards safely', async () => {
   const { selectLatestNewsPosts, selectRandomPosts } = await import('../lib/latestNews.js')
   const posts = Array.from({ length: 10 }, (_, index) => ({ id: index + 1 }))
