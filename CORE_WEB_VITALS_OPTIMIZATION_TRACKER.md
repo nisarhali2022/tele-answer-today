@@ -399,9 +399,32 @@ Evidence from the slow mobile run:
 Expected impact: largest likely mobile TBT/INP improvement. Monitor mobile
 impressions, viewability, RPM, and page RPM for seven days after deployment.
 
+### No-Ads Diagnostic
+
+```text
+Measurement date: 2026-07-23
+Configuration: supplied Lighthouse report without AdSense and Funding Choices
+  activity; GTM remained present
+Result: Performance 76; FCP 1.4s; LCP 2.0s; TBT 1,090ms; CLS 0;
+  Speed Index 1.7s
+Comparison with Task 6 three-run middle result: Performance improved from 68
+  to 76; FCP and LCP remained at 1.4s and 2.0s; TBT improved from 2,580ms to
+  1,090ms (1,490ms less); CLS improved from 0.004 to 0
+Remaining third-party work: GTM transferred 163KB and used about 114ms of
+  main-thread time
+Remaining first-party work: Lighthouse recorded 4.3s main-thread work,
+  including 1,645ms style/layout and 1,041ms script evaluation
+Interpretation: Advertising and consent are the largest source of score
+  variability, but fully removing ads is not a valid production solution.
+  This supports a carefully measured mobile ad-delay/placement strategy and
+  confirms that Tasks 7 and 8 still have value after ad work is addressed.
+Limit: This is one controlled lab run, not field data; retain the three-run
+  production measurement standard for future decisions.
+```
+
 ## Task 6: Add Responsive Supabase Image Variants
 
-Status: `Implemented Locally - Verification Pending`
+Status: `Deployed and Monitoring`
 
 Add thumbnail, card, and featured-image variants through the CMS/Supabase media
 flow. Use responsive variant URLs without restoring Vercel `/_next/image`
@@ -439,14 +462,41 @@ Frontend: Sidebar uses thumbnail, content cards use card, and article/page
 Preserved: Original image URLs remain canonical for metadata, social images,
   schema, and sitemaps; inline article/page images remain unchanged; remote
   CMS media continues to bypass Vercel /_next/image
-Verification: Pending CMS migration, automated checks, deployment, backfill,
-  and production PageSpeed comparison
+Verification: CMS migration, deployment, and production PageSpeed comparison
+  completed. Confirm the per-site setting is enabled and complete the Media
+  Library backfill before treating all existing card/sidebar media as covered.
 Automated checks: Tele Answer frontend 68/68 tests passed, lint passed, and
   isolated production build passed with homepage First Load JS still 113kB.
   CMS 120/120 tests passed, lint passed, and responsive-media modules passed
   direct Node syntax checks. Its normal production build could not complete
   locally because the active CMS dev server holds the shared .next output;
   rerun that build after stopping the local CMS dev server or in CI.
+Deployment date: 2026-07-23
+After mobile run A: Performance 73; FCP 1.4s; LCP 2.0s; TBT 1,280ms;
+  CLS 0.004; Speed Index 3.7s
+After mobile run B: Performance 68; FCP 1.2s; LCP 1.9s; TBT 3,010ms;
+  CLS 0.004
+After mobile run C: Performance 33; FCP 4.0s; LCP 6.2s; TBT 2,580ms;
+  CLS 0.004; Speed Index 8.5s
+Three-run middle result: Performance 68; FCP 1.4s; LCP 2.0s; TBT 2,580ms;
+  CLS 0.004
+Observed regressions: No visible layout regression in the supplied mobile
+  reports. Lighthouse still flags one unsized image element, which needs a
+  separate component-level check and is not evidence that rich-text inline
+  images changed.
+Notes: Runs A and B met the lab LCP target, while C was an ad-heavy outlier.
+  Run C had an 80ms TTFB but a 4,180ms render delay for the LCP paragraph;
+  its report identified Google ad resources as preconnect candidates and
+  showed a 166KB Google/DoubleClick ad transfer. Run A attributed about
+  1,566ms CPU to Google/DoubleClick Ads, 713ms to Funding Choices, 438ms to
+  Google Tag Manager, and 1,489ms to first-party work. This means the variant
+  work did not create the poor outlier and cannot by itself solve the current
+  TBT/INP bottleneck. It should lower image transfer for the targeted card and
+  thumbnail views after existing media has been backfilled; it intentionally
+  leaves inline article images unchanged. The supplied Lighthouse reports did
+  not list image delivery, image encoding, or oversized images as an active
+  opportunity, which is a positive signal that the above-the-fold media path
+  is no longer a primary lab bottleneck.
 ```
 
 ## Task 7: Isolate CMS Ad Settings From the Page Shell
@@ -462,14 +512,36 @@ hydration. This requires careful server/client boundary testing.
 
 ## Task 8: Reduce Homepage DOM and Style Cost
 
-Status: `Planned`
+Status: `Implemented Locally - Deployment Pending`
 
-Remove duplicated, empty, hidden, or unnecessary wrappers while preserving all
-meaningful content, heading hierarchy, TOC entries, metadata, and schema. Do
-not shorten or delete content without separate approval.
+Remove only render-only homepage wrappers while preserving all meaningful
+content, heading hierarchy, TOC entries, metadata, and schema. All lower
+homepage sections remain expanded; do not shorten, hide, or delete content.
 
-Expected impact: medium-to-large improvement on slower mobile devices. This is
-the highest content/SEO regression-risk task and remains last.
+Expected impact: small reduction in DOM work. The former medium-to-large option
+would require collapsing content, which is intentionally out of scope because
+of its SEO, TOC, and mobile-layout risk.
+
+### Chunk 8A: Safe Structural Cleanup
+
+```text
+Implementation date: 2026-07-24
+Changes: Replaced the homepage root render-only wrapper and the static
+QuizInfoSections root render-only wrapper with React fragments
+Preserved: Section wrappers, paragraph-spacing wrappers, grid, article,
+sidebar, deferred-content containers, ads, quiz cards, Latest News, and CMS
+HTML containers
+Tests added: Source assertions that both targeted roots are fragments and the
+static information root is no longer a div
+Local verification: 69/69 tests passed, lint passed, and isolated production
+build passed; homepage First Load JS remains 113kB
+Deployment and measurement: Pending. Deploy Chunk 8A alone, verify 360px,
+375px, 430px, and desktop layouts plus TOC/direct-hash targets, then run three
+mobile Lighthouse tests and record the middle result before considering more
+DOM work.
+Gate: If the measured gain is not meaningful, close Task 8 rather than making
+speculative higher-risk markup changes.
+```
 
 ## Verification Standard
 

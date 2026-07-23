@@ -186,7 +186,7 @@ export default async function HomePage() {
     dateModified: seoDateModified,
   };
   return (
-    <div>
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(homepageSchema) }}
@@ -322,6 +322,6 @@ export default async function HomePage() {
           </Suspense>
         </div>
       </div>
-    </div>
+    </>
   );
 }

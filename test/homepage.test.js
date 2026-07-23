@@ -134,6 +134,17 @@ test('homepage defers only informational content after Latest News', async () =>
   assert.equal((styles.match(/\.home-content-deferred\s*\{/g) || []).length, 2)
 })
 
+test('homepage and static quiz information omit only render-only root wrappers', async () => {
+  const [home, info] = await Promise.all([
+    readSource('../app/page.jsx'),
+    readSource('../components/home/QuizInfoSections.jsx'),
+  ])
+
+  assert.match(home, /return\s*\(\s*<>\s*<script/)
+  assert.match(info, /return\s*\(\s*<>\s*<Section/)
+  assert.doesNotMatch(info, /return\s*\(\s*<div>\s*<Section/)
+})
+
 test('homepage TOC has readable anchors for main article headings', async () => {
   const { homeAnchorId } = await import('../lib/homeAnchors.js')
   const tocSource = await readSource('../components/posts/TableOfContents.jsx')

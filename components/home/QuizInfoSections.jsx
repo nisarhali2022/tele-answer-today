@@ -19,7 +19,7 @@ function Section({ title, children, highlight = false }) {
 
 export default function QuizInfoSections() {
   return (
-    <div>
+    <>
       <Section title="What is the Telenor Daily Quiz?">
         <p>
           When Telenor first launched the <b>Test Your Skills</b> feature inside its
@@ -357,6 +357,6 @@ export default function QuizInfoSections() {
           The few minutes you invest each day compound into significant knowledge gains and substantial connectivity savings over time. Ready to start your daily knowledge journey? Download the My Telenor App answer today, and join thousands of users who've discovered that learning truly can be rewarding. Your next 150 MB of free internet is just five questions away!
         </p>
       </Section>
-    </div>
+    </>
   )
 }
