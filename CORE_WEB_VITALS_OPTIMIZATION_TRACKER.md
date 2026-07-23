@@ -271,7 +271,7 @@ Notes: Latest News is selected during homepage ISR generation and remains
 
 ## Task 4: Delay Google Analytics Until Browser Idle
 
-Status: `Implemented Locally`
+Status: `Temporarily Rolled Back for Production Test`
 
 Approval date: 2026-07-23
 
@@ -290,19 +290,43 @@ Files changed: app/layout.jsx, test/homepage.test.js,
 Tests added: Both GA scripts use lazyOnload, afterInteractive is absent,
   dataLayer/gtag initialization remains, and the static GA4 ID is unchanged
 Test result: 67/67 tests passed; lint passed; production build passed
-Deployment date: Pending
+Deployment date: 2026-07-23
 Before script strategy: afterInteractive
 After script strategy: lazyOnload
 Before / after homepage First Load JS: 113kB / 113kB
 After Lighthouse metrics: Pending deployment
 Analytics verification: Pending GA4 Realtime and seven-day comparison
-Observed regressions: None in automated verification
-Final status: Implemented Locally; deployment and monitoring pending
+Observed regression report: Image/display Auto Ads stopped appearing after
+  the Task 4 deployment; causation is not yet established
+Final status: Temporarily rolled back to afterInteractive for an isolated
+  production comparison
 Notes: The external gtag script and inline dataLayer configuration now load
   after window load during browser idle time. Publisher IDs, AdSense, Funding
   Choices, CMS settings, and GA event configuration were not changed. The
   active dev server locked .next/trace, so the successful verification build
   used .next-task4-verify.
+```
+
+### Temporary Rollback Experiment
+
+```text
+Rollback approval date: 2026-07-23
+Rollback implementation date: 2026-07-23
+Rollback change: Both GA scripts restored from lazyOnload to afterInteractive
+AdSense changes: None
+GA4 ID: G-Q6NJ8N20FV (unchanged)
+Local verification: 67/67 tests passed; lint passed; isolated production
+  build passed with homepage First Load JS unchanged at 113kB
+Live diagnostic before rollback: AdSense and Funding Choices scripts loaded,
+  but the observed Auto Ads request returned data-ad-status="unfilled"
+CMS diagnostic before rollback: AdSense enabled with publisher ID and
+  autoAdsEnabled=true; no manual placement slots were present
+Purpose: Determine whether the Task 4 timing change indirectly affected
+  Google Auto Ads behavior
+Rollback test result: Pending deployment and multi-session production checks
+Decision rule: Keep the rollback if image ads consistently return; otherwise
+  restore lazyOnload and address missing CMS placement slots separately
+Task 5 gate: Do not begin until this rollback result is reviewed
 ```
 
 ## Task 5: Balanced Mobile AdSense Delay
