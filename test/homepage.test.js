@@ -157,15 +157,46 @@ test('TOC uses a native disclosure without client state or hydration', async () 
   assert.doesNotMatch(tocSource, /<button/)
 })
 
-test('Latest News keeps the newest two cards fixed and chooses only older cards randomly', async () => {
-  const { selectLatestNewsPosts } = await import('../lib/latestNews.js')
+test('server post selectors keep fixed news posts and return unique cards safely', async () => {
+  const { selectLatestNewsPosts, selectRandomPosts } = await import('../lib/latestNews.js')
   const posts = Array.from({ length: 10 }, (_, index) => ({ id: index + 1 }))
-  const selected = selectLatestNewsPosts(posts, 6)
+  const selected = selectLatestNewsPosts(posts, 6, () => 0.25)
 
   assert.equal(selected.length, 6)
   assert.equal(selected[0], posts[0])
   assert.equal(selected[1], posts[1])
   assert.ok(selected.slice(2).every((post) => posts.indexOf(post) >= 2))
+  assert.equal(new Set(selected.map((post) => post.id)).size, 6)
+
+  const shortSelection = selectLatestNewsPosts(posts.slice(0, 4), 6, () => 0.5)
+  assert.equal(shortSelection.length, 4)
+  assert.equal(new Set(shortSelection.map((post) => post.id)).size, 4)
+
+  const recentPosts = selectRandomPosts(posts, 5, () => 0.75)
+  assert.equal(recentPosts.length, 5)
+  assert.equal(new Set(recentPosts.map((post) => post.id)).size, 5)
+})
+
+test('Latest News and Recent Posts use server selection with CMS-tagged caching', async () => {
+  const [home, latestNews, recentPosts, sidebar, cms] = await Promise.all([
+    readSource('../app/page.jsx'),
+    readSource('../components/home/LatestNewsGrid.jsx'),
+    readSource('../components/widgets/RecentPosts.jsx'),
+    readSource('../components/layout/Sidebar.jsx'),
+    readSource('../lib/cms/index.js'),
+  ])
+
+  assert.match(home, /selectLatestNewsPosts\(newsData\?\.posts \|\| \[\], 6\)/)
+  assert.match(sidebar, /getSidebarPostLists\(\)/)
+  assert.match(cms, /unstable_cache/)
+  assert.match(cms, /revalidate:\s*CACHE_SECONDS/)
+  assert.match(cms, /tags:\s*\['cms', 'sidebar-post-selection'\]/)
+  assert.match(cms, /popularPosts:\s*posts\.slice\(0, safePopularLimit\)/)
+
+  for (const source of [latestNews, recentPosts]) {
+    assert.doesNotMatch(source, /['"]use client['"]/)
+    assert.doesNotMatch(source, /useState|useEffect|Math\.random/)
+  }
 })
 
 test('public quiz options stay full-width on mobile and use two columns from tablet', async () => {

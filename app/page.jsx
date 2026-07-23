@@ -6,6 +6,7 @@ import { getKarachiDateLabel, getKarachiSeoDateLabel, getKarachiSeoDayStartISO }
 import { buildMetadata } from '@/lib/seo';
 import { serializeJsonLd } from '@/lib/schema';
 import { homeAnchorId } from '@/lib/homeAnchors';
+import { selectLatestNewsPosts } from '@/lib/latestNews';
 import {
   ensureSingleHomeH1,
   formatHomeTemplate,
@@ -131,7 +132,7 @@ export default async function HomePage() {
     ),
   ]);
 
-  const newsPosts = newsData?.posts || [];
+  const newsPosts = selectLatestNewsPosts(newsData?.posts || [], 6);
   const quizQuestions = Array.isArray(quiz?.questions) ? quiz.questions : [];
 
   const todayLabel = getKarachiDateLabel();

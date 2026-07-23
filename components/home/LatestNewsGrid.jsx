@@ -1,10 +1,6 @@
-'use client'
-
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
 import { homeAnchorId } from '@/lib/homeAnchors'
-import { selectLatestNewsPosts } from '@/lib/latestNews'
 import {
   getCategoryColor,
   getFeaturedImageAlt,
@@ -12,16 +8,8 @@ import {
 } from '@/lib/utils'
 
 export default function LatestNewsGrid({ posts, limit = 6 }) {
-  const [visiblePosts, setVisiblePosts] = useState(() =>
-    (posts || []).slice(0, limit)
-  )
-
-  useEffect(() => {
-    if (!posts?.length) return
-    setVisiblePosts(selectLatestNewsPosts(posts, limit))
-  }, [posts, limit])
-
   if (!posts?.length) return null
+  const visiblePosts = posts.slice(0, limit)
 
   return (
     <section id={homeAnchorId('Latest News')} className="my-8">

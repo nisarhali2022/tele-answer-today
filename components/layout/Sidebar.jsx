@@ -1,14 +1,14 @@
-import { getCategories, getLatestPosts, getMostCommentedPosts } from '@/lib/cms'
+import { getCategories, getSidebarPostLists } from '@/lib/cms'
 import CategoryList from '@/components/widgets/CategoryList'
 import RecentPosts from '@/components/widgets/RecentPosts'
 import PopularPosts from '@/components/widgets/PopularPosts'
 
 export default async function Sidebar() {
-  const recentPosts = await getLatestPosts(12)
-  const [categories, popularPosts] = await Promise.all([
+  const [categories, postLists] = await Promise.all([
     getCategories(),
-    getMostCommentedPosts(5, recentPosts.slice(0, 5)),
+    getSidebarPostLists(),
   ])
+  const { recentPosts, popularPosts } = postLists
 
   return (
     <aside className="render-deferred w-full self-start space-y-6 lg:sticky lg:top-20">

@@ -142,7 +142,7 @@ Notes: The normal .next directory was locked by the active local Next process,
 
 ## Task 2: Convert TOC to Native Disclosure
 
-Status: `Implemented Locally`
+Status: `Monitoring`
 
 Approval date: 2026-07-23
 
@@ -160,23 +160,50 @@ Files changed: components/posts/TableOfContents.jsx, test/homepage.test.js,
 Tests added: Native disclosure, no client directive/state/click handler,
   default-expanded support, and disclosure icon state
 Test result: 65/65 tests passed; lint passed; production build passed
-Deployment date: Pending
+Deployment date: 2026-07-23
 Before homepage route / First Load JS: 2.04kB / 117kB
 After homepage route / First Load JS: 1.52kB / 116kB
-After Lighthouse metrics: Pending deployment
+After mobile run A: Performance 78; FCP 1.5s; LCP 1.9s; TBT 910ms;
+  CLS 0.004; Speed Index 2.4s
+After run A diagnostics: TTFB 80ms; main-thread work 4.9s;
+  script evaluation 2,245ms; style/layout 787ms
+After mobile run B: Performance 38; FCP 6.8s; LCP 8.8s; TBT 2,720ms;
+  CLS 0.004; Speed Index 21.5s
+After run B diagnostics: TTFB 70ms; LCP element render delay 13,190ms;
+  main-thread work 8.5s; script evaluation 4,491ms; style/layout 1,774ms
+After mobile run C: Performance 67; FCP 1.5s; LCP 2.6s; TBT 2,670ms;
+  CLS 0.004; Speed Index 2.9s
+After run C diagnostics: TTFB 70ms; LCP element render delay 480ms;
+  main-thread work 8.6s; script evaluation 4,673ms; style/layout 1,449ms
+Three-run middle result: Performance 67; FCP 1.5s; LCP 2.6s;
+  TBT 2,670ms; CLS 0.004; Speed Index 2.9s
 Observed regressions: None in automated verification; production TOC expand,
   collapse, anchor, and keyboard checks remain pending
-Final status: Implemented Locally; deployment and monitoring pending
+Final status: Deployed and monitoring; three-run measurement is complete and
+  only the manual production TOC checks remain before completion
 Notes: The TOC is now a Server Component using native details/summary markup.
   All full-title anchor links, indentation, defaultExpanded behavior, and the
   fixed-header anchor offset remain unchanged. The normal .next directory was
   locked by the active local dev process, so the successful build used the
-  isolated .next-task2-verify directory.
+  isolated .next-task2-verify directory. Run A improved over the detailed Task
+  1 run, but run B was a severe render-delay outlier despite a fast 70ms TTFB.
+  Run A recorded about 1,264ms Google Ads CPU, 418ms Funding Choices CPU, 338ms
+  Google Tag Manager CPU, and 1,509ms first-party CPU. Run B recorded about
+  2,517ms Google Ads CPU, 894ms Funding Choices CPU, 605ms Google Tag Manager
+  CPU, and 2,998ms first-party CPU. This confirms that third-party/main-thread
+  variability is much larger than Task 2's intentionally small TOC saving. Run
+  C reinforced that conclusion with a fast 70ms TTFB but 8.6s of main-thread
+  work: about 2,930ms Google Ads CPU, 1,011ms Funding Choices CPU, 841ms Google
+  Tag Manager CPU, and 2,552ms first-party CPU. The three-run median score is
+  67; Task 2 removes a small recurring hydration cost but does not solve the
+  dominant advertising, consent, analytics, and first-party scripting costs.
 ```
 
 ## Task 3: Move Random Posts to Server Cache
 
-Status: `Planned`
+Status: `Implemented Locally`
+
+Approval date: 2026-07-23
 
 Keep the newest two Latest News cards fixed, choose four older cards on the
 server, and select Recent Posts on the server. Selections change after cache
@@ -184,6 +211,38 @@ regeneration instead of through client effects on each reload.
 
 Expected impact: small-to-medium hydration/TBT improvement and more stable
 image rendering.
+
+### Implementation Record
+
+```text
+Implementation date: 2026-07-23
+Files changed: app/page.jsx, components/home/LatestNewsGrid.jsx,
+  components/widgets/RecentPosts.jsx, components/layout/Sidebar.jsx,
+  lib/latestNews.js, lib/cms/index.js, test/homepage.test.js,
+  CORE_WEB_VITALS_OPTIMIZATION_TRACKER.md
+Tests added: Fixed-first Latest News selection, unique random selections,
+  short post pools, server-only post components, CMS-tagged sidebar cache,
+  and newest-first Popular Posts preservation
+Test result: 66/66 tests passed; lint passed; production build passed
+Deployment date: Pending
+Before homepage First Load JS: 116kB
+After homepage First Load JS: 113kB
+Before category/article First Load JS: 116kB
+After category/article First Load JS: 115kB
+Before Blog / Search First Load JS: 115kB / 113kB
+After Blog / Search First Load JS: 113kB / 111kB
+After Lighthouse metrics: Pending deployment
+Observed regressions: None in automated verification; production card
+  stability and CMS revalidation checks remain pending
+Final status: Implemented Locally; deployment and monitoring pending
+Notes: Latest News is selected during homepage ISR generation and remains
+  newest two plus four unique older posts. Sidebar Recent Posts are selected
+  from a one-hour unstable_cache entry tagged with cms and
+  sidebar-post-selection. Popular Posts remain the newest five. The existing
+  signed webhook's revalidateTag('cms') refreshes the sidebar selection without
+  a new RPC or database change. The active dev server locked .next/trace, so
+  the successful verification build used .next-task3-verify.
+```
 
 ## Task 4: Delay Google Analytics Until Browser Idle
 
