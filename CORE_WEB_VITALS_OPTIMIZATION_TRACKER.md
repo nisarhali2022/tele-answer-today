@@ -271,7 +271,7 @@ Notes: Latest News is selected during homepage ISR generation and remains
 
 ## Task 4: Delay Google Analytics Until Browser Idle
 
-Status: `Rollback Deployed - Result Review`
+Status: `Reimplemented Locally - Deployment Pending`
 
 Approval date: 2026-07-23
 
@@ -297,9 +297,9 @@ Before / after homepage First Load JS: 113kB / 113kB
 After Lighthouse metrics: Pending deployment
 Analytics verification: Pending GA4 Realtime and seven-day comparison
 Observed regression report: Image/display Auto Ads stopped appearing after
-  the Task 4 deployment; causation is not yet established
-Final status: Temporarily rolled back to afterInteractive for an isolated
-  production comparison
+  the Task 4 deployment; the rollback experiment did not reproduce a recovery
+Final status: Reimplemented locally because the controlled rollback did not
+  support Task 4 as the direct cause
 Notes: The external gtag script and inline dataLayer configuration now load
   after window load during browser idle time. Publisher IDs, AdSense, Funding
   Choices, CMS settings, and GA event configuration were not changed. The
@@ -333,10 +333,54 @@ Post-rollback ad samples: Two desktop sessions and one 375px mobile session
 Preliminary result: Restoring afterInteractive did not restore in-page image
   ads, so current evidence does not support Task 4 as the direct cause
 GA4 Realtime verification: Requires confirmation in the site's GA4 account
-Decision rule: Keep the rollback if image ads consistently return; otherwise
-  restore lazyOnload and address missing CMS placement slots separately
-Task 5 gate: Do not begin until this rollback result is reviewed
+Decision: Restore lazyOnload and address missing CMS placement slots separately
+Task 5 gate: Do not begin until Task 4A and this reimplementation are reviewed
 ```
+
+### Reimplementation Record
+
+```text
+Reimplementation date: 2026-07-23
+Change: Both GA scripts restored from afterInteractive to lazyOnload
+Reason: The production rollback did not restore in-page image ads
+AdSense changes: None
+Local verification: 67/67 tests passed; lint passed; isolated production build
+  passed with homepage First Load JS unchanged at 113kB
+Deployment and GA4 Realtime confirmation: Pending
+```
+
+## Task 4A: Configure CMS Manual Ad Placement Slots
+
+Status: `Planned`
+
+Create responsive Display ad units in Google AdSense and save their supplied
+slot IDs in the Tele Answer Today CMS AdSense settings. The current live CMS
+payload enables Auto Ads but has no manual placement slots, so the project's
+existing manual ad components do not render.
+
+Required CMS slot keys:
+
+| Placement | CMS key | Intended layout |
+| --- | --- | --- |
+| Top | `top` | Responsive banner / leaderboard |
+| Mid-content | `mid` | Responsive display unit |
+| In-article | `inArticle` | 300x250 or 336x280-friendly area |
+| Sidebar | `sidebar` | 300x250-friendly area |
+| After content | `afterContent` | Responsive display unit |
+| Bottom | `bottom` | Responsive display unit |
+
+Implementation sequence:
+
+1. Create the six Display ad units in the Google AdSense dashboard.
+2. Save the returned numeric slot IDs in the CMS keys above for this website.
+3. Keep the static publisher ID and `ads.txt` unchanged.
+4. Revalidate the site and inspect each placement for a filled iframe.
+5. Compare RPM, viewability, layout stability, and page speed before deciding
+   whether Auto Ads should remain enabled alongside manual placements.
+
+Expected impact: Restores the app's intentional placement containers and gives
+Google appropriately sized display opportunities. Google still controls whether
+each filled impression uses an image, text, or video creative.
 
 ## Task 5: Balanced Mobile AdSense Delay
 

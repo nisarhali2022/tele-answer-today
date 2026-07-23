@@ -157,14 +157,14 @@ test('TOC uses a native disclosure without client state or hydration', async () 
   assert.doesNotMatch(tocSource, /<button/)
 })
 
-test('Google Analytics stays static and uses the rollback loading strategy', async () => {
+test('Google Analytics stays static and loads during browser idle time', async () => {
   const [layout, constants] = await Promise.all([
     readSource('../app/layout.jsx'),
     readSource('../lib/constants.js'),
   ])
 
-  assert.equal((layout.match(/strategy="afterInteractive"/g) || []).length, 2)
-  assert.doesNotMatch(layout, /strategy="lazyOnload"/)
+  assert.equal((layout.match(/strategy="lazyOnload"/g) || []).length, 2)
+  assert.doesNotMatch(layout, /strategy="afterInteractive"/)
   assert.match(layout, /window\.dataLayer = window\.dataLayer \|\| \[\]/)
   assert.match(layout, /gtag\('js', new Date\(\)\)/)
   assert.match(layout, /gtag\('config', '\$\{SITE_CONFIG\.googleAnalyticsId\}'\)/)
