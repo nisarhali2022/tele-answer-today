@@ -139,7 +139,7 @@ Status updated June 28, 2026.
 - [x] Keep Google Analytics, Google AdSense, and Google Search Console values
       static in app configuration for consistent sitewide tracking,
       advertising, and verification.
-- [x] Add `/api/cron/seo-preupdate` at `13:00 UTC` and update
+- [x] Add `/api/cron/seo-preupdate` at `16:00 UTC` and update
       `/api/cron/midnight` so both revalidate `/`, `/page-sitemap.xml`, and
       `/sitemap_index.xml`.
 

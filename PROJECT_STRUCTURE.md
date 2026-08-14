@@ -59,7 +59,7 @@ tele-answer-today/
 | `/api/quiz` | `app/api/quiz/route.js` | WordPress posts API | Read/write daily quiz post |
 | `/api/revalidate` | `app/api/revalidate/route.js` | Next cache API | On-demand revalidation |
 | `/api/cron/midnight` | `app/api/cron/midnight/route.js` | Next cache API | Daily homepage invalidation |
-| `/api/cron/seo-preupdate` | `app/api/cron/seo-preupdate/route.js` | Next cache API | 6 PM PKT SEO date invalidation |
+| `/api/cron/seo-preupdate` | `app/api/cron/seo-preupdate/route.js` | Next cache API | 9 PM PKT SEO date invalidation |
 | `/sitemap_index.xml` | `app/sitemap_index.xml/route.js` | Sitemap helpers | Sitemap index |
 | `/post-sitemap.xml` | `app/post-sitemap.xml/route.js` | WordPress posts | Blog and post URLs |
 | `/page-sitemap.xml` | `app/page-sitemap.xml/route.js` | WordPress pages/quiz | Homepage and page URLs |
@@ -394,7 +394,7 @@ returns the current Karachi date automatically.
 
 ### `GET /api/cron/seo-preupdate`
 
-Vercel Cron calls this endpoint daily at 13:00 UTC using:
+Vercel Cron calls this endpoint daily at 16:00 UTC using:
 
 ```text
 Authorization: Bearer CRON_SECRET

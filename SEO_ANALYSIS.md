@@ -518,10 +518,10 @@ same convention.
 **Source:** Code
 
 The H1 contains the current visible Karachi date. Homepage metadata uses a
-separate SEO freshness date that adds six hours before formatting in Karachi
+separate SEO freshness date that adds three hours before formatting in Karachi
 time.
 
-**Impact:** From 6:00 PM to 11:59 PM PKT, search-facing metadata can show
+**Impact:** From 9:00 PM to 11:59 PM PKT, search-facing metadata can show
 tomorrow's date while the visible page still shows today's date. This is a
 deliberate homepage-only SEO freshness strategy.
 

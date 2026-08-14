@@ -25,28 +25,28 @@ test('Karachi sitemap day start uses the correct offset', () => {
   )
 })
 
-test('Karachi SEO date rolls over six hours before visible date', () => {
+test('Karachi SEO date rolls over three hours before visible date', () => {
   assert.equal(
-    getKarachiDateISO(new Date('2026-06-20T12:59:59Z')),
+    getKarachiDateISO(new Date('2026-06-20T15:59:59Z')),
     '2026-06-20'
   )
   assert.equal(
-    getKarachiSeoDateISO(new Date('2026-06-20T12:59:59Z')),
+    getKarachiSeoDateISO(new Date('2026-06-20T15:59:59Z')),
     '2026-06-20'
   )
   assert.equal(
-    getKarachiDateISO(new Date('2026-06-20T13:00:00Z')),
+    getKarachiDateISO(new Date('2026-06-20T16:00:00Z')),
     '2026-06-20'
   )
   assert.equal(
-    getKarachiSeoDateISO(new Date('2026-06-20T13:00:00Z')),
+    getKarachiSeoDateISO(new Date('2026-06-20T16:00:00Z')),
     '2026-06-21'
   )
 })
 
 test('Karachi SEO sitemap day start uses the early SEO date', () => {
   assert.equal(
-    getKarachiSeoDayStartISO(new Date('2026-06-20T13:00:00Z')),
+    getKarachiSeoDayStartISO(new Date('2026-06-20T16:00:00Z')),
     '2026-06-21T00:00:00+05:00'
   )
 })

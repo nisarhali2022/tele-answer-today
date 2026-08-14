@@ -69,7 +69,7 @@ separate application database.
 - Daily quiz answers on the homepage.
 - Dynamic Karachi visible date that changes at midnight Pakistan time without
   requiring a quiz update.
-- Homepage SEO date mode that advances six hours early for metadata, homepage
+- Homepage SEO date mode that advances three hours early for metadata, homepage
   WebPage schema, and sitemap freshness.
 - Latest-news homepage cards.
 - Category, tag, blog, and search archives with pagination.
@@ -134,8 +134,8 @@ renders quiz answers, latest news, static informational sections,
 participation steps, ads, FAQs, and the sidebar.
 
 Homepage metadata, homepage WebPage JSON-LD, and the homepage entry in
-`/page-sitemap.xml` use a separate SEO date helper that adds six hours before
-formatting in `Asia/Karachi`. From `18:00` to `23:59` Pakistan time,
+`/page-sitemap.xml` use a separate SEO date helper that adds three hours before
+formatting in `Asia/Karachi`. From `21:00` to `23:59` Pakistan time,
 Google-facing metadata can show tomorrow's date while the visible H1 still
 shows today's date.
 
@@ -225,10 +225,10 @@ If a webhook can only send `category` and `slug`, the app revalidates
 
 ### Daily Date Refresh
 
-`vercel.json` calls `/api/cron/seo-preupdate` at `13:00 UTC`, which is
-`18:00` in Karachi. It revalidates `/`, `/page-sitemap.xml`, and
+`vercel.json` calls `/api/cron/seo-preupdate` at `16:00 UTC`, which is
+`21:00` in Karachi. It revalidates `/`, `/page-sitemap.xml`, and
 `/sitemap_index.xml` so homepage SEO metadata and sitemap freshness can move
-to tomorrow's date six hours early.
+to tomorrow's date three hours early.
 
 `vercel.json` also calls `/api/cron/midnight` at `19:00 UTC`, which is
 midnight in Karachi. The endpoint revalidates the same routes; the next

@@ -512,7 +512,7 @@ hydration. This requires careful server/client boundary testing.
 
 ## Task 8: Reduce Homepage DOM and Style Cost
 
-Status: `Implemented Locally - Deployment Pending`
+Status: `Complete`
 
 Remove only render-only homepage wrappers while preserving all meaningful
 content, heading hierarchy, TOC entries, metadata, and schema. All lower
@@ -535,12 +535,24 @@ Tests added: Source assertions that both targeted roots are fragments and the
 static information root is no longer a div
 Local verification: 69/69 tests passed, lint passed, and isolated production
 build passed; homepage First Load JS remains 113kB
-Deployment and measurement: Pending. Deploy Chunk 8A alone, verify 360px,
-375px, 430px, and desktop layouts plus TOC/direct-hash targets, then run three
-mobile Lighthouse tests and record the middle result before considering more
-DOM work.
-Gate: If the measured gain is not meaningful, close Task 8 rather than making
-speculative higher-risk markup changes.
+Deployment date: 2026-07-24
+After mobile run A: Performance 84; FCP 1.2s; LCP 2.0s; TBT 610ms; CLS 0;
+  Speed Index 1.3s
+After mobile run B: Performance 80; the supplied report summary was cropped,
+  so its individual metric values were not recorded
+After mobile run C: Performance 76; FCP 1.4s; LCP 2.0s; TBT 1,130ms; CLS 0;
+  Speed Index 1.7s
+Three-run middle result: Performance 80
+Observed regressions: None reported after the deployed structural cleanup.
+The supplied reports show the expected homepage date and no layout shift.
+Interpretation: All three reports loaded GTM but did not report Google Ads or
+Funding Choices work. Their scores are therefore not directly comparable to
+the normal ad-enabled Task 6 runs. The middle score is better than the prior
+no-ads diagnostic score of 76, but two removed render-only nodes cannot
+credibly explain the full difference; normal lab variability remains a factor.
+Gate decision: Close Task 8. Do not make additional DOM/content changes while
+all informational sections remain expanded, because further savings would be
+speculative and carry disproportionate SEO, TOC, and mobile-layout risk.
 ```
 
 ## Verification Standard
