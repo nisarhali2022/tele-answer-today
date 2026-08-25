@@ -68,7 +68,7 @@ Review both the repository and the deployed site. Check the following areas.
 
 ### 1. Functional Behavior
 
-- Homepage loads the CMS Home template, quiz, Latest News, navigation, and
+- Homepage loads the CMS Home template, quiz, navigation, and
   required sections correctly.
 - CMS-authored pages, posts, categories, authors, search, and policy routes
   load correctly.
@@ -300,4 +300,3 @@ The audit is complete only when:
 - no retired runtime dependency is restored;
 - documentation reflects the deployed architecture;
 - remaining external measurements are listed separately as verification tasks.
-

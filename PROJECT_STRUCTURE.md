@@ -199,7 +199,6 @@ form.
 | File | Input | Responsibility |
 | --- | --- | --- |
 | `QuizAnswerCards.jsx` | parsed questions | Questions, options, correct answers |
-| `LatestNewsGrid.jsx` | WordPress posts | Homepage news cards without visible dates |
 | `QuizInfoSections.jsx` | none | Static SEO/information sections |
 | `StepsSection.jsx` | none | Participation steps and images |
 | `FaqSection.jsx` | parsed FAQs | Parsed or fallback FAQ list |
@@ -271,7 +270,7 @@ app/page.jsx
   -> parseQuizTables(dailyQuizPost.content.rendered)
   -> parseFaqs(homepagePage.content.rendered)
   -> QuizAnswerCards
-  -> LatestNewsGrid without visible publication dates
+  -> QuizInfoSections and StepsSection
 ```
 
 ### Article page
@@ -502,7 +501,6 @@ New or recently changed files and responsibilities:
 | `components/ads/LazyAdSenseUnit.jsx` | Client-side ad loader that uses `IntersectionObserver` so below-fold ads load as the user approaches them. |
 | `components/ads/AdBanner.jsx` | Shared display ad wrapper; top placement is eager, lower placements are lazy, and placements use display-friendly reserved sizing. |
 | `components/ads/AdInArticle.jsx` | In-article display ad placement using the same lazy AdSense loader. |
-| `components/home/LatestNewsGrid.jsx` | Client-side randomization for homepage Latest News cards. |
 | `lib/homeFaqs.js` | Shared homepage FAQ selection helper; keeps visible FAQ UI and `FAQPage` JSON-LD aligned and capped at six valid items. |
 | `components/widgets/RecentPosts.jsx` | Client-side randomization for Recent Posts while keeping server-fetched post data. |
 | `components/layout/Sidebar.jsx` | Fetches larger post pools for randomized Recent Posts and keeps popular-post fallback behavior. |
@@ -518,8 +516,7 @@ New or recently changed files and responsibilities:
 
 Important call flow updates:
 
-- Homepage server fetches a larger latest-post pool, then
-  `LatestNewsGrid.jsx` shuffles it in the browser.
+- Homepage does not fetch or render a separate Latest News post grid.
 - Sidebar server fetches recent posts once, then `RecentPosts.jsx` shuffles
   display order in the browser.
 - Google Ads configuration is static application configuration. WordPress

@@ -1,18 +1,17 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { getCurrentQuiz, getHomeTemplate, getPosts } from '@/lib/cms';
-import { EXCLUDED_CONTENT_SLUGS, SITE_CONFIG } from '@/lib/constants';
+import { getCurrentQuiz, getHomeTemplate } from '@/lib/cms';
+import { SITE_CONFIG } from '@/lib/constants';
 import { getKarachiDateLabel, getKarachiSeoDateLabel, getKarachiSeoDayStartISO } from '@/lib/date';
 import { buildMetadata } from '@/lib/seo';
 import { serializeJsonLd } from '@/lib/schema';
 import { homeAnchorId } from '@/lib/homeAnchors';
-import { selectLatestNewsPosts } from '@/lib/latestNews';
 import {
   ensureSingleHomeH1,
   formatHomeTemplate,
   prepareHomeContent,
   removeHomeFaqSection,
-  removeInitialDuplicateLatestNews,
+  removeInitialLatestNewsHeading,
   splitHomeContentAtQuizHeading,
 } from '@/lib/homeContent';
 
@@ -23,7 +22,6 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TableOfContents from '@/components/posts/TableOfContents';
 
 import QuizAnswerCards from '@/components/home/QuizAnswerCards';
-import LatestNewsGrid from '@/components/home/LatestNewsGrid';
 import StepsSection from '@/components/home/StepsSection';
 import QuizInfoSections from '@/components/home/QuizInfoSections';
 
@@ -38,7 +36,6 @@ function buildHomeToc(todayLabel) {
     tocItem(`Telenor Quiz Today ${todayLabel} - Latest Telenor Answer today`, 1),
     tocItem('Quick Summary: My Telenor Answer Today', 2),
     tocItem(`Today Telenor Answer ${todayLabel}`, 2),
-    tocItem('Latest News', 2),
     tocItem("Today Telenor Quiz Questions and Answers - Quick Guide", 2),
     tocItem('What is the Telenor Daily Quiz?', 2),
     tocItem('Today Telenor Quiz Categories', 2),
@@ -122,17 +119,11 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const [quiz, homepageTemplate, newsData] = await Promise.all([
+  const [quiz, homepageTemplate] = await Promise.all([
     optionalHomeData(getCurrentQuiz(), 'Unable to fetch CMS global quiz', null),
     optionalHomeData(getHomeTemplate(), 'Unable to fetch CMS homepage template', null),
-    optionalHomeData(
-      getPosts({ page: 1, perPage: 60, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
-      'Unable to fetch homepage news posts',
-      { posts: [] }
-    ),
   ]);
 
-  const newsPosts = selectLatestNewsPosts(newsData?.posts || [], 6);
   const quizQuestions = Array.isArray(quiz?.questions) ? quiz.questions : [];
 
   const todayLabel = getKarachiDateLabel();
@@ -149,21 +140,20 @@ export default async function HomePage() {
     : '';
   const cmsHomeWithoutFaqs = removeHomeFaqSection(formattedCmsHome);
   const { beforeHtml, quizHeadingHtml, afterHtml } = splitHomeContentAtQuizHeading(cmsHomeWithoutFaqs);
-  const usedCmsAnchorIds = new Set([homeAnchorId('Latest News')]);
+  const usedCmsAnchorIds = new Set();
   const beforeCmsContent = prepareHomeContent(beforeHtml, usedCmsAnchorIds);
   const quizCmsContent = prepareHomeContent(
     quizHeadingHtml || `<h2>${quizHeading}</h2>`,
     usedCmsAnchorIds
   );
   const afterCmsContent = prepareHomeContent(
-    removeInitialDuplicateLatestNews(afterHtml),
+    removeInitialLatestNewsHeading(afterHtml),
     usedCmsAnchorIds
   );
   const homeToc = usesCmsHomeContent
     ? [
         ...beforeCmsContent.headings,
         ...quizCmsContent.headings,
-        tocItem('Latest News', 2),
         ...afterCmsContent.headings,
       ]
     : buildHomeToc(todayLabel);
@@ -271,9 +261,6 @@ export default async function HomePage() {
 
             {/* In-Article Ad */}
             <AdInArticle />
-
-            {/* Latest News */}
-            <LatestNewsGrid posts={newsPosts} />
 
             {!usesCmsHomeContent && (
               <section

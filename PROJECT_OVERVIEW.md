@@ -143,10 +143,8 @@ Homepage `FAQPage` JSON-LD uses the same visible FAQ items rendered by
 `FaqSection`, capped at six valid question/answer pairs, so structured data
 matches what users can see.
 
-Homepage Latest News cards intentionally do not display publication dates.
-The first two Latest News cards remain the newest WordPress posts, while the
-remaining four are randomly selected client-side from the older lightweight
-post pool.
+The homepage does not render a Latest News card grid. Posts remain available
+through the blog and category archives.
 
 ### Category and Blog Archives
 
@@ -257,7 +255,7 @@ when quiz answers were not edited.
   `prepareWordPressContent()` so any stored content H1 blocks are removed
   before rendering.
 - Visible publish dates are hidden from articles, related cards, blog cards,
-  category cards, and homepage Latest News cards.
+  and category cards.
 - The root document uses `lang="en-PK"`, footer social icons use configured
   profile URLs, and AdSense loads only outside local development.
 - A branded 1200x630 fallback social image is available at
@@ -445,8 +443,8 @@ Latest completed work:
   reserved sizes so image-capable ads have enough room to render. The top ad
   keeps a stable reserved area; lower ads still collapse when Google reports an
   unfilled slot.
-- Homepage Latest News cards and sidebar Recent Posts now randomize client-side
-  from larger WordPress post pools.
+- Sidebar Recent Posts use the cached CMS post pool without adding a separate
+  homepage news request.
 - Footer social links were updated for LinkedIn, Facebook, X, Instagram,
   YouTube, TikTok, and Pinterest.
 - Contact page now renders a public contact form layout and no longer exposes
@@ -521,8 +519,7 @@ Completed homepage content and SEO/AEO updates:
 - Updated the homepage TOC so new H2 sections receive stable anchors through
   `homeAnchorId()`.
 - Preserved the existing quiz source, admin quiz flow, parser behavior, SEO
-  date behavior, metadata/schema generation, ads, Latest News behavior, and
-  WordPress API logic.
+  date behavior, metadata/schema generation, ads, and WordPress API logic.
 
 Public homepage quiz-card presentation was also updated:
 
