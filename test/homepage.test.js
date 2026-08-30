@@ -24,7 +24,7 @@ test('homepage supports a CMS-authored Home template while retaining a static fa
   assert.match(source, /contentData\?\.heroText/)
   assert.match(source, /usesCmsHomeContent/)
   assert.match(source, /QuizAnswerCards questions=\{quizQuestions\}/)
-  assert.doesNotMatch(source, /LatestNewsGrid|newsPosts|selectLatestNewsPosts/)
+  assert.match(source, /LatestNewsGrid posts=\{newsPosts\}/)
   assert.match(helperSource, /formatHomeTemplate/)
   assert.match(helperSource, /ensureSingleHomeH1/)
 })
@@ -97,19 +97,20 @@ test('homepage retains one H1 and does not render FAQ output', async () => {
   assert.doesNotMatch(source, /getVisibleHomeFaqs/)
 })
 
-test('homepage order places the quiz before the static guide', async () => {
+test('homepage order places quiz and Latest News before the static guide', async () => {
   const source = await readSource('../app/page.jsx')
   const tocIndex = source.indexOf('<TableOfContents toc={homeToc} />')
   const quizIndex = source.indexOf('<QuizAnswerCards questions={quizQuestions} />')
+  const latestNewsIndex = source.indexOf('<LatestNewsGrid posts={newsPosts} />')
   const guideIndex = source.indexOf('id={homeAnchorId("Today Telenor Quiz Questions and Answers - Quick Guide")}')
 
   assert.ok(tocIndex < quizIndex)
-  assert.ok(quizIndex < guideIndex)
-  assert.doesNotMatch(source, /Latest News|LatestNewsGrid/)
+  assert.ok(quizIndex < latestNewsIndex)
+  assert.ok(latestNewsIndex < guideIndex)
   assert.doesNotMatch(source, /FAQs - My Telenor Answers Today/)
 })
 
-test('homepage defers informational content after the quiz', async () => {
+test('homepage defers only informational content after Latest News', async () => {
   const [home, info, steps, styles] = await Promise.all([
     readSource('../app/page.jsx'),
     readSource('../components/home/QuizInfoSections.jsx'),
@@ -117,12 +118,13 @@ test('homepage defers informational content after the quiz', async () => {
     readSource('../styles/globals.css'),
   ])
 
-  const quizIndex = home.indexOf('<QuizAnswerCards questions={quizQuestions} />')
+  const latestNewsIndex = home.indexOf('<LatestNewsGrid posts={newsPosts} />')
   const guideDeferredIndex = home.indexOf('className="home-section-deferred my-6"')
   const cmsDeferredIndex = home.indexOf('className="home-content-deferred article-content')
 
-  assert.ok(guideDeferredIndex > quizIndex)
-  assert.ok(cmsDeferredIndex > quizIndex)
+  assert.ok(latestNewsIndex >= 0)
+  assert.ok(guideDeferredIndex > latestNewsIndex)
+  assert.ok(cmsDeferredIndex > latestNewsIndex)
   assert.match(info, /className=\{`home-section-deferred my-8/)
   assert.doesNotMatch(info, /<div className="render-deferred">/)
   assert.match(steps, /className="home-content-deferred my-8"/)
@@ -181,30 +183,43 @@ test('Google Analytics stays static and loads during browser idle time', async (
   assert.doesNotMatch(constants, /NEXT_PUBLIC_GOOGLE_ANALYTICS|GA_MEASUREMENT_ID/)
 })
 
-test('server sidebar post selector returns unique cards safely', async () => {
-  const { selectRandomPosts } = await import('../lib/latestNews.js')
+test('server post selectors keep fixed news posts and return unique cards safely', async () => {
+  const { selectLatestNewsPosts, selectRandomPosts } = await import('../lib/latestNews.js')
   const posts = Array.from({ length: 10 }, (_, index) => ({ id: index + 1 }))
+  const selected = selectLatestNewsPosts(posts, 6, () => 0.25)
+
+  assert.equal(selected.length, 6)
+  assert.equal(selected[0], posts[0])
+  assert.equal(selected[1], posts[1])
+  assert.ok(selected.slice(2).every((post) => posts.indexOf(post) >= 2))
+  assert.equal(new Set(selected.map((post) => post.id)).size, 6)
+
+  const shortSelection = selectLatestNewsPosts(posts.slice(0, 4), 6, () => 0.5)
+  assert.equal(shortSelection.length, 4)
+  assert.equal(new Set(shortSelection.map((post) => post.id)).size, 4)
+
   const recentPosts = selectRandomPosts(posts, 5, () => 0.75)
   assert.equal(recentPosts.length, 5)
   assert.equal(new Set(recentPosts.map((post) => post.id)).size, 5)
 })
 
-test('sidebar Recent Posts uses server selection with CMS-tagged caching', async () => {
-  const [home, recentPosts, sidebar, cms] = await Promise.all([
+test('Latest News and Recent Posts use server selection with CMS-tagged caching', async () => {
+  const [home, latestNews, recentPosts, sidebar, cms] = await Promise.all([
     readSource('../app/page.jsx'),
+    readSource('../components/home/LatestNewsGrid.jsx'),
     readSource('../components/widgets/RecentPosts.jsx'),
     readSource('../components/layout/Sidebar.jsx'),
     readSource('../lib/cms/index.js'),
   ])
 
-  assert.doesNotMatch(home, /getPosts\(|LatestNewsGrid|selectLatestNewsPosts/)
+  assert.match(home, /selectLatestNewsPosts\(newsData\?\.posts \|\| \[\], 6\)/)
   assert.match(sidebar, /getSidebarPostLists\(\)/)
   assert.match(cms, /unstable_cache/)
   assert.match(cms, /revalidate:\s*CACHE_SECONDS/)
   assert.match(cms, /tags:\s*\['cms', 'sidebar-post-selection'\]/)
   assert.match(cms, /popularPosts:\s*posts\.slice\(0, safePopularLimit\)/)
 
-  for (const source of [recentPosts]) {
+  for (const source of [latestNews, recentPosts]) {
     assert.doesNotMatch(source, /['"]use client['"]/)
     assert.doesNotMatch(source, /useState|useEffect|Math\.random/)
   }
@@ -232,14 +247,16 @@ test('retired local quiz endpoint does not expose an editor', async () => {
 })
 
 test('CMS-backed image components use direct responsive Storage media without rewriting body images', async () => {
-  const [featured, recent, responsiveImage, utils] = await Promise.all([
+  const [featured, latest, recent, responsiveImage, utils] = await Promise.all([
     readSource('../components/posts/FeaturedImage.jsx'),
+    readSource('../components/home/LatestNewsGrid.jsx'),
     readSource('../components/widgets/RecentPosts.jsx'),
     readSource('../components/posts/ResponsiveCmsImage.jsx'),
     readSource('../lib/utils.js'),
   ])
 
   assert.match(featured, /ResponsiveCmsImage/)
+  assert.match(latest, /mode="card"/)
   assert.match(recent, /mode="thumbnail"/)
   assert.match(responsiveImage, /<picture/)
   assert.match(responsiveImage, /media="\(max-width: 640px\)"/)

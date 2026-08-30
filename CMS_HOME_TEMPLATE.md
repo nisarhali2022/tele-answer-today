@@ -4,7 +4,7 @@
 
 The public homepage uses the website-specific CMS template key `home`. Its
 content is rendered by the existing homepage layout, so posts, the shared daily
-quiz, ads, sidebar, and FAQ schema continue to work without
+quiz, Latest News cards, ads, sidebar, and FAQ schema continue to work without
 manual HTML duplication.
 
 Until a published Home template contains `contentData.heroText`, the current
@@ -41,9 +41,9 @@ Place this exact heading where the daily quiz cards should appear:
 `{date}` is replaced with the current Karachi date. The app renders the shared
 CMS daily quiz directly below that heading.
 
-The homepage does not render a Latest News card grid. An obsolete
-`<h2>Latest News</h2>` at the beginning of CMS content following the quiz is
-removed automatically.
+The Latest News card grid is rendered directly after the quiz. An optional
+`<h2>Latest News</h2>` at the beginning of the following CMS content is removed
+to avoid a duplicate visible heading.
 
 Use `{date}` in the Home template SEO title and SEO description when a daily
 date is required there as well.
@@ -69,4 +69,5 @@ text, headings, links, images, guides, steps, and other informational sections
 in CMS. Saving should trigger revalidation for `/` so the public homepage
 updates promptly.
 
-Do not add daily quiz cards manually in the CMS body; they stay dynamic.
+Do not add the daily quiz cards or Latest News post cards manually in the CMS
+body; both stay dynamic.
