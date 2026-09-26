@@ -126,7 +126,7 @@ export default async function HomePage() {
     optionalHomeData(getCurrentQuiz(), 'Unable to fetch CMS global quiz', null),
     optionalHomeData(getHomeTemplate(), 'Unable to fetch CMS homepage template', null),
     optionalHomeData(
-      getPosts({ page: 1, perPage: 60, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
+      getPosts({ page: 1, perPage: 15, excludeSlugs: EXCLUDED_CONTENT_SLUGS, tag: 'news' }),
       'Unable to fetch homepage news posts',
       { posts: [] }
     ),
