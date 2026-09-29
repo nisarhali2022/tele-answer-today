@@ -41,55 +41,12 @@ const nextConfig = {
     minimumCacheTTL: 86400,
     remotePatterns: supabaseImagePatterns,
   },
-  // async headers() {
-  //   return [
-  //     {
-  //       source: '/(.*)\\.(css|css\\.map)$',
-  //       headers: [
-  //         { key: 'Content-Type', value: 'text/css' },
-  //       ],
-  //     },
-  //     {
-  //       source: '/(.*)',
-  //       headers: [
-  //         { key: 'X-Frame-Options', value: 'DENY' },
-  //         { key: 'X-Content-Type-Options', value: 'nosniff' },
-  //         { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  //         {
-  //           key: 'Permissions-Policy',
-  //           value: 'camera=(), geolocation=(), microphone=(), payment=(), usb=()',
-  //         },
-  //       ],
-  //     },
-  //   ]
-  // },
-    async headers() {
+  async headers() {
     return [
       {
         source: '/(.*)\\.(css|css\\.map)$',
         headers: [
           { key: 'Content-Type', value: 'text/css' },
-        ],
-      },
-      // Static public assets: favicon, icons, images
-      {
-        source: '/(favicon\\.ico|favicon\\.png|apple-touch-icon\\.png|icon\\.png)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
-      },
-      {
-        source: '/assets/(.*)',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-        ],
-      },
-      // Fonts (if served from /public/fonts)
-      {
-        source: '/(.*)\\.(woff2|woff|ttf|otf)$',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'Access-Control-Allow-Origin', value: '*' },
         ],
       },
       {
@@ -106,6 +63,7 @@ const nextConfig = {
       },
     ]
   },
+  
   async redirects() {
     return getCmsBuildRedirects()
   },
