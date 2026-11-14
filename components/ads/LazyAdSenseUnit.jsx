@@ -11,7 +11,6 @@ export default function LazyAdSenseUnit({
   eager = false,
   rootMargin = '900px 0px',
   loadingClassName = 'min-h-16 md:min-h-[120px]',
-  emptyTimeout = 8000,
   collapseWhenEmpty = true,
   style,
   fullWidthResponsive = true,
@@ -64,7 +63,6 @@ export default function LazyAdSenseUnit({
           slot={slot}
           publisherId={publisherId}
           format={format}
-          emptyTimeout={emptyTimeout}
           style={style}
           fullWidthResponsive={fullWidthResponsive}
           onStatusChange={setAdStatus}

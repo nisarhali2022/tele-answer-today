@@ -2,13 +2,21 @@
 
 import { useEffect, useRef } from 'react'
 
+function isDuplicateAdPushError(error) {
+  return /already have ads/i.test(String(error?.message || error))
+}
+
+// Reports 'loading' → 'filled' | 'empty'. An ad counts as empty only when
+// Google itself marks it data-ad-status="unfilled" (the quiz site's rule).
+// There is deliberately no timeout: on slow mobile connections the AdSense
+// script and auction can take well over 10 seconds, and removing the unit
+// early throws away ads that were still on their way.
 export default function AdSenseUnit({
   slot,
   publisherId,
   format = 'auto',
   className = '',
   onStatusChange,
-  emptyTimeout = 8000,
   style,
   fullWidthResponsive = true,
 }) {
@@ -32,13 +40,15 @@ export default function AdSenseUnit({
         element.querySelector('iframe')
       ) {
         onStatusChange?.('filled')
-        return true
+        return element.dataset.adStatus === 'filled'
       }
 
       return false
     }
 
-    const observer = new MutationObserver(updateStatus)
+    const observer = new MutationObserver(() => {
+      if (updateStatus()) observer.disconnect()
+    })
     observer.observe(element, {
       attributes: true,
       attributeFilter: ['data-ad-status'],
@@ -46,28 +56,17 @@ export default function AdSenseUnit({
       subtree: true,
     })
 
-    const timeout = window.setTimeout(() => {
-      if (!updateStatus()) onStatusChange?.('empty')
-      observer.disconnect()
-    }, emptyTimeout)
-
     try {
       ;(window.adsbygoogle = window.adsbygoogle || []).push({})
       element.dataset.adsbygooglePushed = 'true'
     } catch (error) {
-      if (!String(error?.message || '').includes('already have ads')) {
-        console.error('AdSense push failed', error)
+      if (!isDuplicateAdPushError(error)) {
+        console.warn('AdSense push failed', error)
       }
-      onStatusChange?.('empty')
-      observer.disconnect()
-      window.clearTimeout(timeout)
     }
 
-    return () => {
-      observer.disconnect()
-      window.clearTimeout(timeout)
-    }
-  }, [slot, format, onStatusChange, emptyTimeout])
+    return () => observer.disconnect()
+  }, [slot, format, onStatusChange])
 
   return (
     <div className={className}>

@@ -41,7 +41,6 @@ export default function AdImage({
           fullWidthResponsive={false}
           eager={eager}
           loadingClassName=""
-          emptyTimeout={10000}
           style={{ display: 'inline-block', width: `${width}px`, height: `${height}px` }}
           onStatusChange={setStatus}
         />

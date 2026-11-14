@@ -47,7 +47,6 @@ export default function AdBanner({
         format={isHorizontal ? 'horizontal' : placement.format || 'auto'}
         eager={shouldLoadEagerly}
         loadingClassName={loadingSize}
-        emptyTimeout={placement.emptyTimeout}
         onStatusChange={setStatus}
       />
     </div>

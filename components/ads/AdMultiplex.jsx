@@ -29,7 +29,6 @@ export default function AdMultiplex() {
         format="autorelaxed"
         fullWidthResponsive={false}
         loadingClassName=""
-        emptyTimeout={10000}
         onStatusChange={setStatus}
       />
     </div>
