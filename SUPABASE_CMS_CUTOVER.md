@@ -105,7 +105,7 @@ The visible homepage date remains independently calculated in Pakistan time.
 AdSense is configured in code, the same way as the Telenor Quiz site:
 
 - `lib/constants.js`: `ADSENSE_PUBLISHER_ID` (`ca-pub-9444471613078101`),
-  `AD_SLOTS.DISPLAY` (`4789150646`, banners and fixed-size image ads) and
+  `AD_SLOTS.DISPLAY` (`3784481034`, banners and fixed-size image ads) and
   `AD_SLOTS.MULTIPLEX` (`8537280112`, below Related Posts).
 - `public/ads.txt`: the static Google seller line for the same publisher.
 

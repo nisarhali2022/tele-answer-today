@@ -496,7 +496,7 @@ New or recently changed files and responsibilities:
 
 | File | Responsibility |
 | --- | --- |
-| `lib/constants.js` | Central static public IDs for Analytics, Search Console, AdSense publisher `ca-pub-9444471613078101`, shared ad slot `4789150646`, site URL, and WordPress API URL configuration. |
+| `lib/constants.js` | Central static public IDs for Analytics, Search Console, AdSense publisher `ca-pub-9444471613078101`, shared ad slot `3784481034`, site URL, and WordPress API URL configuration. |
 | `public/ads.txt` | Static AdSense seller authorization file served from `/ads.txt`; this remains repo-owned, not WordPress-managed. |
 | `app/layout.jsx` | Root metadata, Search Console verification meta tag, Google Analytics script, and global native AdSense script loaded from static app config. |
 | `components/ads/LazyAdSenseUnit.jsx` | Client-side ad loader that uses `IntersectionObserver` so below-fold ads load as the user approaches them. |

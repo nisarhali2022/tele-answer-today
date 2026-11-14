@@ -45,10 +45,10 @@ test('quiz ads follow questions 1 and 3, never the last question', () => {
 
 test('AdSense publisher, slots and ads.txt live in code, not the CMS', async () => {
   assert.equal(ADSENSE_PUBLISHER_ID, 'ca-pub-9444471613078101')
-  assert.equal(getAdSlot('top'), '4789150646')
-  assert.equal(getAdSlot('display'), '4789150646')
+  assert.equal(getAdSlot('top'), '3784481034')
+  assert.equal(getAdSlot('display'), '3784481034')
   assert.equal(getAdSlot('multiplex'), '8537280112')
-  assert.equal(getAdSlot('unknown'), '4789150646')
+  assert.equal(getAdSlot('unknown'), '3784481034')
 
   const [adsTxt, layout] = await Promise.all([
     readSource('../public/ads.txt'),

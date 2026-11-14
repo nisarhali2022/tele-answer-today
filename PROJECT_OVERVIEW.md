@@ -279,7 +279,7 @@ when quiz answers were not edited.
 | `CRON_SECRET` | Protects scheduled midnight revalidation |
 
 Google Ads/AdSense values are intentionally not environment variables.
-Publisher `ca-pub-9444471613078101`, shared slot `4789150646`, and placement
+Publisher `ca-pub-9444471613078101`, shared slot `3784481034`, and placement
 slot mapping are static application configuration in `lib/constants.js`.
 
 Site constants, route sizes, AdSense slots, navigation, colors, local image
@@ -431,7 +431,7 @@ Latest completed work:
   the Next.js project.
 - Current AdSense configuration uses publisher `ca-pub-9444471613078101`.
   Banners (top, mid, after-content, bottom) and the fixed-size image ads
-  (300x250 in content and the quiz, 160x600 side rails) use `4789150646`;
+  (300x250 in content and the quiz, 160x600 side rails) use `3784481034`;
   the Multiplex unit below Related Posts uses `8537280112`.
 - Local development intentionally disables the AdSense script and ad units so
   localhost does not generate Google ad-request `403` console noise. Production
