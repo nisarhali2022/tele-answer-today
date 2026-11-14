@@ -1,3 +1,9 @@
+import { Fragment } from 'react'
+import AdImage from '@/components/ads/AdImage'
+import { hasAdAfterQuestion } from '@/lib/utils'
+
+// A 300x250 image ad after questions 1 and 3 (then 5, 7, ...), never after the
+// last one. Padded and labelled so it can't be mistaken for an answer option.
 export default function QuizAnswerCards({ questions }) {
   if (!questions?.length) {
     return (
@@ -11,10 +17,8 @@ export default function QuizAnswerCards({ questions }) {
   return (
     <div className="space-y-4 my-6">
       {questions.map((q, i) => (
-        <div
-          key={i}
-          className="overflow-hidden rounded-lg border border-border bg-white shadow-sm"
-        >
+        <Fragment key={i}>
+        <div className="overflow-hidden rounded-lg border border-border bg-white shadow-sm">
           <div className="bg-primary px-4 py-3">
             <p className="text-sm font-bold leading-snug text-white">
               Question {i + 1}
@@ -70,6 +74,10 @@ export default function QuizAnswerCards({ questions }) {
             </div>
           </div>
         </div>
+        {hasAdAfterQuestion(i, questions.length) ? (
+          <AdImage className="py-4" />
+        ) : null}
+        </Fragment>
       ))}
     </div>
   )

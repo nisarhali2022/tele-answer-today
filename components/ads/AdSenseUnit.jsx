@@ -9,6 +9,8 @@ export default function AdSenseUnit({
   className = '',
   onStatusChange,
   emptyTimeout = 8000,
+  style,
+  fullWidthResponsive = true,
 }) {
   const adRef = useRef(null)
 
@@ -72,11 +74,13 @@ export default function AdSenseUnit({
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: 'block', ...style }}
         data-ad-client={publisherId}
         data-ad-slot={slot}
-        data-ad-format={format}
-        data-full-width-responsive="true"
+        // Fixed-size image ads pass format={null}: the <ins> width and height
+        // then decide the ad size, which favours image creatives.
+        data-ad-format={format || undefined}
+        data-full-width-responsive={fullWidthResponsive ? 'true' : undefined}
       />
     </div>
   )

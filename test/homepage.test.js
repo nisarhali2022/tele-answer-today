@@ -120,7 +120,7 @@ test('homepage defers only informational content after Latest News', async () =>
 
   const latestNewsIndex = home.indexOf('<LatestNewsGrid posts={newsPosts} />')
   const guideDeferredIndex = home.indexOf('className="home-section-deferred my-6"')
-  const cmsDeferredIndex = home.indexOf('className="home-content-deferred article-content')
+  const cmsDeferredIndex = home.indexOf('className="home-content-deferred mt-8"')
 
   assert.ok(latestNewsIndex >= 0)
   assert.ok(guideDeferredIndex > latestNewsIndex)

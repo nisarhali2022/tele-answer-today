@@ -18,10 +18,9 @@ import FeaturedImage from '@/components/posts/FeaturedImage';
 import PostMeta from '@/components/posts/PostMeta';
 import TableOfContents from '@/components/posts/TableOfContents';
 import { generateTocAndInjectIds } from '@/lib/toc';
-import AdInArticle from '@/components/ads/AdInArticle';
+import ContentWithAds from '@/components/posts/ContentWithAds';
 import ShareButtons from '@/components/ui/ShareButtons';
 import {
-  injectAdAfterFirstParagraph,
   prepareContent,
   toPlainText,
   truncateText,
@@ -138,6 +137,7 @@ export default async function SlugPage({ params, searchParams }) {
             <Sidebar />
           </Suspense>
         </div>
+        <AdBanner position="bottom" variant="horizontal" />
       </div>
     );
   }
@@ -149,10 +149,7 @@ export default async function SlugPage({ params, searchParams }) {
     const { modifiedHtml, toc } = generateTocAndInjectIds(preparedHtml);
     const titleText = toPlainText(page.title);
     const tocWithTitle = [{ id: 'article-title', text: titleText, level: 1 }, ...toc];
-    const adMarker = '<!--AD_IN_ARTICLE-->';
-    const contentWithAd = injectAdAfterFirstParagraph(modifiedHtml, adMarker);
-    const [beforeAd, afterAd] = contentWithAd.split(adMarker);
-    
+
     const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: toPlainText(page.title) }];
 
     return (
@@ -169,9 +166,10 @@ export default async function SlugPage({ params, searchParams }) {
             <PostMeta post={page} />
             <div className="mt-5 mb-6"><FeaturedImage post={page} priority /></div>
             <TableOfContents toc={tocWithTitle} />
-            <div className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm prose-blockquote:border-l-4 prose-blockquote:border-accent" dangerouslySetInnerHTML={{ __html: beforeAd }} />
-            <AdInArticle />
-            {afterAd && <div className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm" dangerouslySetInnerHTML={{ __html: afterAd }} />}
+            <ContentWithAds
+              html={modifiedHtml}
+              className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm prose-blockquote:border-l-4 prose-blockquote:border-accent"
+            />
             <div className="mt-8"><AdBanner position="after-content" /></div>
             <ShareButtons title={toPlainText(page.title)} url={`${SITE_CONFIG.siteUrl}/${slug}`} />
           </article>

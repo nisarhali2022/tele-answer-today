@@ -13,10 +13,18 @@ export default function LazyAdSenseUnit({
   loadingClassName = 'min-h-16 md:min-h-[120px]',
   emptyTimeout = 8000,
   collapseWhenEmpty = true,
+  style,
+  fullWidthResponsive = true,
+  onStatusChange,
 }) {
   const ref = useRef(null)
   const [shouldLoad, setShouldLoad] = useState(eager)
   const [adStatus, setAdStatus] = useState(eager ? 'loading' : 'idle')
+
+  // Lets a parent (e.g. an image ad with a label) hide itself when unfilled.
+  useEffect(() => {
+    onStatusChange?.(adStatus)
+  }, [adStatus, onStatusChange])
 
   useEffect(() => {
     if (shouldLoad || eager) return
@@ -57,6 +65,8 @@ export default function LazyAdSenseUnit({
           publisherId={publisherId}
           format={format}
           emptyTimeout={emptyTimeout}
+          style={style}
+          fullWidthResponsive={fullWidthResponsive}
           onStatusChange={setAdStatus}
         />
       ) : null}

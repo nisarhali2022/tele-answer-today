@@ -82,6 +82,8 @@ export default async function BlogPage({ searchParams }) {
           <Sidebar />
         </Suspense>
       </div>
+
+      <AdBanner position="bottom" variant="horizontal" />
     </div>
   );
 }

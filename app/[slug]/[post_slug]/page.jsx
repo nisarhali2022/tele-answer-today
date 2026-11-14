@@ -5,7 +5,6 @@ import { SITE_CONFIG } from '@/lib/constants';
 import {
   getFirstCategory,
   truncateText,
-  injectAdAfterFirstParagraph,
   getAuthorPath,
   getFeaturedImageUrl,
   getPostAuthor,
@@ -20,7 +19,9 @@ import PostCard from '@/components/posts/PostCard';
 import TableOfContents from '@/components/posts/TableOfContents';
 import { generateTocAndInjectIds } from '@/lib/toc';
 import AdBanner from '@/components/ads/AdBanner';
-import AdInArticle from '@/components/ads/AdInArticle';
+import AdMultiplex from '@/components/ads/AdMultiplex';
+import SideRailAds from '@/components/ads/SideRailAds';
+import ContentWithAds from '@/components/posts/ContentWithAds';
 import ShareButtons from '@/components/ui/ShareButtons';
 import Sidebar from '@/components/layout/Sidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -74,9 +75,6 @@ export default async function PostPage({ params }) {
   const { modifiedHtml, toc } = generateTocAndInjectIds(preparedHtml);
   const titleText = toPlainText(post.title);
   const tocWithTitle = [{ id: 'article-title', text: titleText, level: 1 }, ...toc];
-  const adMarker = '<!--AD_IN_ARTICLE-->';
-  const contentWithAd = injectAdAfterFirstParagraph(modifiedHtml, adMarker);
-  const [beforeAd, afterAd] = contentWithAd.split(adMarker);
 
   const author = getPostAuthor(post);
   const authorPath = getAuthorPath(author);
@@ -125,7 +123,9 @@ export default async function PostPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(articleSchema) }}
       />
+      <SideRailAds />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <AdBanner position="top" variant="horizontal" />
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8">
           <article className="min-w-0">
             <Breadcrumbs
@@ -141,9 +141,10 @@ export default async function PostPage({ params }) {
             <PostMeta post={post} showDate={false} />
             <div className="mt-5 mb-6"><FeaturedImage post={post} priority /></div>
             <TableOfContents toc={tocWithTitle} />
-            <div className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm prose-blockquote:border-l-4 prose-blockquote:border-accent" dangerouslySetInnerHTML={{ __html: beforeAd }} />
-            <AdInArticle />
-            {afterAd && <div className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm" dangerouslySetInnerHTML={{ __html: afterAd }} />}
+            <ContentWithAds
+              html={modifiedHtml}
+              className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm prose-blockquote:border-l-4 prose-blockquote:border-accent"
+            />
             <AuthorBox post={post} />
             <div className="mt-8"><AdBanner position="after-content" /></div>
             <ShareButtons title={toPlainText(post.title)} url={postUrl} />
@@ -157,9 +158,11 @@ export default async function PostPage({ params }) {
                 </div>
               </section>
             )}
+            <AdMultiplex />
           </article>
           <Suspense fallback={<LoadingSpinner size="lg" className="py-10" />}><Sidebar /></Suspense>
         </div>
+        <AdBanner position="bottom" variant="horizontal" />
       </div>
     </>
   );

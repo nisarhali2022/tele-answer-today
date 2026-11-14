@@ -24,10 +24,11 @@ not be restored as a publishing or rollback path.
 
 ## AdSense And `ads.txt`
 
-AdSense publisher IDs and placement slots are CMS-managed. The app serves
-`/ads.txt` from CMS settings. If a custom `adsTxt` value is blank, it derives
-the standard Google authorization line from the CMS publisher ID so the public
-endpoint remains available.
+AdSense is not CMS-managed. The publisher ID and slot IDs are static
+application configuration in `lib/constants.js` (`ADSENSE_PUBLISHER_ID`,
+`AD_SLOTS`, `AD_POSITIONS`), and `/ads.txt` is the static file
+`public/ads.txt`. Any `adsense` value left in the CMS website settings is
+ignored. Change an ID in code and redeploy.
 
 ## Content Ownership
 
@@ -40,7 +41,7 @@ endpoint remains available.
 | Homepage content | Website CMS Home template | The optional `heroText` HTML is rendered around the dynamic quiz and Latest News blocks; the current React content remains a fallback until the template is populated |
 | Homepage FAQ schema | CMS Home template FAQ data, or existing fallback | Only the visible first six valid items are rendered and included in JSON-LD |
 | Daily quiz | Global CMS quiz | One published quiz serves every connected public website |
-| Ads | Website CMS settings | Publisher ID, enabled flag, slots, and `ads.txt` are CMS-managed |
+| Ads | Not CMS-managed | Publisher ID and slots in `lib/constants.js`; static `public/ads.txt` |
 
 See [CMS_HOME_TEMPLATE.md](CMS_HOME_TEMPLATE.md) for the Home template editor contract.
 
@@ -99,30 +100,18 @@ When the CMS publishes a global quiz update, it requests revalidation for:
 
 The visible homepage date remains independently calculated in Pakistan time.
 
-## CMS-Managed AdSense
+## AdSense Configuration
 
-Set this website's `adsense` settings in the CMS with:
+AdSense is configured in code, the same way as the Telenor Quiz site:
 
-```json
-{
-  "enabled": true,
-  "publisherId": "ca-pub-...",
-  "adsTxt": "google.com, pub-..., DIRECT, f08c47fec0942fa0",
-  "slots": {
-    "top": "...",
-    "mid": "...",
-    "inArticle": "...",
-    "sidebar": "...",
-    "afterContent": "...",
-    "bottom": "..."
-  }
-}
-```
+- `lib/constants.js`: `ADSENSE_PUBLISHER_ID` (`ca-pub-9444471613078101`),
+  `AD_SLOTS.DISPLAY` (`4789150646`, banners and fixed-size image ads) and
+  `AD_SLOTS.MULTIPLEX` (`8537280112`, below Related Posts).
+- `public/ads.txt`: the static Google seller line for the same publisher.
 
-The public site loads the native AdSense script only when this CMS setting is
-enabled and has a valid `ca-pub-` publisher ID. `/ads.txt` is served from the
-same CMS setting. Local development still suppresses real ad requests, and
-`DISABLE_ADSENSE=true` pauses production ads without deleting their settings.
+The native AdSense script loads in production only. Local development
+suppresses real ad requests, and `DISABLE_ADSENSE=true` pauses production ads
+without a code change.
 
 ## Revalidation Webhook
 
@@ -173,8 +162,8 @@ to check redirects.
    webhook without a Vercel redeploy.
 5. Update the global quiz and verify all connected sites refresh their
    homepage quiz cards.
-6. Verify CMS AdSense settings control the production script, slots, and
-   `/ads.txt` output.
+6. Verify the production AdSense script, slots, and `/ads.txt` match
+   `lib/constants.js` and `public/ads.txt`.
 7. Keep recovery within the Supabase CMS and Vercel deployment history; do not
    return editorial updates or public reads to WordPress or Hostinger.
 

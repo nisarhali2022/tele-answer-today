@@ -1,7 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-import { getAdSenseSettings, getAdSenseSlot } from '../lib/cms/adsense.js'
 import { normalizeCmsRevalidationPayload } from '../lib/cms/revalidation.js'
 import { resolveCmsDomain } from '../lib/cmsDomain.js'
 
@@ -13,37 +12,6 @@ test('CMS domain resolution uses the configured production site for local reques
   assert.equal(
     resolveCmsDomain('teleanswertoday.pk', 'example.test'),
     'teleanswertoday.pk'
-  )
-})
-
-test('CMS AdSense settings require an enabled valid publisher ID and use placement slots', () => {
-  const settings = {
-    adsense: {
-      enabled: true,
-      publisherId: 'ca-pub-1234567890',
-      adsTxt: 'google.com, pub-1234567890, DIRECT, f08c47fec0942fa0',
-      slots: { top: '100', inArticle: '200', afterContent: '300' },
-    },
-  }
-
-  assert.equal(getAdSenseSettings(settings).enabled, true)
-  assert.equal(getAdSenseSlot(settings, 'top'), '100')
-  assert.equal(getAdSenseSlot(settings, 'in-article'), '200')
-  assert.equal(getAdSenseSlot(settings, 'after-content'), '300')
-  assert.equal(getAdSenseSettings({ adsense: { enabled: true, publisherId: 'invalid' } }).enabled, false)
-})
-
-test('CMS AdSense settings derive ads.txt from a valid CMS-managed publisher ID', () => {
-  const settings = {
-    adsense: {
-      enabled: false,
-      publisherId: 'ca-pub-1234567890',
-    },
-  }
-
-  assert.equal(
-    getAdSenseSettings(settings).adsTxt,
-    'google.com, pub-1234567890, DIRECT, f08c47fec0942fa0'
   )
 })
 

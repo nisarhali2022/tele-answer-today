@@ -18,7 +18,10 @@ import {
 
 import Sidebar from '@/components/layout/Sidebar';
 import AdBanner from '@/components/ads/AdBanner';
+import AdImage from '@/components/ads/AdImage';
 import AdInArticle from '@/components/ads/AdInArticle';
+import SideRailAds from '@/components/ads/SideRailAds';
+import ContentWithAds from '@/components/posts/ContentWithAds';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import TableOfContents from '@/components/posts/TableOfContents';
 
@@ -28,6 +31,11 @@ import StepsSection from '@/components/home/StepsSection';
 import QuizInfoSections from '@/components/home/QuizInfoSections';
 
 export const revalidate = 3600;
+
+// Homepage ads below the ad under the quiz are skipped on phones (< 768px):
+// most mobile visitors leave after the answers, and fewer requests improve
+// mobile fill. Hidden lazy units never load, so no ad request is made.
+const MOBILE_HIDDEN = 'hidden md:block';
 
 function tocItem(text, level) {
   return { id: homeAnchorId(text), text, level };
@@ -191,7 +199,9 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(homepageSchema) }}
       />
+      <SideRailAds />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <AdBanner position="top" variant="horizontal" />
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8">
 
           {/* Main Content */}
@@ -249,10 +259,9 @@ export default async function HomePage() {
               </>
             )}
 
-            <TableOfContents toc={homeToc} />
+            <AdImage className="my-5" />
 
-            {/* Top Ad */}
-            <AdBanner position="top" />
+            <TableOfContents toc={homeToc} />
 
             {usesCmsHomeContent ? (
               <div
@@ -269,7 +278,7 @@ export default async function HomePage() {
               <QuizAnswerCards questions={quizQuestions} />
             </section>
 
-            {/* In-Article Ad */}
+            {/* Ad below the quiz: the last homepage ad shown on phones */}
             <AdInArticle />
 
             {/* Latest News */}
@@ -298,10 +307,13 @@ export default async function HomePage() {
             )}
 
             {usesCmsHomeContent ? (
-              <div
-                className="home-content-deferred article-content prose prose-lg max-w-none mt-8 prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm"
-                dangerouslySetInnerHTML={{ __html: afterCmsContent.html }}
-              />
+              <div className="home-content-deferred mt-8">
+                <ContentWithAds
+                  html={afterCmsContent.html}
+                  className="article-content prose prose-lg max-w-none prose-headings:font-heading prose-headings:text-text-primary prose-a:text-accent hover:prose-a:underline prose-img:rounded-lg prose-img:shadow-sm"
+                  adClassName={MOBILE_HIDDEN}
+                />
+              </div>
             ) : (
               <>
                 <QuizInfoSections />
@@ -310,10 +322,7 @@ export default async function HomePage() {
             )}
 
             {/* Mid Ad */}
-            <AdBanner position="mid" />
-
-            {/* Bottom Ad */}
-            <AdBanner position="bottom" />
+            <AdBanner position="mid" className={MOBILE_HIDDEN} />
           </article>
 
           {/* Sidebar */}
@@ -321,6 +330,7 @@ export default async function HomePage() {
             <Sidebar />
           </Suspense>
         </div>
+        <AdBanner position="bottom" variant="horizontal" className={MOBILE_HIDDEN} />
       </div>
     </>
   );

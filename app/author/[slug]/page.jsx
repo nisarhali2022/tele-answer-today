@@ -13,6 +13,7 @@ import {
 import { serializeJsonLd } from '@/lib/schema'
 import { SITE_CONFIG } from '@/lib/constants'
 import { toPlainText } from '@/lib/utils'
+import AdBanner from '@/components/ads/AdBanner'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
 import Pagination from '@/components/navigation/Pagination'
 import PostGrid from '@/components/posts/PostGrid'
@@ -103,12 +104,14 @@ export default async function AuthorPage({ params, searchParams }) {
             )}
           </div>
         </header>
+        <AdBanner position="top" variant="horizontal" />
         <PostGrid posts={archive.posts} showDate={false} />
         <Pagination
           currentPage={currentPage}
           totalPages={archive.totalPages}
           basePath={`/author/${slug}`}
         />
+        <AdBanner position="bottom" variant="horizontal" />
       </div>
     </>
   )

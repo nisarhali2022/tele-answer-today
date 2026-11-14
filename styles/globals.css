@@ -76,6 +76,12 @@
     contain-intrinsic-size: auto 720px;
   }
 
+  /* Google keeps the <ins> at full height even when it has no ad to show
+     (e.g. Multiplex stays ~355px tall). Hide unfilled units, per AdSense docs. */
+  ins.adsbygoogle[data-ad-status="unfilled"] {
+    display: none !important;
+  }
+
   .home-content-deferred {
     content-visibility: auto;
     contain-intrinsic-size: auto 4800px;

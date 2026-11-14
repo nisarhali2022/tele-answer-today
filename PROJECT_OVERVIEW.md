@@ -429,9 +429,10 @@ Latest completed work:
 - WordPress content must not manage or overwrite Google Ads configuration.
   Publisher IDs, slot IDs, script loading, and `ads.txt` remain controlled by
   the Next.js project.
-- Current AdSense configuration uses publisher `ca-pub-9444471613078101`; all
-  placement slots currently use `4789150646` for top, mid, in-article,
-  sidebar, after-content, and bottom ads.
+- Current AdSense configuration uses publisher `ca-pub-9444471613078101`.
+  Banners (top, mid, after-content, bottom) and the fixed-size image ads
+  (300x250 in content and the quiz, 160x600 side rails) use `4789150646`;
+  the Multiplex unit below Related Posts uses `8537280112`.
 - Local development intentionally disables the AdSense script and ad units so
   localhost does not generate Google ad-request `403` console noise. Production
   keeps the static publisher and slot IDs.
